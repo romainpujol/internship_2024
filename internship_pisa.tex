@@ -1,14 +1,19 @@
 \documentclass{amsart}
-
+\usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
+\usepackage{algorithm2e}
 \usepackage{amsmath}
 \usepackage{amsfonts}
-\usepackage{amsthm}
+\usepackage{amssymb}
 \usepackage[left=2cm,right=2cm,top=3cm,bottom=3cm]{geometry}
 \usepackage{graphicx}
 \usepackage{hyperref}
 \usepackage{cleveref}
+\usepackage{bm}
 \usepackage[colorinlistoftodos,bordercolor=orange,backgroundcolor=orange!20,linecolor=orange,textsize=scriptsize]{todonotes}
+\definecolor{red}{cmyk}{0,1,.8,0}
+\definecolor{blue}{rgb}{0,0,1}
+
 \usepackage{xcolor}
 \hypersetup{
     colorlinks,
@@ -16,10 +21,7 @@
     citecolor={blue!50!black},
     urlcolor={blue!80!black}
 }
-\usepackage{algorithm}
-\usepackage{algorithmic}
-\renewcommand{\algorithmicrequire}{\textbf{Input:}}
-\renewcommand{\algorithmicensure}{\textbf{Output:}}
+
 \usepackage{subcaption}
 \ifdefined\theorem\else \newtheorem{theorem}{Theorem}\fi
 \ifdefined\proposition\else \newtheorem{proposition}[theorem]{Proposition}\fi
@@ -30,18 +32,14 @@
 \ifdefined\assumption\else \newtheorem{assumption}{Assumption}\fi
 \ifdefined\example\else \newtheorem{example}{Example}\fi
 
-\newcommand{\np}[1]{\left(#1 \right)}
-\newcommand{\nb}[1]{\left\{#1 \right\}}
 \newcommand{\argmin}{\mathop{\arg\min}}
 
-%% specific for the internship note
-\newcommand{\FM}{\mathrm{FM}}
-\newcommand{\SFM}{\mathrm{SFM}}
-\newcommand{\PP}{\mathbb{P}}
-\newcommand{\QQ}{\mathbb{Q}}
-\newcommand{\scenariosreduction}{scenarios reduction} % To simply change the -s into scenario or other if needed
-\newcommand{\Scenariosreduction}{Scenarios reduction}
-\setcounter{tocdepth}{1}
+\newcommand{\nb}[3]{
+		{\colorbox{#2}{\bfseries\sffamily\tiny\textcolor{white}{#1}}}
+		{\textcolor{#2}{\text{$\blacktriangleright$}{\textcolor{#2}{#3}}\text{$\blacktriangleleft$}}}}
+\newcommand{\rp}[1]{\nb{RP}{red}{#1}}
+\newcommand{\af}[1]{\nb{AF}{blue}{#1}}
+\newcommand{\bt}[1]{\nb{BT}{orange}{#1}}
 
 \title{Internship proposals}
 
