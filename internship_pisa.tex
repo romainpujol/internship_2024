@@ -1,0 +1,69 @@
+\documentclass{amsart}
+
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage[left=2cm,right=2cm,top=3cm,bottom=3cm]{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\usepackage[colorinlistoftodos,bordercolor=orange,backgroundcolor=orange!20,linecolor=orange,textsize=scriptsize]{todonotes}
+\usepackage{xcolor}
+\hypersetup{
+    colorlinks,
+    linkcolor={red!50!black},
+    citecolor={blue!50!black},
+    urlcolor={blue!80!black}
+}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\renewcommand{\algorithmicrequire}{\textbf{Input:}}
+\renewcommand{\algorithmicensure}{\textbf{Output:}}
+\usepackage{subcaption}
+\ifdefined\theorem\else \newtheorem{theorem}{Theorem}\fi
+\ifdefined\proposition\else \newtheorem{proposition}[theorem]{Proposition}\fi
+\ifdefined\definition\else \newtheorem{definition}[theorem]{Definition}\fi
+\ifdefined\lemma\else \newtheorem{lemma}[theorem]{Lemma}\fi
+\ifdefined\corollary\else \newtheorem{corollary}[theorem]{Corollary}\fi
+\ifdefined\remark\else \newtheorem{remark}[theorem]{Remark}\fi
+\ifdefined\assumption\else \newtheorem{assumption}{Assumption}\fi
+\ifdefined\example\else \newtheorem{example}{Example}\fi
+
+\newcommand{\np}[1]{\left(#1 \right)}
+\newcommand{\nb}[1]{\left\{#1 \right\}}
+\newcommand{\argmin}{\mathop{\arg\min}}
+
+%% specific for the internship note
+\newcommand{\FM}{\mathrm{FM}}
+\newcommand{\SFM}{\mathrm{SFM}}
+\newcommand{\PP}{\mathbb{P}}
+\newcommand{\QQ}{\mathbb{Q}}
+\newcommand{\scenariosreduction}{scenarios reduction} % To simply change the -s into scenario or other if needed
+\newcommand{\Scenariosreduction}{Scenarios reduction}
+\setcounter{tocdepth}{1}
+
+\title{Internship proposals}
+
+\begin{document}
+\maketitle
+
+\section{Two-stage scenario seduction with SMS++}
+
+\subsection{Context}
+
+\subsection{Contributions}
+
+
+Scenario reduction related ideas
+1) SMS++ two-stage implementations of two-stage scenario reduction techniques. In the scenario reduction litterature for two-stage, there are several algorithms that are well referenced (Bertsimas and Mundru 2023, Kuhn and al. 2022, Heitsch and Römisch 2005 or adatation of k-means clustering for examples). First understanding one or more of these methods then have implementations of them fitting in the SMS++ framework would be both useful and give clear and archivable goals for an internship. 
+
+2) Possible add-on, implementation side.  Most scenario reduction methods are heuristics aiming to minimize a distance between an initial discrete probability distribution and the set of discrete probability distribution with a given support size. There is also an exact MILP reformulation of this problem (Heitsch and Römisch 2003), shown to be solvable for small instances when the distance is the Wasserstein distance (Kuhn and al. 2022, Bertsimas and Mundru 2023). Would also be interesting to have a SMS++ implementation.
+
+3) Possible contribution, implementation side. Distance between probability distributions considered in scenario reduction are based on Optimal Transport. Regularization has shown computational improvement when high precision is not required. Add regularization the previous existing scenario reduction techniques that have been implemented. Test carefully.
+
+4) Possible small contribution, methodology side. Generalizing the stability results of regularized variants of the existing scenario reduction techniques should be straightforward but interesting to write in the context of an internship. Generalizing the approximation error results of (Kuhn and al.) when using common heuristics should be in reach.
+
+5) Prospective extension o
+
+\end{document}
