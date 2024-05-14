@@ -1,6 +1,7 @@
 \documentclass{amsart}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
+\usepackage{algorithm2e}
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amssymb}
@@ -40,13 +41,122 @@
 \newcommand{\af}[1]{\nb{AF}{blue}{#1}}
 \newcommand{\bt}[1]{\nb{BT}{orange}{#1}}
 
-\title{Title}
+
+\title{Summary of the main article}
 
 \begin{document}
 \maketitle
+In this draft, I aim to sum up the following article : N.Rujeerapaiboon et al. \textit{Scenario reduction revisited: fundamental limits and
+guarantees.}
+\rp{I guess it's not the right way to cite an article... but I don't know the right way.}
+\section{Introduction}
+\subsection{Context}
+The goal of scenario reduction is to compute a distribution that is "close" to an initial distribution but with a reduced number of atoms. In mathematics, we can define closeness between two objects through the concept of distance. When the objects are distributions, the Wasserstein distance is a good candidate. In the case of discrete distributions $\mathbb{P}=\sum_{i\in I}p_i\delta_{x_i}$ and $\mathbb{Q}=\sum_{j\in J}q_j\delta_{y_j}$, one can note that $x_i$ and $y_j$ must live in the same normed space ($||.||$ denotes the norm). The type-$l$ Wasserstein distance between $\mathbb{P}$ and $\mathbb{Q}$ is defined as :  
+\[
+d_l(\mathbb{P},\mathbb{Q})=\left(\min_{\pi\in\mathbb{R_+^{|I|\times|J|}}}\left\{ 
+\sum_{i\in I}\sum_{j\in J}\pi_{ij}||x_i-y_j||^l \: \text{ : } \:  \begin{aligned}
+& \sum_{j\in J}\pi_{ij}=p_i \: \forall i\in I \\
+& \sum_{i\in I}\pi_{ij}=q_j \: \forall j\in J
+\end{aligned}\right\}\right)^{1/l}
+\]
+The parameter $l$ is said to be greater than or equal to 1. \rp{don't really know why it's not only greater than 0}. As the distributions are fixed, this distance is a linear program and thus it is "easily" computable (with the simplex or with better-fitting techniques as it is a min-cost transportation problem).
+If we write $n=|I|, m=|J|$ and :
+$$
+\pi=\begin{bmatrix}
+    \pi_{11}& \hdots&\pi_{1m}&\pi_{21}&\hdots&\pi_{2m}&\hdots\pi_{nm}
+\end{bmatrix}^T
+$$
+Than the constraints can be visualized with the matrix $A=\begin{pmatrix}
+    A_I \\
+    A_J
+\end{pmatrix}$ with $A_I$ $k^{th}$ row (out of the $n$ rows) being : 
+$$\begin{bmatrix}
+    0&\hdots&0&1&\hdots&1&0&\hdots&0
+\end{bmatrix}$$
+with $m\times(k-1)$ zeros at the beginning, then $m$ ones and then zeros. 
+\newline
+Similarly $A_J$ $k^{th}$ row (out of the $m$ rows) is full of zeros except at position $k+(j-1)\times m, \forall j\in J$ where you'll find ones. It's easy to show that the rank of this matrix is less than or equal to $n+m-1$ as the rows of A are linearly dependant : $L_1+...+L_n-L_{n+1}-...-L_{n+m}=0$. Then if we take a linear combination of rows $A_1,...,A_{n+m-1}$ that is equal to ero. $$
+\sum_{i=1}^{n+m-1}\lambda_iL_i^T=\begin{bmatrix}
+    \lambda_1+\lambda_{n+1}\\ \vdots\\ \lambda_1+\lambda_{n+m-1}\\ \lambda_{1} \\ \lambda_2+\lambda_{n+1} \\ \vdots \\ \lambda_2+\lambda_{n+m-1}\\ \lambda_2  \\ \vdots
+\end{bmatrix}
+$$
+Directly, we see that $\forall i \in [\![1;n]\!], \lambda_i=0$ when we look at the $(m\times i)^{th}$ coefficient and then $\forall k\in[\![1;n+m-1]\!], \lambda_k=0$ is easy to see. Then $rk(A)=n+m-1$. \rp{kind of useless as we know that the number of variables in basis is $n+m$ (number of constraints) but can be the starting point of sparsity explanation if I study regularization as Benoît mentionned}
+\newline
 
-\rp{test}
-\af{test}
-\bt{test}
+$\mathcal{P}_E(X,n)$ denotes the set of all \textbf{uniform} discrete distribution on $X\subset R^d$ with \textbf{exactly} $n$ distinct scenarii and $\mathcal{P}_(X,m)$ denotes the set of discrete distributions on $X\subset R^d$ with \textbf{at most} m scenarii. In the article, one assume that $\mathbf{P}\in\mathcal{P}_E(X,n)$. What is true when you obtain the distribution $\mathbb{P}$ via sampling, every issue has the probability of $\frac{1}{n}$ and if a same value occurs twice or more, they say we can decompose the distribution with two or more close atoms.
+\subsection{Scenario reduction problem}
+We want to find a distribution that minimizes the Wasserstein distance over a particular set of distribution. The continous scenario reduction problem :
+$$
+C_l(\mathbb{P},m)=\min_\mathbb{Q}\left\{d_l(\mathbb{P},\mathbb{Q}),\: \mathbb{Q}\in\mathcal{P}(\mathbb{R}^d,m)\right\}. 
+$$
+The discrete scenario reduction problem :
+$$
+D_l(\mathbb{P},m)=\min_\mathbb{Q}\left\{d_l(\mathbb{P},\mathbb{Q}),\: \mathbb{Q}\in\mathcal{P}(\text{supp}(\mathbb{P}),m)\right\}.
+$$
+Let $\mathbb{P}$, obviously $\text{supp}(\mathbb{P})\subset \mathbb{R}^d$ leads to $C_l(\mathbb{P},m)\leq D_l(\mathbb{P},m)$. Discrete scenario reduction problem has been more studied as it uses atoms of $\mathbb{P}$ that have a physical reality (if $\mathbb{P}$ represents the distribution of a real event).
 
+\section{Fundamental limits of scenario reduction}
+We work with $||.||_2$ and atoms within the unit ball because of the positive homogeneity of the Wasserstein distance $C_l(\mathbb{P}^\lambda,m)=\lambda \cdot C_l(\mathbb{P},m)$ for $\lambda\in\mathbb{R}_+$ and $\mathbb{P}^\lambda=\sum_{i\in I}p_i\delta_{\lambda\cdot x_i}$. \rp{not obvious tbh} Let $\mathbb{Q}$ a distribution with at most $m$ atoms.
+\begin{align*}
+    d_l(\mathbb{P}^\lambda,\mathbb{Q})^l&=\min_{\pi\in\mathbb{R_+^{|I|\times|J|}}}\left\{ 
+\sum_{i\in I}\sum_{j\in J}\pi_{ij}||\lambda x_i-y_j||^l \: \text{ : } \:  \begin{aligned}
+& \sum_{j\in J}\pi_{ij}=p_i \: \forall i\in I \\
+& \sum_{i\in I}\pi_{ij}=q_j \: \forall j\in J
+\end{aligned}\right\} \\&=\lambda^l\cdot\min_{\pi\in\mathbb{R_+^{|I|\times|J|}}}\left\{ 
+\sum_{i\in I}\sum_{j\in J}\pi_{ij}||x_i-\frac{1}{\lambda}y_j||^l \: \text{ : } \:  \begin{aligned}
+& \sum_{j\in J}\pi_{ij}=p_i \: \forall i\in I \\
+& \sum_{i\in I}\pi_{ij}=q_j \: \forall j\in J
+\end{aligned}\right\} \\
+&=\lambda^l \cdot d_l(\mathbb{P},\mathbb{Q}^{\frac{1}{\lambda}})^l
+\end{align*}
+We've proved that $d_l(\mathbb{P}^\lambda,\mathbb{Q})=\lambda\cdot d_l(\mathbb{P},\mathbb{Q}^{\frac{1}{\lambda}})$. Now, $$C_l(\mathbb{P}^\lambda,m)\leq d_l(\mathbb{P}^\lambda,\mathbb{Q})=\lambda\cdot d_l(\mathbb{P},\mathbb{Q}^{\frac{1}{\lambda}})$$
+But the left hand side doesn't depend on $\mathbb{Q}$ any longer so we can minimize the right hand side :
+$$
+C_l(\mathbb{P}^\lambda,m)\leq \lambda\cdot C_l(\mathbb{P},m)
+$$
+Similarly we can prove : $C_l(\mathbb{P}^\lambda,m)\geq \lambda\cdot C_l(\mathbb{P},m)$, both results prove the positive homogeneity of the Wasserstein distance. Generally, $\forall \lambda\in\mathbb{R^*}, C_l(\mathbb{P}^\lambda,m)=|\lambda|C_l(\mathbb{P},m).$
+With this homogeneity, working in the unit ball is a legit assumption as we can scale distribution with no loss of generality. The goal of this part is to quantify : 
+$$
+\bar{C}_l(n,m)=\left\{\max_{\mathbb{P}\in\mathcal{P}_E(\mathbb{R}^d,n)}C_l(\mathbb{P},m)\: :\: \text{supp}(\mathbb{P})\in B(0,1)\right\}.
+$$
+So we want to quantify and study the worst case of the scenario reduction. The case that gives the highest value of optimal Wasserstein distance. The goal is to find an upper bound better than 1 for $\bar{C}_l(n,m)$. First, we prove that : $\bar{C}_l(n,m)\leq 1$. By definition, 
+$$d_l(\mathbb{P},\delta_0)=\left(\min_{\pi\in\mathbb{R_+^n}}\left\{ 
+\sum_{i=1}^n\pi_i||x_i||^l \: \text{ : } \:  \begin{aligned}
+& \pi_{i}=p_i, \: \forall i\in I \\
+& \sum_{i= 1}^n\pi_{i}=1 
+\end{aligned}\right\}\right)^{1/l} \leq 1.$$
+Here we used that $||x_i||\leq 1$. Again by definition, 
+$$
+C_l(\mathbb{P},m)\leq C_l(\mathbb{P},1)\leq d_l(\mathbb{P},\delta_0)\leq 1.
+$$
+1 doesn't depend on $\mathbb{P}$, so we can go to the upper bound for $\mathbb{P}\in\mathcal{P}_E(\mathbb{R}^d,n), \text{supp}(\mathbb{P})\in B(0,1)$ and we proved that $\bar{C}_l(n,m)\leq1$ \rp{this bound even works for non uniform discrete distributions and doesn't matter on the norm we use as long as $\text{supp}(\mathbb{P})\in B(0,1)$ for the norm}
+The aim of what's next is to tighten that bound for particular $l$ and with $||.||_2$
+\newline
+
+$\mathfrak{P}(I,m)$ is the family of m-set partitions of $I$.
+\begin{theorem}{Reformulation}
+$$C_l(\mathbb{P},m)=\min_{\{I_j\}\in \mathfrak{P}(I,m)}\left\{ \frac{1}{n}\sum_{j\in J}\min_{\zeta_j\in\mathbb{R}^d}\sum_{i\in I_j}||x_i-\zeta_j||^l \right\}^{1/l}.$$
+\end{theorem}
+
+For $l=2$, the inner minimum, $\zeta_j^*=\frac{1}{|I_j|}\sum_{i\in I_j}x_i$. For $l=1$, $\zeta_j^*$ is attained by any geometric median \rp{I can't find anything for that notion}
+
+\begin{theorem} Type-2 Wasserstein distance upper bound
+    $$\bar{C}_2(n,m)\leq \sqrt{\frac{n-m}{n-1}}$$
+\end{theorem}
+\rp{The use of $\tau$ in the proof is legit as $\tau \leq \sum_{j\in J}\sum_{i\in I_j}||x_i-\text{mean}(I_j)||_2^2,\:\forall \{I_j\}$ means that $\tau\leq\min_{\{I_j\}}\sum_{j\in J}\sum_{i\in I_j}||x_i-mean(I_j)||_2^2$ but as we want to maximize the function $\tau$ will be the highest he can, so it'll be equal to the minimum, thereafter it gets technical but understandable.}
+
+End of Lemma 1 is also technical as the set of solutions of a convex problem is convex, which is necessary to say that : $S=\frac{1}{n!}\sum_{\sigma\in\mathfrak{S}}S^\sigma$ is also a solution. This matrix S is indeed invariant under permutations. Lemma 2 is easy but an easier proof that doesn't use circulant matrix is : 
+$$\chi_A(X)=\text{det}(\begin{bmatrix}
+    X- \alpha - \beta & -\beta&\hdots&-\beta \\
+    -\beta & \ddots &\ddots&\vdots \\
+    \vdots &\ddots &\ddots&   \\
+    &&&-\beta\\
+    -\beta&\hdots&-\beta&X-\alpha-\beta
+\end{bmatrix})=(X-\alpha-n\beta)\text{det}(A_1)$$
+where $A_1$ is the matrix A but with the first column replaced by 1. The first equality rises from adding every column to the first one, so the first column is a column of $X-\alpha-n\beta$. What we have to do next is do add $\beta\cdot C_1$ to every other column, what gives us a diagonal matrix $diag(1,X-\alpha,...,X-alpha)$, and we have $$
+\chi_A(X)=(X-\alpha-n\beta)(X-\alpha)^{n-1}$$
+
+Then they show a distribution that equals the upper bound for $d\geq n-1$(meaning that the upper bound is optimal) with these assumptions.
+
+Same thing is developped for $||.||_1$
 \end{document}
