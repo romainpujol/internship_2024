@@ -153,10 +153,18 @@ $$\chi_A(X)=\text{det}(\begin{bmatrix}
     &&&-\beta\\
     -\beta&\hdots&-\beta&X-\alpha-\beta
 \end{bmatrix})=(X-\alpha-n\beta)\text{det}(A_1)$$
-where $A_1$ is the matrix A but with the first column replaced by 1. The first equality rises from adding every column to the first one, so the first column is a column of $X-\alpha-n\beta$. What we have to do next is do add $\beta\cdot C_1$ to every other column, what gives us a diagonal matrix $diag(1,X-\alpha,...,X-alpha)$, and we have $$
+where $A_1$ is the matrix A but with the first column replaced by 1. The first equality rises from adding every column to the first one, so the first column is a column of $X-\alpha-n\beta$. What we have to do next is do add $\beta\cdot C_1$ to every other column, what gives us a lower triangular matrix $diag(1,X-\alpha,...,X-alpha)$, and we have $$
 \chi_A(X)=(X-\alpha-n\beta)(X-\alpha)^{n-1}$$
 
 Then they show a distribution that equals the upper bound for $d\geq n-1$(meaning that the upper bound is optimal) with these assumptions.
 
 Same thing is developped for $||.||_1$
+$$
+\bar{C}_1(n,m)\leq\bar{C}_2(n,m) \leq\sqrt{\frac{n-m}{n-1}}
+$$
+\begin{proof}
+    Geometric
+\end{proof}
+Here we get also a lower bound : $\bar{C}_1(n,m)\geq\sqrt{\frac{(n-m)(n-m+1)}{n(n-1)}}$.
+All the results give : $$\bar{C}_2^2(n,m)\leq \bar{C}_1(n,m)\leq\bar{C}_2(n,m)$$
 \end{document}
