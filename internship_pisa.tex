@@ -156,7 +156,7 @@ $$\chi_A(X)=\text{det}(\begin{bmatrix}
     &&&-\beta\\
     -\beta&\hdots&-\beta&X-\alpha-\beta
 \end{bmatrix})=(X-\alpha-n\beta)\text{det}(A_1)$$
-where $A_1$ is the matrix A but with the first column replaced by 1. The first equality rises from adding every column to the first one, so the first column is a column of $X-\alpha-n\beta$. What we have to do next is do add $\beta\cdot C_1$ to every other column, what gives us a lower triangular matrix $diag(1,X-\alpha,...,X-alpha)$, and we have $$
+where $A_1$ is the matrix A but with the first column replaced by 1. The first equality rises from adding every column to the first one, so the first column is a column of $X-\alpha-n\beta$. What we have to do next is do add $\beta\cdot C_1$ to every other column, what gives us a lower triangular matrix $diag(1,X-\alpha,...,X-\alpha)$, and we have $$
 \chi_A(X)=(X-\alpha-n\beta)(X-\alpha)^{n-1}$$
 
 Then they show a distribution that equals the upper bound for $d\geq n-1$(meaning that the upper bound is optimal) with these assumptions.
@@ -166,8 +166,48 @@ $$
 \bar{C}_1(n,m)\leq\bar{C}_2(n,m) \leq\sqrt{\frac{n-m}{n-1}}
 $$
 \begin{proof}
-    Geometric
+    Geometric.
 \end{proof}
 Here we get also a lower bound : $\bar{C}_1(n,m)\geq\sqrt{\frac{(n-m)(n-m+1)}{n(n-1)}}$.
 All the results give : $$\bar{C}_2^2(n,m)\leq \bar{C}_1(n,m)\leq\bar{C}_2(n,m)$$
+\newline
+For $l\in\{1,2\}$ and a large $n$ : $$\bar{C}_l(n,m)\leq \sqrt{\frac{n-m}{n-1}}=\sqrt{\frac{1-\frac{m}{n}}{1-\frac{1}{n}}}\underset{n \to +\infty}{=}\sqrt{1-\frac{m}{n}}(1+\frac{1}{2n}+O(\frac{1}{n^2}))\approx \sqrt{1-\frac{m}{n}}.$$
+This latest result and the positive homogeneity of $C_l$ can give an upper bound for all kind of discrete distribution $\mathbb{P}=\frac{1}{n}\sum_{i\in I}\delta_{x_i}$. Denote by $r\geq 0$ and $\mu\in\mathbb{R}^d$ the radius and the center of any  (ideally the smallest) ball enclosing $\text{supp}(\mathbb{P})$ :
+$$
+C_l(\mathbb{P},m)=r\cdot C_l(\frac{1}{n}\sum_{i\in I}\delta_{\frac{x_i-\mu}{r}},m)\leq r\cdot \bar{C_l(n,m)}\leq r\cdot \sqrt{1-\frac{m}{n}}
+$$
+More precisely, we can choose : $\mu=\frac{1}{n}\sum_{i\in I}x_i$ and $r=\max_i\left\{{||x_i-\mu||}\right\}$. Which is what one calls the smallest if the norm used is the 2-norm (I guess). It gives : 
+$$
+C_l(\mathbb{P},m)\leq \max_i\left\{{||x_i-\mu||}\right\}\sqrt{1-\frac{m}{n}}
+$$
+what depends only on $\mathbb{P}$. \rp{maybe that helps a very little the article}. In another way, in order to get the smaller bound for a given distribution $\mathbb{P}$ and a given norm $||.||$, one must solve : 
+\begin{align*}
+    &\min_{r,\mu} \quad r\\
+    &\text{s.t.}\quad ||\frac{x_i-\mu}{r}|| \leq 1, \;\forall i\in I.
+\end{align*}
+What we can rewrite as : 
+\begin{align*}
+    &\min_{r,\mu} \quad r\\
+    &\text{s.t.}\quad ||x_i-\mu||^2-r^2 \leq 0, \;\forall i\in I.\\
+    &-r\leq0
+\end{align*}
+Let's write the Lagrangian of this problem : 
+$$
+\mathcal{L}(r,\mu,\lambda)=r+\lambda_0r+\sum_{i\in I}\lambda_i(||x_i-\mu||^2-r^2)
+$$
+KKT conditions provide at optimality : \begin{align*}
+    \lambda\geq0\\
+    \nabla_r\mathcal{L}(r,\mu,\lambda)=0\\
+    \nabla_\mu\mathcal{L}(r,\mu,\lambda)=0\\
+    \forall i\in I,\;\lambda_i(||x_i-\mu||^2-r^2)=0 \\
+    \lambda_0r=0
+\end{align*}
+The gradient isn't always defined according to the norm but when it's $||.||_2$ : 
+\begin{align*}
+    \lambda\geq0\\
+    1+\lambda_0-2r\sum_{i\in I}\lambda_i=0\\
+    \sum_{i\in I}\lambda_i(x_i-\mu)=0\\
+    \forall i\in I,\;\lambda_i(||x_i-\mu||^2-r^2)=0 \\
+    \lambda_0r=0
+\end{align*}
 \end{document}
