@@ -45,7 +45,7 @@
 
 \begin{document}
 \maketitle
-In this draft, I aim to sum up \cite[2022]{rujeerapaiboon_scenario_2022}
+In this draft, I aim to sum up \cite{rujeerapaiboon_scenario_2022}.
 
 \section{Introduction}
 \subsection{Context}
@@ -62,7 +62,7 @@ It is still an interesting question for $0 < \ell \leq 1$. We have $d_\ell^\ell$
 }. See \ref{compute} in order to have an idea on how to compute the distance of Wasserstein between two distributions and more precision.
 \newline
 
-$\mathcal{P}_E(X,n)$ denotes the set of all \textbf{uniform} discrete distribution on $X\subset R^d$ with \textbf{exactly} $n$ distinct scenarii and $\mathcal{P}_(X,m)$ denotes the set of discrete distributions on $X\subset R^d$ with \textbf{at most} m scenarii. In the article, one assume that $\mathbf{P}\in\mathcal{P}_E(X,n)$. What is true when you obtain the distribution $\mathbb{P}$ via sampling, every issue has the probability of $\frac{1}{n}$ and if a same value occurs twice or more, they say we can decompose the distribution with two or more close atoms.
+$\mathcal{P}_E(X,n)$ denotes the set of all \textbf{uniform} discrete distribution on $X\subset R^d$ with \textbf{exactly} $n$ distinct scenarii and $\mathcal{P}(X,m)$ denotes the set of discrete distributions on $X\subset R^d$ with \textbf{at most} m scenarii. In the article, one assume that $\mathbf{P}\in\mathcal{P}_E(X,n)$. What is true when you obtain the distribution $\mathbb{P}$ via sampling, every issue has the probability of $\frac{1}{n}$ and if a same value occurs twice or more, they say we can decompose the distribution with two or more close atoms.
 \newline
 
 We want to find a distribution that minimizes the Wasserstein distance over a particular set of distribution just like we can do in $\RR^d$ when we want to project a point over a subspace. Two types of reduction are typically presented. The continous scenario reduction problem :
@@ -107,19 +107,9 @@ For $l=2$, the inner minimum, $\zeta_j^*=\frac{1}{|I_j|}\sum_{i\in I_j}x_i$. For
     $$\bar{C}_2\left(n,m \right)\leq \sqrt{\frac{n-m}{n-1}}.$$
 \end{theorem}
 \rp{The use of $\tau$ in the proof is legit as $\tau \leq \sum_{j\in J}\sum_{i\in I_j}\lVert x_i-\text{mean}(I_j)\rVert_2^2,\:\forall \{I_j\}$ means that $\tau\leq\min_{\{I_j\}}\sum_{j\in J}\sum_{i\in I_j}\lVert x_i-mean(I_j)\rVert_2^2$ but as we want to maximize the function $\tau$ will be the highest he can, so it'll be equal to the minimum, thereafter it gets technical but understandable.}
+Two lemmas are used to prove this inequality. Lemma 1 is kind of technical as the set of solutions of a convex problem is convex, which is necessary to say that : $S=\frac{1}{n!}\sum_{\sigma\in\mathfrak{S}}S^\sigma$ is also a solution. This matrix S is indeed invariant under permutations. Lemma 2 is easy but I give an easier proof in \ref{eigen}.
 
-End of Lemma 1 is also technical as the set of solutions of a convex problem is convex, which is necessary to say that : $S=\frac{1}{n!}\sum_{\sigma\in\mathfrak{S}}S^\sigma$ is also a solution. This matrix S is indeed invariant under permutations. Lemma 2 is easy but an easier proof that doesn't use circulant matrix is : 
-$$\chi_A(X)=\text{det}(\begin{bmatrix}
-    X- \alpha - \beta & -\beta&\hdots&-\beta \\
-    -\beta & \ddots &\ddots&\vdots \\
-    \vdots &\ddots &\ddots&   \\
-    &&&-\beta\\
-    -\beta&\hdots&-\beta&X-\alpha-\beta
-\end{bmatrix})=(X-\alpha-n\beta)\text{det}(A_1).$$
-where $A_1$ is the matrix A but with the first column replaced by 1. The first equality rises from adding every column to the first one, so the first column is a column of $X-\alpha-n\beta$. What we have to do next is do add $\beta\cdot C_1$ to every other column, what gives us a lower triangular matrix $diag(1,X-\alpha,...,X-\alpha)$, and we have $$
-\chi_A(X)=(X-\alpha-n\beta)(X-\alpha)^{n-1}$$
-
-Then they show a distribution \textbf{that equals the upper bound for \boldmath{$d\geq n-1$}(meaning that the upper bound is optimal)} under these assumptions.
+Then we show a distribution \textbf{that equals the upper bound for \boldmath{$d\geq n-1$}(meaning that the upper bound is optimal)} under these assumptions.
 
 Same thing can be proven for $\lVert.\rVert_1$
 $$
@@ -154,12 +144,14 @@ See \ref{chebyshev} but geometrically what I wrote seemed to be a good candidate
 \newline
 
 \section{What about discrete scenario reduction}
-Naturally, the continuous scenario reduction gives a smaller distance than the one computed by the discrete scenario reduction. We'll try to quantify and compare the gap between the solution of both problems.
-
+Naturally, the continuous scenario reduction gives a smaller distance than the one computed by the discrete scenario reduction. We'll try to quantify and compare the gap between the solution of both problems. More precisely, in this part, we find for $l\in\{1,2\}$: 
+$$\underline{\kappa}_l\left(n,m\right)\cdot C_l\left( \mathbb{P},m\right)\leq D_l\left(\mathbb{P},m\right)\leq \bar{\kappa}_l\left(n,m\right)\cdot C_l\left(\mathbb{P},m\right)$$
+The goal is to find the largest $\underline{\kappa}_l\left(n,m\right)$ and smallest $\bar{\kappa}_l\left(n,m\right)$ so the bounds are as tight as possible. Solving the continuous problem will give bounds on the discrete.
 
 \newpage
 
 \appendix
+\section{Wasserstein distance is a distance}
 \section{Computing Wasserstein distance}
 \label{compute}
 Let $\mathbb{P}=\sum_{i\in I}\delta_{x_i}p_i, \mathbb{Q}=\sum_{j\in J}\delta_{y_j}q_j$ two finite distributions. Computing the distance is equivalent to solving a linear program. Thus it is "easily" computable (with the simplex or with better-fitting techniques as it is a min-cost transportation problem).
@@ -189,7 +181,7 @@ $$
 Directly, we see that $\forall i \in [\![1;n]\!], \lambda_i=0$ when we look at the $(m\times i)^{th}$ coefficient and then $\forall k\in[\![1;n+m-1]\!], \lambda_k=0$ is easy to see. Then $rk(A)=n+m-1$. \rp{kind of useless as we know that the number of variables in basis is $n+m$ (number of constraints) but can be the starting point of sparsity explanation if I study regularization as Benoît mentionned}
 \section{Positive homogeneity of Wasserstein distance}
 \label{positive h}
- Let $\mathbb{Q}$ a distribution with at most $m$ atoms. We have that
+ Let $m\in\mathbb{N}^*$, $\mathbb{Q}\in\mathcal{P}(X,m) $ and $\lambda\in\RR^*$. We have that
 \begin{align*}
     d_l(\mathbb{P}^\lambda,\mathbb{Q})^l&=\min_{\pi\in\mathbb{R_+^{|I|\times|J|}}}\left\{ 
 \sum_{i\in I}\sum_{j\in J}\pi_{ij}\lVert\lambda x_i-y_j\rVert^l \: \text{ : } \:  \begin{aligned}
@@ -203,11 +195,24 @@ Directly, we see that $\forall i \in [\![1;n]\!], \lambda_i=0$ when we look at t
 &=\lambda^l \cdot d_l(\mathbb{P},\mathbb{Q}^{\frac{1}{\lambda}})^l.
 \end{align*}
 We've proved that $d_l(\mathbb{P}^\lambda,\mathbb{Q})=\lambda\cdot d_l(\mathbb{P},\mathbb{Q}^{\frac{1}{\lambda}})$. Now, we have $$C_l(\mathbb{P}^\lambda,m)\leq d_l(\mathbb{P}^\lambda,\mathbb{Q})=\lambda\cdot d_l(\mathbb{P},\mathbb{Q}^{\frac{1}{\lambda}})$$
-But the left hand side doesn't depend on $\mathbb{Q}$ any longer so we can minimize the right hand side :
+But the left hand side doesn't depend on $\mathbb{Q}$ any longer so we can minimize the right hand side over $\mathbb{Q}\in\mathcal{P}(X,m)$ almost directly $C_l(\mathbb{P},m)=\min_\mathbb{Q}\left\{d_l(\mathbb{P},\mathbb{Q}),\: \mathbb{Q}\in\mathcal{P}(\mathbb{R}^d,m)\right\}=\min_\mathbb{Q}\left\{d_l(\mathbb{P},\mathbb{Q}^\frac{1}{\lambda}),\: \mathbb{Q}\in\mathcal{P}(\mathbb{R}^d,m)\right\}$ :
 $$
 C_l(\mathbb{P}^\lambda,m)\leq \lambda\cdot C_l(\mathbb{P},m).
 $$
 Similarly we can prove : $C_l(\mathbb{P}^\lambda,m)\geq \lambda\cdot C_l(\mathbb{P},m)$, both results prove the positive homogeneity of the Wasserstein distance.
+The result holds for $\lambda=0$. $m\geq 1$ (don't you dare trying to reduce a distribution to a distribution without a single atom...), $\mathbb{P}^0=\delta_0$. We have that : $$0\leq C_l(\mathbb{P}^0,m)\leq d_l(\mathbb{P}^0,\delta_0)=0.$$
+\section{Eigenvalues of a matrix invariant under permutations}
+ \label{eigen}
+ A matrix $A$ that is invariant under permutations can be written as $A=\alpha I_n + \beta \mathbf{1}\mathbf{1}^T$ whose characteristic polynomial is :
+$$\chi_A(X)=\text{det}(\begin{bmatrix}
+    X- \alpha - \beta & -\beta&\hdots&-\beta \\
+    -\beta & \ddots &\ddots&\vdots \\
+    \vdots &\ddots &\ddots&   \\
+    &&&-\beta\\
+    -\beta&\hdots&-\beta&X-\alpha-\beta
+\end{bmatrix})=(X-\alpha-n\beta)\text{P}_{A_1}\left(X\right).$$
+where $\text{P}_{A_1}\left(X\right)$ is the determinant of the matrix $XI_n-A$ with its first column replaced by a column of ones. The first equality arises from adding every column to the first one, so the first column is a column of $X-\alpha-n\beta$, so we can factorize by $X-\alpha-n\beta$. What we have to do next is do add $\beta\cdot C_1$ ($C_1$ is the column of ones) to every other column, what gives us a lower triangular matrix with the diagonal $diag(1,X-\alpha,...,X-\alpha)$, and we have $$
+\chi_A(X)=(X-\alpha-n\beta)(X-\alpha)^{n-1}$$
 
 \section{Chebyshev center problem}
 \label{chebyshev}
