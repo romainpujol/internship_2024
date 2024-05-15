@@ -136,20 +136,27 @@ $$\bar{C}_2^2\left(n,m \right)\leq \bar{C}_1\left(n,m \right)\leq\bar{C}_2\left(
 \end{proposition}
 \subsection{Use of bounds}
 One can use the bounds we found above in order to guarantee that the reduced distribution is close enough (to be defined...) to the original one. For $l\in\{1,2\}$ and a large $n$ : $$\bar{C}_l\left(n,m \right)\leq \sqrt{\frac{n-m}{n-1}}=\sqrt{\frac{1-\frac{m}{n}}{1-\frac{1}{n}}}\underset{n \to +\infty}{=}\sqrt{1-\frac{m}{n}}(1+\frac{1}{2n}+O(\frac{1}{n^2}))\approx \sqrt{1-\frac{m}{n}}.$$
-This latest result and the positive homogeneity of $C_l$ provides an upper bound that depends only on the ratio $p=\frac{m}{n}$ for all kind of discrete distribution $\mathbb{P}=\frac{1}{n}\sum_{i\in I}\delta_{x_i}$. Denote by $r\geq 0$ and $\mu\in\mathbb{R}^d$ the radius and the center of any  (ideally the smallest) ball enclosing $\text{supp}(\mathbb{P})$ :
+This latest result and the positive homogeneity of $C_l$ provides an upper bound that depends only on the ratio $p=\frac{m}{n}$ for all kind of discrete distribution $\mathbb{P}=\frac{1}{n}\sum_{i\in I}\delta_{x_i}$. Denote by $r\geq 0$ and $\mu\in\mathbb{R}^d$ the radius and the center of any  (ideally the smallest) ball enclosing $\text{supp}(\mathbb{P})$, we have that :
 $$
 C_l(\mathbb{P},m)=r\cdot C_l(\frac{1}{n}\sum_{i\in I}\delta_{\frac{x_i-\mu}{r}},m)\leq r\cdot \bar{C_l\left(n,m \right)}\leq r\cdot \sqrt{1-p}.
 $$
-As an example, we can choose : $\mu=\frac{1}{n}\sum_{i\in I}x_i$ and $r=\max_i\left\{{\lVert x_i-\mu\rVert}\right\}$. One can easily verify that this couple defines a ball enclosing $\text{supp}\left(\mathbb{P}\right)$. It gives : 
+One can think that $C_l(\mathbb{P},m)$ is much smaller than $r\cdot \sqrt{1-p}$ but in fact it often happens even when $\left\{x_i\right\}$ are sampled from a normal distribution for example, see \textbf{Proposition 3} of \cite{rujeerapaiboon_scenario_2022}.
+As an example, we can choose : $\mu=\frac{1}{n}\sum_{i\in I}x_i$ and $r=\max_i\left\{{\lVert x_i-\mu\rVert}\right\}$. One can easily verify that this couple defines a ball enclosing $\text{supp}\left(\mathbb{P}\right)$. Then it follows that : 
 $$
-C_l(\mathbb{P},m)\leq \max_i\left\{{\lVert x_i-\mu\rVert}\right\}\sqrt{1-\frac{m}{n}}.
+C_l(\mathbb{P},m)\leq \max_i\left\{{\lVert x_i-\mu\rVert}\right\}\sqrt{1-p}.
 $$
-what depends only on $\mathbb{P}$. \rp{maybe that helps a very little the article}. In order to get the smaller bound for a given distribution $\mathbb{P}$ and a given norm $\lVert.\rVert$, one must solve : 
+what depends only on $\mathbb{P}$. \rp{maybe that helps a very little the article}. A good idea \rp{imo} is to find the smallest bound for a given distribution $\mathbb{P}$ and a given norm $\lVert.\rVert$, so we can have a better upper bound. One must find the Chebychev center : 
 \begin{align*}
     &\min_{r\in\RR^+,\mu\in\RR^d} \quad r\\
     &\text{s.t.}\quad \lVert\frac{x_i-\mu}{r}\rVert \leq 1, \;\forall i\in I.
 \end{align*}
-This problem is known as the : Chebychev center. See \ref{chebyshev} but geometrically what I wrote seems to be a good candidate ? 
+See \ref{chebyshev} but geometrically what I wrote seemed to be a good candidate.
+\newline
+
+\section{What about discrete scenario reduction}
+Naturally, the continuous scenario reduction gives a smaller distance than the one computed by the discrete scenario reduction. We'll try to quantify and compare the gap between the solution of both problems.
+
+
 \newpage
 
 \appendix
