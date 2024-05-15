@@ -1,7 +1,6 @@
 \documentclass{amsart}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
-\usepackage{algorithm2e}
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amssymb}
@@ -49,6 +48,8 @@
 In this draft, I aim to sum up the following article : N.Rujeerapaiboon et al. \textit{Scenario reduction revisited: fundamental limits and
 guarantees.}
 \rp{I guess it's not the right way to cite an article... but I don't know the right way.}
+\bt{Via the use of bibtex, see for example https://latex-tutorial.com/tutorials/bibtex/. I added biblio.bib file with a few references to the repo.}
+
 \section{Introduction}
 \subsection{Context}
 The goal of scenario reduction is to compute a distribution that is "close" to an initial distribution but with a reduced number of atoms. In mathematics, we can define closeness between two objects through the concept of distance. When the objects are distributions, the Wasserstein distance is a good candidate. In the case of discrete distributions $\mathbb{P}=\sum_{i\in I}p_i\delta_{x_i}$ and $\mathbb{Q}=\sum_{j\in J}q_j\delta_{y_j}$, one can note that $x_i$ and $y_j$ must live in the same normed space ($||.||$ denotes the norm). The type-$l$ Wasserstein distance between $\mathbb{P}$ and $\mathbb{Q}$ is defined as :  
@@ -59,7 +60,9 @@ d_l(\mathbb{P},\mathbb{Q})=\left(\min_{\pi\in\mathbb{R_+^{|I|\times|J|}}}\left\{
 & \sum_{i\in I}\pi_{ij}=q_j \: \forall j\in J
 \end{aligned}\right\}\right)^{1/l}
 \]
-The parameter $l$ is said to be greater than or equal to 1. \rp{don't really know why it's not only greater than 0}. As the distributions are fixed, this distance is a linear program and thus it is "easily" computable (with the simplex or with better-fitting techniques as it is a min-cost transportation problem).
+The parameter $l$ is said to be greater than or equal to 1. \rp{don't really know why it's not only greater than 0} \bt{To prove that $d^\ell$ is distance, the difficult part is the triangle inequality. It is a distance for $\ell \geq 1$ and the proof of the triangle inequality is here called the "gluing lemma" (Peyré-Cuturi chapter 1 for our "simple" case). This gluing lemma uses Minkowski's inequality in the case $\ell\geq1$ so that's the reason why. 
+It is still an interesting question for $0 < \ell \leq 1$. We have $d_\ell^\ell$ (and not $d\ell$ itself) is a distance as $(x,y) \mapsto \lVert x - y \rVert^\ell$ is already a distance when $0 < \ell \leq 1$ thanks to Minkowski's inequality in the case $\ell \leq 1$.
+}. As the distributions are fixed, this distance is a linear program and thus it is "easily" computable (with the simplex or with better-fitting techniques as it is a min-cost transportation problem).
 If we write $n=|I|, m=|J|$ and :
 $$
 \pi=\begin{bmatrix}
