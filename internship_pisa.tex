@@ -224,7 +224,9 @@ In this section, we present various algorithms and heuristics that are often use
 $$
 \max_{n,m,\mathbb{P}\in\mathcal{P}_E(\RR^d,n)}\frac{\bar{D}_l\left(\mathbb{P},m\right)}{D_l\left(\mathbb{P},m\right)}.
 $$
-
+Same thing with $C_l$ if the algorithm is meant to provide a candidate for continuous scenario reduction. If the approximation ratio is unbounded it means that :
+$$\forall A\in\RR^+, \exists n,m,\mathbb{P}\in\mathcal{P}_E\left(\RR^d,n\right) : \frac{\bar{D}_l\left(\mathbb{P},m\right)}{D_l\left(\mathbb{P},m\right)}\geq A.$$
+With words, it means that the upper bound given by the algorithm can become arbitrarily big compared to the real distance of the projection of $\mathbb{P}$ over the considered subspace.
 \subsection{Dupacova et al. algorithm}
 Dupačová et al. \cite{dupacova_scenario_2003} provides a greedy algorithm for $D_l\left(\mathbb{P},m\right)$. Generally, the distribution obtained isn't a solution of the discrete scenario reduction problem.
 \begin{algorithm}
@@ -251,14 +253,36 @@ The aim of k-means clustering is to reduced $n$ observations to $k$ clusters suc
     \caption{k-means clustering for $C_l\left(\mathbb{P},m\right)$}
     Initialize the reduced set $R=\{y_1,...,y_m\} \subseteq \text{supp}\left(\mathbb{P}\right)$ arbitrarily \\ Let $\{I_j\}\in\mathfrak{P}\left(I,m\right)$ be any partition whose sets $I_j, j\in J$, contain all atoms of supp$\left(P\right)$ that are closest to $y_j$ (ties may be broken arbitrarily). \\ For each $j\in J$, update $y_j$ as : $$y_j \gets \argmin_{y\in\RR^d} \left\{ \sum_{i\in I_j}\lVert x_i-y\rVert^l\right\}$$ \\ Repeat Steps 2 and 3 until the reduced set $R$ no longer changes.
 \end{algorithm}
-
-
 The reduced distribution is :
 $$
 \mathbb{Q}=\frac{1}{n}\sum_{y\in R}\delta_{y}c\left(y\right)
 $$
 where $ c\left(y\right)$ denotes the amount of atoms of $\mathbb{P}$ in the cluster $y$.
-
+\begin{theorem}
+    If initialized randomly in Step 1, the approximation ratio of the k-means clustering algorithm is unbounded for every $d,l,p\geq1$ with significant probability.
+\end{theorem}
+\begin{proof}
+    The proof is once again constructive. See \cite[Theorem 8]{rujeerapaiboon_scenario_2022}
+\end{proof}
+\subsection{Algorithm bounding the approximation ratio}
+In the article, they propose a new algorithm with the advantage of bounding the approximation ratio under the type-1 Wasserstein distance for both the continuous and discrete scenario reduction problem. The approximation ratio is bounded by 5 for the discrete scenario reduction problem and 10 for the continuous.
+\begin{algorithm}
+    \caption{Local search algorithm for $D_l\left(\mathbb{P},m\right)$}
+    Initialize the reduced set $R\subseteq \text{supp}\left(\mathbb{P}\right), \lvert R\rvert = m$, arbitrarily. \\ Select the next change to be applied to the reduced set as 
+    $$
+    \left(y,y'\right)\in\argmin\left\{D_l\left(\mathbb{P},R\cup\{y\}\setminus \{y'\}\right) : \left(y,y'\right)\in\text{supp}\left(\mathbb{P}\setminus R\right)\times R\right\},
+    $$
+    and update $R\gets R\cup \{y\}\setminus \{y'\}$ if $D_l\left(\mathbb{P}, R\cup\{y\}\setminus \{y'\} \right)<D_l\left(\mathbb{P},R\right).$ \\ Repeat Step 2 until no further improvement is possible.
+\end{algorithm}
+If various changes are possible in Step 2, you can either choose to use a "first-fit" (swap whenever you find a couple that reduces the distance) or a "best-fit" (explore all possible exchanges and swap the best one) strategy. The first one reduces the calculation time but both techniques have an approximation ratio of 5 for the discrete scenario reduction problem for all $d$.
+\begin{remark}
+    To some extent, this algorithm can make you think of the Lin-Kernighan heuristic developped for the TSP.
+\end{remark}
+We now use what we found for $\bar\kappa_1$ to state that this algorithm gives rise to an algorithm with approximation ratio : $2\times 5$. Let $n,m,\mathbb{P}\in\mathcal{P}_E\left(\RR^d,m\right)$, we have that : 
+$$
+\frac{\bar{D}_l\left(\mathbb{P},m\right)}{C_l\left(\mathbb{P},m\right)}\leq \frac{2\bar{D}_l\left(\mathbb{P},m\right)}{D_l\left(\mathbb{P},m\right)}\leq 2\max_{n,m,\mathbb{P}\in\mathcal{P}_E(\RR^d,n)}\frac{\bar{D}_l\left(\mathbb{P},m\right)}{D_l\left(\mathbb{P},m\right)}=2\times5=10.
+$$
+We can now maximize the left hand side on $n,m,\mathbb{P}$ as the right hand side doesn't depend on the three.
 \clearpage
 \appendix
 \section{Wasserstein distance is a distance}
