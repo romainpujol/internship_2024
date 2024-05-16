@@ -7,6 +7,7 @@
 \usepackage[left=2cm,right=2cm,top=3cm,bottom=3cm]{geometry}
 \usepackage{graphicx}
 \usepackage{hyperref}
+\usepackage{dsfont}
 \usepackage{cleveref}
 \usepackage{bm}
 \usepackage[colorinlistoftodos,bordercolor=orange,backgroundcolor=orange!20,linecolor=orange,textsize=scriptsize]{todonotes}
@@ -75,9 +76,9 @@ D_l(\mathbb{P},m)=\min_\mathbb{Q}\left\{d_l(\mathbb{P},\mathbb{Q}),\: \mathbb{Q}
 $$
 Let $\mathbb{P}$ be a finite distribution on $\RR^d$, obviously $\text{supp}(\mathbb{P})\subset \mathbb{R}^d$ leads to $C_l(\mathbb{P},m)\leq D_l(\mathbb{P},m)$. Discrete scenario reduction problem has been more studied as it uses atoms of $\mathbb{P}$ that have a physical reality (if $\mathbb{P}$ represents the distribution of a real event).
 
-\section{Fundamental limits of scenario reduction}
+\section{Fundamental limits of scenario reduction}\label{limit}
 \subsection{Bounds}
-Here, we try to provide bounds on the value of the Wasserstein distance in order to guarantee closeness between the reduced distribution and the original one. We work with $\lVert.\rVert_2$ and atoms within the unit ball because of the positive homogeneity of the Wasserstein distance $C_l(\mathbb{P}^\lambda,m)=\lambda \cdot C_l(\mathbb{P},m)$ for $\lambda\in\mathbb{R}_+$ and $\mathbb{P}^\lambda=\sum_{i\in I}p_i\delta_{\lambda\cdot x_i}$. See \ref{positive h} for a proof. \rp{not obvious tbh} Generally, we have that $$\forall \lambda\in\mathbb{R}, C_l(\mathbb{P}^\lambda,m)=|\lambda|C_l(\mathbb{P},m).$$ 
+Here, we try to provide bounds on the value of the Wasserstein distance in order to guarantee closeness between the reduced distribution and the original one. We work with $\lVert.\rVert_2$ and atoms within the unit ball because of the positive homogeneity of the Wasserstein distance $C_l(\mathbb{P}^\lambda,m)=\lambda \cdot C_l(\mathbb{P},m)$ for $\lambda\in\mathbb{R}_+$ and $\mathbb{P}^\lambda=\sum_{i\in I}p_i\delta_{\lambda\cdot x_i}$. See \ref{scaled} for a proof. \rp{not obvious tbh} Generally, we have that $$\forall \lambda\in\mathbb{R}, C_l(\mathbb{P}^\lambda,m)=|\lambda|C_l(\mathbb{P},m).$$ 
 With this homogeneity, working in the unit ball is a legit assumption as we can scale distributions w.l.o.g. Another goal of this part is to quantify and study the worst case of scenario reduction defined by
 $$
 \bar{C}_l\left(n,m \right)=\left\{\max_{\mathbb{P}\in\mathcal{P}_E(\mathbb{R}^d,n)}C_l(\mathbb{P},m)\: :\: \text{supp}(\mathbb{P})\in B(0,1)\right\}.
@@ -98,10 +99,10 @@ The aim of what's next is to tighten that bound for particular $l$ and with $\lV
 
 $\mathfrak{P}(I,m)$ is the family of m-set partitions of $I$.
 \begin{theorem}{Reformulation}
-$$C_l(\mathbb{P},m)=\min_{\{I_j\}\in \mathfrak{P}(I,m)}\left\{ \frac{1}{n}\sum_{j\in J}\min_{\zeta_j\in\mathbb{R}^d}\sum_{i\in I_j}\lVert x_i-\zeta_j\rVert^l \right\}^{1/l}.$$
+$$C_l(\mathbb{P},m)=\min_{\{I_j\}\in \mathfrak{P}(I,m)}\left\{ \frac{1}{n}\sum_{j\in J}\min_{y_j\in\mathbb{R}^d}\sum_{i\in I_j}\lVert x_i-y_j\rVert^l \right\}^{1/l}.$$
 \end{theorem}
 
-For $l=2$, the inner minimum, $\zeta_j^*=\frac{1}{|I_j|}\sum_{i\in I_j}x_i$. For $l=1$, $\zeta_j^*$ is attained by any geometric median \rp{I can't find anything for that notion}
+For $l=2$, the inner minimum, $y_j^*=\frac{1}{|I_j|}\sum_{i\in I_j}x_i$. For $l=1$, $y_j^*$ is attained by any geometric median \rp{I can't find anything for that notion}
 
 \begin{theorem} Type-2 Wasserstein distance upper bound
     $$\bar{C}_2\left(n,m \right)\leq \sqrt{\frac{n-m}{n-1}}.$$
@@ -109,7 +110,7 @@ For $l=2$, the inner minimum, $\zeta_j^*=\frac{1}{|I_j|}\sum_{i\in I_j}x_i$. For
 \rp{The use of $\tau$ in the proof is legit as $\tau \leq \sum_{j\in J}\sum_{i\in I_j}\lVert x_i-\text{mean}(I_j)\rVert_2^2,\:\forall \{I_j\}$ means that $\tau\leq\min_{\{I_j\}}\sum_{j\in J}\sum_{i\in I_j}\lVert x_i-mean(I_j)\rVert_2^2$ but as we want to maximize the function $\tau$ will be the highest he can, so it'll be equal to the minimum, thereafter it gets technical but understandable.}
 Two lemmas are used to prove this inequality. Lemma 1 is kind of technical as the set of solutions of a convex problem is convex, which is necessary to say that : $S=\frac{1}{n!}\sum_{\sigma\in\mathfrak{S}}S^\sigma$ is also a solution. This matrix S is indeed invariant under permutations. Lemma 2 is easy but I give an easier proof in \ref{eigen}.
 
-Then we show a distribution \textbf{that equals the upper bound for \boldmath{$d\geq n-1$}(meaning that the upper bound is optimal)} under these assumptions.
+Then we show a distribution \textbf{that reaches the upper bound for \boldmath{$d\geq n-1$}(meaning that the upper bound is optimal)} under these assumptions.
 
 Same thing can be proven for $\lVert.\rVert_1$
 $$
@@ -146,7 +147,77 @@ See \ref{chebyshev} but geometrically what I wrote seemed to be a good candidate
 \section{What about discrete scenario reduction}
 Naturally, the continuous scenario reduction gives a smaller distance than the one computed by the discrete scenario reduction. We'll try to quantify and compare the gap between the solution of both problems. More precisely, in this part, we find for $l\in\{1,2\}$: 
 $$\underline{\kappa}_l\left(n,m\right)\cdot C_l\left( \mathbb{P},m\right)\leq D_l\left(\mathbb{P},m\right)\leq \bar{\kappa}_l\left(n,m\right)\cdot C_l\left(\mathbb{P},m\right)$$
-The goal is to find the largest $\underline{\kappa}_l\left(n,m\right)$ and smallest $\bar{\kappa}_l\left(n,m\right)$ so the bounds are as tight as possible. Solving the continuous problem will give bounds on the discrete.
+The goal is to find the largest $\underline{\kappa}_l\left(n,m\right)$ and smallest $\bar{\kappa}_l\left(n,m\right)$ so the bounds are as tight as possible. Solving the continuous problem will give bounds on the discrete. It's easy to argue that : 
+$$
+\underline\kappa_l\left(n,m\right)\geq1.
+$$
+Because we've already proven : 
+$$
+C_l\left( \mathbb{P},m\right)\leq D_l\left( \mathbb{P},m\right)
+$$
+Just like we've done in the beginning of \ref{limit}, it's time to reformulate the discrete scenario reduction problem such as :
+\begin{theorem}
+    For any type-l Wasserstein distance induced by any norm $\lVert.\rVert$, the discrete scenario reduction problem can be reformulated as 
+    $$
+    D_l\left(\mathbb{P},m\right)=\min_{\{I_j\}\in\mathfrak{P}\left(I,m\right)}\left[ \frac{1}{n}\sum_{j\in J}\min_{y_j\in\{x_i : i\in I_j\}}\sum_{i\in I_j}\lVert x_i-y_j\rVert^l\right]^{1/l}.
+    $$
+\end{theorem}
+What follows assumes that $n\geq2, m\in\{1,...,n-1\}$ and $d\geq2.$
+\subsection{Type-2 Wasserstein distance}
+In this part we'll find $\bar{\kappa}_2\left(n,m\right), \underline\kappa_2\left(n,m\right)$.
+\begin{theorem}
+    The upper bound $\bar\kappa_2\left(n,m\right)$ satisfies $\bar\kappa_2\left(n,m\right)\leq \sqrt{2}$ for all n, m.
+\end{theorem}
+The proof is very interesting for one's intuition and easy to understand.
+\begin{proof}
+    Step 1 proves the result for $m=1$. Let $\mathbb{P}=\frac{1}{n}\sum_{i\in I}\delta_{x_i}\in\mathcal{P}_E\left(\RR^d,n\right)$ (remember that sampling is why we consider $\mathbb{P}$ uniform and if $\mathbb{P}$ doesn't come from sampling, we could consider an uniform distribution with many atoms close to an atom with "huge" probability). W.l.o.g., we can assume that $\frac{1}{n}\sum_{i\in I}x_i=0$ and $\frac{1}{n}\sum_{i\in I}\lVert x_i\rVert^2=1$ because re-positionning doesn't affect $C_l$ and $D_l$ (easy to prove) and re-scaling affects equally $D_l$ and $C_l$ (see \ref{scaled}, \ref{scaled 2}).
+    \newline
+    The first reformulation gives that :
+    $$
+    C_2\left(\mathbb{P},1\right)=\left[\frac{1}{n}\sum_{i\in I}\lVert x_i-mean(I)\rVert_2^2\right]^{1/2}=1.
+    $$
+    Now we use the latest reformulation to compute $D_2$ :
+    $$
+    D_2\left(\mathbb{P},1\right)^2=\frac{1}{n}\min_{j\in I}\sum_{i\in I}\lVert x_i-x_j\rVert^2_2.
+    $$
+    So the $\left(j, x_j\right)$ minimizing this expression minimizes the sum of squared distances with all atoms of $\mathbb{P}$ ! Let's develop :
+    \begin{align*}
+    D_2\left(\mathbb{P},1\right)^2&=\frac{1}{n}\min_{j\in I}\sum_{i\in I}\left(\rVert x_i\rVert^2_2-2x_i^Tx_j+\rVert x_j\rVert^2_2\right)\\&=\frac{1}{n}\sum_{i\in I}\lVert x_i\rVert_2^2-\frac{2}{n}\min_{j\in I}\left(\sum_{i\in I}x_i^T\right)x_j+\min_{j\in I}\lVert x_j\rVert^2_2 \\&=1+\min_{j\in I}\lVert x_j\rVert^2_2\leq2.
+    \end{align*}
+Where the third equality is due to $mean(I)=0$ and the inequality is due to $\min_{j\in I}\lVert x_j\rVert^2_2=\frac{1}{n}\sum_{i\in I}\min_{j\in I}\lVert x_j\rVert^2_2\leq \frac{1}{n}\sum_{i\in I}\lVert x_j\rVert^2_2=1$. Then $$D_2\left(\mathbb{P},1\right)\leq\sqrt{2}$$
+In order to make it complete for the case $m=1$. Let $\mathbb{P}=\frac{1}{n}\sum_{i\in I}\delta_{x_i}\in\mathcal{P}_E\left(\RR^d,n\right)$. We consider $\mathbb{P}'=\frac{1}{n}\sum_{i\in I}\delta_{\frac{x_i-mean(I)}{r}}$ with $r=\sqrt{\sum_{i\in I}\rVert x_i-mean(I)\lVert^2_2}$. $\mathbb{P}'$ verifies the aforementionned conditions. Then : 
+$$
+\frac{D_2\left(\mathbb{P},1\right)}{C_2\left(\mathbb{P},1\right)}=\frac{rD_2\left(\mathbb{P}',1\right)}{rC_2\left(\mathbb{P}',1\right)}=\frac{D_2\left(\mathbb{P}',1\right)}{C_2\left(\mathbb{P}',1\right)}\leq \sqrt{2}.
+$$
+Then $$\bar\kappa_2\left(n,1\right)\leq\sqrt{2}.$$
+\newline
+
+Step 2 extends the result for $m\in\{1,...,n-1\}$ using the result above for $m=1$ by decomposing with $m$ scenario reduction problem with 1 atom, see \cite[Theorem 5]{rujeerapaiboon_scenario_2022}.
+\end{proof}
+\begin{proposition}
+    $\bar\kappa_2\left(n,m\right)=\sqrt{2}$, meaning that there exists $\mathbb{P}\in\mathcal{P}_E\left(\RR^d,n\right)$ such that $D_2\left(\mathbb{P},m\right)=\sqrt{2}C_2\left(\mathbb{P},m\right)$
+\end{proposition}
+\begin{proof}
+    Similarly to the proof right above, we'll do it for $m=1$ first. What we have to is find a distribution where the last inequality is in fact an equality. To this idea, we choose a \textbf{centered} distribution with all $\lVert x_i\rVert_2=1$.
+\end{proof}
+Lower bounds are given as follows : 
+\begin{proposition}
+    The lower bound $\underline\kappa_2\left(n,m\right)=1$ whenever $n\geq3$ and $m\in\{1,...,n-2\}$ while $\underline\kappa_2\left(n,n-1\right)=\sqrt{2}.$
+\end{proposition}
+\subsection{Type-1 Wasserstein distance}
+Similarly to the above subsection, we'll find $\bar{\kappa}_1\left(n,m\right), \underline\kappa_1\left(n,m\right)$. In this part, we'll only stack results.
+\begin{theorem}
+    The upper bound $\bar\kappa_1\left(n,m\right)$ satisfies $\bar\kappa_1\left(n,m\right)\leq2$ whenever $m\in\{2,...,n-2\}$ as well as $\bar\kappa_1\left(n,1\right)\leq2\left(1-\frac{1}{n}\right)$ and $\bar\kappa_1\left(n,n-1\right)\leq1$
+\end{theorem}
+\begin{proposition}
+    There is $\mathbb{P}\in\mathcal{P}_E\left(\RR^d,n\right)$ such that $D_1\left(\mathbb{P},m\right)=2\left(1-\frac{1}{n}\right)C_1\left(\mathbb{P},m\right)$ under the 1-norm for all $n$ divisible by $2m$, all $m$ and all $d\geq \frac{n}{2m}$.
+\end{proposition}
+\begin{proposition}
+    The lower bound $\underline{\kappa}_1\left(n,m\right)$ satisfies $\underline{\kappa}_1\left(n,m\right)=1$ for all $n, m$.
+\end{proposition}
+
+
+
 
 \newpage
 
@@ -179,8 +250,8 @@ One more thing we can say is that $rk(A)=n+m-1$. The rows of A are linearly depe
 \end{bmatrix}=0_{\RR^{nm}}.
 $$
 Directly, we see that $\forall i \in [\![1;n]\!], \lambda_i=0$ when we look at the $(m\times i)^{th}$ coefficient and then $\forall k\in[\![1;n+m-1]\!], \lambda_k=0$ is easy to see. Then $rk(A)=n+m-1$. \rp{kind of useless as we know that the number of variables in basis is $n+m$ (number of constraints) but can be the starting point of sparsity explanation if I study regularization as Benoît mentionned}
-\section{Positive homogeneity of Wasserstein distance}
-\label{positive h}
+\section{Scaled distribution and Wasserstein distance}
+\label{scaled}
  Let $m\in\mathbb{N}^*$, $\mathbb{Q}\in\mathcal{P}(X,m) $ and $\lambda\in\RR^*$. We have that
 \begin{align*}
     d_l(\mathbb{P}^\lambda,\mathbb{Q})^l&=\min_{\pi\in\mathbb{R_+^{|I|\times|J|}}}\left\{ 
@@ -194,13 +265,30 @@ Directly, we see that $\forall i \in [\![1;n]\!], \lambda_i=0$ when we look at t
 \end{aligned}\right\} \\
 &=\lambda^l \cdot d_l(\mathbb{P},\mathbb{Q}^{\frac{1}{\lambda}})^l.
 \end{align*}
-We've proved that $d_l(\mathbb{P}^\lambda,\mathbb{Q})=\lambda\cdot d_l(\mathbb{P},\mathbb{Q}^{\frac{1}{\lambda}})$. Now, we have $$C_l(\mathbb{P}^\lambda,m)\leq d_l(\mathbb{P}^\lambda,\mathbb{Q})=\lambda\cdot d_l(\mathbb{P},\mathbb{Q}^{\frac{1}{\lambda}})$$
+Taking the $\frac{1}{\lambda}^{th}$ power gives :  $d_l(\mathbb{P}^\lambda,\mathbb{Q})=\lambda\cdot d_l(\mathbb{P},\mathbb{Q}^{\frac{1}{\lambda}})$. Now, we have $$C_l(\mathbb{P}^\lambda,m)\leq d_l(\mathbb{P}^\lambda,\mathbb{Q})=\lambda\cdot d_l(\mathbb{P},\mathbb{Q}^{\frac{1}{\lambda}})$$
 But the left hand side doesn't depend on $\mathbb{Q}$ any longer so we can minimize the right hand side over $\mathbb{Q}\in\mathcal{P}(X,m)$ almost directly $C_l(\mathbb{P},m)=\min_\mathbb{Q}\left\{d_l(\mathbb{P},\mathbb{Q}),\: \mathbb{Q}\in\mathcal{P}(\mathbb{R}^d,m)\right\}=\min_\mathbb{Q}\left\{d_l(\mathbb{P},\mathbb{Q}^\frac{1}{\lambda}),\: \mathbb{Q}\in\mathcal{P}(\mathbb{R}^d,m)\right\}$ :
 $$
 C_l(\mathbb{P}^\lambda,m)\leq \lambda\cdot C_l(\mathbb{P},m).
 $$
 Similarly we can prove : $C_l(\mathbb{P}^\lambda,m)\geq \lambda\cdot C_l(\mathbb{P},m)$, both results prove the positive homogeneity of the Wasserstein distance.
 The result holds for $\lambda=0$. $m\geq 1$ (don't you dare trying to reduce a distribution to a distribution without a single atom...), $\mathbb{P}^0=\delta_0$. We have that : $$0\leq C_l(\mathbb{P}^0,m)\leq d_l(\mathbb{P}^0,\delta_0)=0.$$
+\section{Scaled distribution and Wasserstein distance 2.0}
+\label{scaled 2}
+Using what we did in the appendix above, with $\mathbb{Q}\in\mathcal{P}\left(\text{supp}\left(P\right),m\right)$, it's easy to verify that $\mathbb{Q}^\lambda\in\mathcal{P}\left(\text{supp}\left(P^\lambda\right),m\right)$ and we have that : $$\lambda D_l\left(\mathbb{P},m\right)\leq \lambda d_l\left(\mathbb{P},\mathbb{Q}\right)=d_l\left(\mathbb{P}^\lambda,\mathbb{Q}^\lambda\right).$$ 
+Similarly to the above appendix, we can now minimize the right hand side because the left hand side doesn't depend on $\mathbb{Q}$.
+We have :
+$$
+\lambda D_l\left(\mathbb{P},m\right)\leq D_l\left(\mathbb{P}^\lambda,m\right).
+$$
+The exact same thing works in order to get : 
+$$
+\lambda D_l\left(\mathbb{P},m\right)\geq D_l\left(\mathbb{P}^\lambda,m\right).
+$$
+Meaning that : 
+$$
+\lambda D_l\left(\mathbb{P},m\right)=D_l\left(\mathbb{P}^\lambda,m\right).
+$$
+As a reminder, we've proven the same thing for $C_l$. Works too when $\lambda= 0$.
 \section{Eigenvalues of a matrix invariant under permutations}
  \label{eigen}
  A matrix $A$ that is invariant under permutations can be written as $A=\alpha I_n + \beta \mathbf{1}\mathbf{1}^T$ whose characteristic polynomial is :
