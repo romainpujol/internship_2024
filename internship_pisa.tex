@@ -1,6 +1,7 @@
 \documentclass{amsart}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
+\usepackage{algorithm2e}
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amssymb}
@@ -45,6 +46,8 @@
 \title{Scenario reduction}
 
 \begin{document}
+\LinesNumbered
+\RestyleAlgo{boxruled}
 \maketitle
 In this draft, I aim to sum up \cite{rujeerapaiboon_scenario_2022}.
 
@@ -83,7 +86,7 @@ With this homogeneity, working in the unit ball is a legit assumption as we can 
 $$
 \bar{C}_l\left(n,m \right)=\left\{\max_{\mathbb{P}\in\mathcal{P}_E(\mathbb{R}^d,n)}C_l(\mathbb{P},m)\: :\: \text{supp}(\mathbb{P})\in B(0,1)\right\}.
 $$
-The case that gives the highest value of optimal Wasserstein distance. The goal is to find an upper bound better than 1 for $\bar{C}_l\left(n,m \right)$. First, we prove that : $\bar{C}_l\left(n,m \right)\leq 1$. By definition, we have that  
+The goal is to find an upper bound better than 1 for $\bar{C}_l\left(n,m \right)$. First, we prove that : $\bar{C}_l\left(n,m \right)\leq 1$. By definition, we have that  
 $$d_l(\mathbb{P},\delta_0)=\left(\min_{\pi\in\mathbb{R_+^n}}\left\{ 
 \sum_{i=1}^n\pi_i\lVert x_i\rVert^l \: \text{ : } \:  \begin{aligned}
 & \pi_{i}=p_i, \: \forall i\in I \\
@@ -205,7 +208,7 @@ Lower bounds are given as follows :
     The lower bound $\underline\kappa_2\left(n,m\right)=1$ whenever $n\geq3$ and $m\in\{1,...,n-2\}$ while $\underline\kappa_2\left(n,n-1\right)=\sqrt{2}.$
 \end{proposition}
 \subsection{Type-1 Wasserstein distance}
-Similarly to the above subsection, we'll find $\bar{\kappa}_1\left(n,m\right), \underline\kappa_1\left(n,m\right)$. In this part, we'll only stack results.
+Similarly to the above subsection, we'll find $\bar{\kappa}_1\left(n,m\right), \underline\kappa_1\left(n,m\right)$. In this part, we'll only stack results. See \cite[Section 3.2]{rujeerapaiboon_scenario_2022} for proofs.
 \begin{theorem}
     The upper bound $\bar\kappa_1\left(n,m\right)$ satisfies $\bar\kappa_1\left(n,m\right)\leq2$ whenever $m\in\{2,...,n-2\}$ as well as $\bar\kappa_1\left(n,1\right)\leq2\left(1-\frac{1}{n}\right)$ and $\bar\kappa_1\left(n,n-1\right)\leq1$
 \end{theorem}
@@ -216,13 +219,78 @@ Similarly to the above subsection, we'll find $\bar{\kappa}_1\left(n,m\right), \
     The lower bound $\underline{\kappa}_1\left(n,m\right)$ satisfies $\underline{\kappa}_1\left(n,m\right)=1$ for all $n, m$.
 \end{proposition}
 
+\section{Algorithms for scenario reduction}
+In this section, we present various algorithms and heuristics that are often used for scenario reduction problem. In order to check the accuracy of algorithms, when an algorithm gives an upper bound $\bar{D}_l\left(\mathbb{P},m\right)$ on the discrete scenario reduction problem, we define the \textbf{approximation ratio} by 
+$$
+\max_{n,m,\mathbb{P}\in\mathcal{P}_E(\RR^d,n)}\frac{\bar{D}_l\left(\mathbb{P},m\right)}{D_l\left(\mathbb{P},m\right)}.
+$$
+
+\subsection{Dupacova et al. algorithm}
+Dupačová et al. \cite{dupacova_scenario_2003} provides a greedy algorithm for $D_l\left(\mathbb{P},m\right)$. Generally, the distribution obtained isn't a solution of the discrete scenario reduction problem.
+\begin{algorithm}
+  \caption{Dupačová et al.}
+  Initialize the set of atoms in the reduced set as $R\gets \emptyset.$ \\ Select the next atom to be added to the reduced set as $$ y\in\argmin_{y\in \text{supp}\left(\mathbb{P}\right)}D_l\left(\mathbb{P},R\cup\{y\}\right).
+  $$
+  Update $R\gets R\cup \{y\}$.\\ Repeat Step 2 until $\lvert R\rvert=m$.
+\end{algorithm}
+\rp{box is too large, don't know how to deal with that}
+Now that we have all atoms we will use, it's interesting to know the mass of each atom. Let $\{I_y\}\in \mathfrak{P}\left(I,m\right)$ be any partition of supp$\left(\mathbb{P}\right)$ into sets $I_y$ , $y\in R$, such that $I_y$ contains all elements of supp$\left(\mathbb{P}\right)$ that are closest to $y$ (ties may be broken arbitrarily). Then $\mathbb{Q}=\sum_{y\in R}q_y\delta_y$ where $q_y=\frac{\lvert I_y\rvert}{n}$.
+
+\begin{proposition}
+    For every $d\geq2$ and $l$, $p\geq1$ the approximation ratio of Dupačová et al.'s algorithm is unbounded.
+\end{proposition}
+\begin{proof}
+    The proof lies in the construction of a parametrized distribution that makes the ratio tends to infinity. It is therefore ommited for brevity. See \cite[Theorem 7]{rujeerapaiboon_scenario_2022}.
+\end{proof}
+
+\subsection{k-means clustering algorithm}
+The aim of k-means clustering is to reduced $n$ observations to $k$ clusters such that the intra-cluster sums of squared distances are minimized. It turns out to be a good idea to select $m$ atoms with the $n$ of $\text{supp}\left(\mathbb{P}\right)$. The amount of atoms in a cluster will give the probability of observing the cluster for the reduced distribution !
 
 
+\begin{algorithm}
+    \caption{k-means clustering for $C_l\left(\mathbb{P},m\right)$}
+    Initialize the reduced set $R=\{y_1,...,y_m\} \subseteq \text{supp}\left(\mathbb{P}\right)$ arbitrarily \\ Let $\{I_j\}\in\mathfrak{P}\left(I,m\right)$ be any partition whose sets $I_j, j\in J$, contain all atoms of supp$\left(P\right)$ that are closest to $y_j$ (ties may be broken arbitrarily). \\ For each $j\in J$, update $y_j$ as : $$y_j \gets \argmin_{y\in\RR^d} \left\{ \sum_{i\in I_j}\lVert x_i-y\rVert^l\right\}$$ \\ Repeat Steps 2 and 3 until the reduced set $R$ no longer changes.
+\end{algorithm}
 
-\newpage
 
+The reduced distribution is :
+$$
+\mathbb{Q}=\frac{1}{n}\sum_{y\in R}\delta_{y}c\left(y\right)
+$$
+where $ c\left(y\right)$ denotes the amount of atoms of $\mathbb{P}$ in the cluster $y$.
+
+\clearpage
 \appendix
 \section{Wasserstein distance is a distance}
+In this appendix, we prove that Wasserstein distance is indeed a distance whenever $l\geq1$.
+\begin{enumerate}
+    \item $d_l$ has values in $\RR_+$.
+    \item Symmetry is easy.
+    \item Definiteness requires a little more work. First, we prove that $d_l\left(\mathbb{P},\mathbb{Q}\right)=0\implies \lvert\mathbb{P}\rvert=\lvert\mathbb{Q}\rvert$ where $ \lvert.\rvert $ stands for the number of different atoms and then $d_l\left(\mathbb{P},\mathbb{Q}\right)=0\implies\mathbb{P}=\mathbb{Q}$. Alright, let $\mathbb{P}=\sum_{i\in I}\delta_{x_i}p_i,\mathbb{Q}=\sum_{j\in J}\delta_{y_j}q_j$ such that $d_l\left(\mathbb{P},\mathbb{Q}\right)=0$ if $n=\lvert\mathbb{P}\rvert \neq m=\lvert\mathbb{Q}\rvert$, let's assume that $n>m$. Then there exists $x\in \text{supp}\left(P\right)$ such that $x\neq y, \:\forall y\in\text{supp}\left(\mathbb{Q}\right)$ as you have $n$ different atoms for $\text{supp}\left(\mathbb{P}\right)$ and $m$ for $\text{supp}\left(\mathbb{Q}\right)$. But if $d_l\left(\mathbb{P},\mathbb{Q}\right)=0$ then :$$
+    \exists\pi\in\RR^{nm}_+ : \sum_{i\in I}\pi_{ij}=q_j, \sum_{j\in J}\pi_{ij}=p_i, \forall i,j \text{ and } \sum_{j\in J}\sum_{i\in I}\pi_{ij}\lVert x_i-y_j\rVert^l=0.
+    $$
+    Look at the last equation, each term of the sum is positive, then it follows that :
+    \begin{equation}\label{useful}
+    \forall i,j \in I\times J, \: \pi_{ij}\lVert x_i-y_j\rVert^l=0.
+    \end{equation}
+    and you can forget the $l^{th}$ power without a single remorse :
+    $$
+     \forall i,j \in I\times J, \: \pi_{ij}\lVert x_i-y_j\rVert=0.
+    $$
+    But we said that there exists $x_{i_0}\in\text{supp}\left(P\right)\setminus\text{supp}\left(Q\right)$. It follows that $\forall j\in J, \pi_{i_0j}=0$ what's impossible because of the constraints we had, $0=\sum_{j\in J}\pi_{i_0j}=p_{i_0}\neq0.$ First step : check ! $$d_l\left(\mathbb{P},\mathbb{Q}\right)=0\implies \lvert \mathbb{P}\rvert=\lvert \mathbb{Q}\rvert.$$
+    The same proof gives $\text{supp}\left(P\right)=\text{supp}\left(Q\right)$. We must show that $p_i=q_j$ whenever $p_i$ and $q_j$ are associated to the same atom. W.l.o.g. we can renumber the atom and then say $p_i$ and $q_i$ are associated to the same atom. We use \ref{useful} and we have that :
+    $$
+    \forall k\in I, k\neq i, \pi_{ki}=0, \pi_{ik}=0.
+    $$
+    Then the constraints on $\pi$ give  : $$ 
+    \sum_{k\in I}\pi_{ki}=\pi_{ii}=q_i \text{ and } \sum_{k\in J}\pi_{ik}=\pi_{ii}=p_i.
+    $$
+    We've proven the definiteness of $d_l$.
+    \item Triangle inequality, see \cite[Proposition 2.2]{peyre_computational_2019}
+\end{enumerate}
+\begin{remark}
+    If $0<l<1, d_l^l$ is a distance.
+\end{remark}
 \section{Computing Wasserstein distance}
 \label{compute}
 Let $\mathbb{P}=\sum_{i\in I}\delta_{x_i}p_i, \mathbb{Q}=\sum_{j\in J}\delta_{y_j}q_j$ two finite distributions. Computing the distance is equivalent to solving a linear program. Thus it is "easily" computable (with the simplex or with better-fitting techniques as it is a min-cost transportation problem).
