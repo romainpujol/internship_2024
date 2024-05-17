@@ -105,12 +105,12 @@ $\mathfrak{P}(I,m)$ is the family of m-set partitions of $I$.
 $$C_l(\mathbb{P},m)=\min_{\{I_j\}\in \mathfrak{P}(I,m)}\left\{ \frac{1}{n}\sum_{j\in J}\min_{y_j\in\mathbb{R}^d}\sum_{i\in I_j}\lVert x_i-y_j\rVert^l \right\}^{1/l}.$$
 \end{theorem}
 
-For $l=2$, the inner minimum, $y_j^*=\frac{1}{|I_j|}\sum_{i\in I_j}x_i$. For $l=1$, $y_j^*$ is attained by any geometric median \rp{I can't find anything for that notion}
+For $l=2$, the inner minimum, $y_j^*=\frac{1}{|I_j|}\sum_{i\in I_j}x_i$. For $l=1$, $y_j^*$ is attained by any geometric median.
 
 \begin{theorem} Type-2 Wasserstein distance upper bound
     $$\bar{C}_2\left(n,m \right)\leq \sqrt{\frac{n-m}{n-1}}.$$
 \end{theorem}
-\rp{The use of $\tau$ in the proof is legit as $\tau \leq \sum_{j\in J}\sum_{i\in I_j}\lVert x_i-\text{mean}(I_j)\rVert_2^2,\:\forall \{I_j\}$ means that $\tau\leq\min_{\{I_j\}}\sum_{j\in J}\sum_{i\in I_j}\lVert x_i-mean(I_j)\rVert_2^2$ but as we want to maximize the function $\tau$ will be the highest he can, so it'll be equal to the minimum, thereafter it gets technical but understandable.}
+The use of $\tau$ in the proof is legit as $\tau \leq \sum_{j\in J}\sum_{i\in I_j}\lVert x_i-\text{mean}(I_j)\rVert_2^2,\:\forall \{I_j\}$ means that $\tau\leq\min_{\{I_j\}}\sum_{j\in J}\sum_{i\in I_j}\lVert x_i-mean(I_j)\rVert_2^2$ but as we want to maximize the function $\tau$ will be the highest he can, so it'll be equal to the minimum, thereafter it gets technical but understandable.
 Two lemmas are used to prove this inequality. Lemma 1 is kind of technical as the set of solutions of a convex problem is convex, which is necessary to say that : $S=\frac{1}{n!}\sum_{\sigma\in\mathfrak{S}}S^\sigma$ is also a solution. This matrix S is indeed invariant under permutations. Lemma 2 is easy but I give an easier proof in \ref{eigen}.
 
 Then we show a distribution \textbf{that reaches the upper bound for \boldmath{$d\geq n-1$}(meaning that the upper bound is optimal)} under these assumptions.
@@ -283,6 +283,17 @@ $$
 \frac{\bar{D}_l\left(\mathbb{P},m\right)}{C_l\left(\mathbb{P},m\right)}\leq \frac{2\bar{D}_l\left(\mathbb{P},m\right)}{D_l\left(\mathbb{P},m\right)}\leq 2\max_{n,m,\mathbb{P}\in\mathcal{P}_E(\RR^d,n)}\frac{\bar{D}_l\left(\mathbb{P},m\right)}{D_l\left(\mathbb{P},m\right)}=2\times5=10.
 $$
 We can now maximize the left hand side on $n,m,\mathbb{P}$ as the right hand side doesn't depend on the three.
+
+\subsection{MILP reformulation of the discrete scenario reduction problem}
+We first review a well-known mixed-integer linear programming (MILP) reformulation of the discrete scenario reduction problem $D_l\left(\mathbb{P},m\right)$.
+\begin{theorem}
+The discrete scenario reduction problem can be formulated as the MILP
+    \begin{align*}
+    D_l^l\left(\mathbb{P},m\right)=&\min_{\Pi,\lambda}\:\frac{1}{n}<\pi,D> \\ &\text{s.t. } \;\pi e=e, \; \pi \leq e\lambda^T,\; \lambda^Te=m\\&\quad\quad \pi\in\RR^{n\times m}_+, \; \lambda\in\{0,1\}^n
+    \end{align*}
+    with $D\in \mathbb{S}^n$ and $D_{ij}=\lVert x_i-x_j\rVert^l$
+\end{theorem}
+\rp{first constraint means $\sum_{j=1}^n\pi_{ij}=1$ for all $i$, second forces $\lambda_i$ to be 1 if you choose $x_j$ and the third one counts the number of atom you choose. My issue concerns the objective function, idk why there is a $\frac{1}{n}$ in front ?}
 \clearpage
 \appendix
 \section{Wasserstein distance is a distance}
@@ -422,6 +433,7 @@ The gradient isn't always defined according to the norm but when it's $\lVert.\r
     \lambda_0r=0
 \end{align*}
 \rp{Can't conclude right now with these conditions, need to think more I guess, maybe I can start by proving that $0_{\RR^d},max\lVert x_i\rVert$ is the optimal couple when the family is centered and then extending it to every family by centering the family with $x_i-\mu$ with $\mu$ being the mean of the family}
+\rp{smallest circle problem}
 
 
 \bibliography{biblio}
