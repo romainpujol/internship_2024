@@ -86,17 +86,21 @@ With this homogeneity, working in the unit ball is a legit assumption as we can 
 $$
 \bar{C}_l\left(n,m \right)=\left\{\max_{\mathbb{P}\in\mathcal{P}_E(\mathbb{R}^d,n)}C_l(\mathbb{P},m)\: :\: \text{supp}(\mathbb{P})\in B(0,1)\right\}.
 $$
-The goal is to find an upper bound better than 1 for $\bar{C}_l\left(n,m \right)$. First, we prove that : $\bar{C}_l\left(n,m \right)\leq 1$. By definition, we have that  
-$$d_l(\mathbb{P},\delta_0)=\left(\min_{\pi\in\mathbb{R_+^n}}\left\{ 
+The goal is to find an upper bound better than 1 for $\bar{C}_l\left(n,m \right)$. First, we prove that : $\bar{C}_l\left(n,m \right)\leq 1$. By definition, for $\mathbb{P}\in\mathcal{P}_E(\mathbb{R}^d,n)$, we have that  
+$$d_l(\mathbb{P},\delta_0)^l=\left(\min_{\pi\in\mathbb{R_+^n}}\left\{ 
 \sum_{i=1}^n\pi_i\lVert x_i\rVert^l \: \text{ : } \:  \begin{aligned}
 & \pi_{i}=p_i, \: \forall i\in I \\
 & \sum_{i= 1}^n\pi_{i}=1 
-\end{aligned}\right\}\right)^{1/l} \leq 1.$$
-Here we used that $\lVert x_i\rVert\leq 1$. Again by definition, we have that
+\end{aligned}\right\}\right)\leq\left(\min_{\pi\in\mathbb{R_+^n}}\left\{ 
+\sum_{i=1}^n\pi_i \: \text{ : } \:  \begin{aligned}
+& \pi_{i}=p_i, \: \forall i\in I \\
+& \sum_{i= 1}^n\pi_{i}=1 
+\end{aligned}\right\}\right)=1.$$
+Here we used that $\lVert x_i\rVert\leq 1$ and positivity of $\pi$. Again by definition, we have that
 $$
 C_l(\mathbb{P},m)\leq C_l(\mathbb{P},1)\leq d_l(\mathbb{P},\delta_0)\leq 1.
 $$
-1 doesn't depend on $\mathbb{P}$, so we can go to the upper bound for $\mathbb{P}\in\mathcal{P}_E(\mathbb{R}^d,n), \text{supp}(\mathbb{P})\in B(0,1)$ and we proved that $\bar{C}_l\left(n,m \right)\leq1$ \rp{this bound even works for non uniform discrete distributions and doesn't matter on the norm we use as long as $\text{supp}(\mathbb{P})\in B(0,1)$ for the norm}
+The right hand side which is 1 doesn't depend on $\mathbb{P}$, so we can go to the upper bound for $\mathbb{P}\in\mathcal{P}_E(\mathbb{R}^d,n), \text{supp}(\mathbb{P})\in B(0,1)$ and we proved that $\bar{C}_l\left(n,m \right)\leq1$ \rp{this bound even works for non uniform discrete distributions and doesn't matter on the norm we use as long as $\text{supp}(\mathbb{P})\in B(0,1)$ for the norm}
 The aim of what's next is to tighten that bound for particular $l$ and with $\lVert.\rVert_2$
 \newline
 
@@ -105,7 +109,7 @@ $\mathfrak{P}(I,m)$ is the family of m-set partitions of $I$.
 $$C_l(\mathbb{P},m)=\min_{\{I_j\}\in \mathfrak{P}(I,m)}\left\{ \frac{1}{n}\sum_{j\in J}\min_{y_j\in\mathbb{R}^d}\sum_{i\in I_j}\lVert x_i-y_j\rVert^l \right\}^{1/l}.$$
 \end{theorem}
 
-For $l=2$, the inner minimum, $y_j^*=\frac{1}{|I_j|}\sum_{i\in I_j}x_i$. For $l=1$, $y_j^*$ is attained by any geometric median.
+For $l=2$, the inner minimum, $y_j^*=\frac{1}{|I_j|}\sum_{i\in I_j}x_i$. For $l=1$, $y_j^*$ is attained by any geometric median (minimizer of the distance - not squared - to a family).
 
 \begin{theorem} Type-2 Wasserstein distance upper bound
     $$\bar{C}_2\left(n,m \right)\leq \sqrt{\frac{n-m}{n-1}}.$$
@@ -115,12 +119,27 @@ Two lemmas are used to prove this inequality. Lemma 1 is kind of technical as th
 
 Then we show a distribution \textbf{that reaches the upper bound for \boldmath{$d\geq n-1$}(meaning that the upper bound is optimal)} under these assumptions.
 
-Same thing can be proven for $\lVert.\rVert_1$
+For $l=1$, we prove :
 $$
 \bar{C}_1\left(n,m \right)\leq\bar{C}_2\left(n,m \right) \leq\sqrt{\frac{n-m}{n-1}}.
 $$
 \begin{proof}
-    Geometric as $$\sum_{i\in I_j}\lVert x_i-\text{gmed}(I_j)\rVert_2\leq \sum_{i\in I_j}\lVert x_i-\text{mean}(I_j)\rVert_2, \: \forall j\in J.$$ 
+    \begin{align*}\bar{C}_1\left(n,m\right)=&
+        \max_{\{y_i\}\subseteq\RR^d}\min_{\{I_j\}\in\mathfrak{P}\left(I,m\right)}\frac{1}{n}\sum_{j\in J}\sum_{i\in I_j}\lVert y_i-\text{gmed}\left(I_j\right)\rVert_2 \\ &\lVert y_i\rVert_2\leq1 \:\forall i\in I
+    \end{align*}
+    By definition of the geometric median we have that : $$\sum_{i\in I_j}\lVert x_i-\text{gmed}(I_j)\rVert_2\leq \sum_{i\in I_j}\lVert x_i-\text{mean}(I_j)\rVert_2, \: \forall j\in J.$$ 
+    Then we have that :
+    \begin{align*}
+        \bar{C}_1\left(n,m\right)\leq&
+        \max_{\{y_i\}\subseteq\RR^d}\min_{\{I_j\}\in\mathfrak{P}\left(I,m\right)}\frac{1}{n}\sum_{j\in J}\sum_{i\in I_j}\lVert y_i-\text{mean}\left(I_j\right)\rVert_2 \\ &\lVert y_i\rVert_2\leq1 \:\forall i\in I \\
+        \leq&\max_{\{y_i\}\subseteq\RR^d}\min_{\{I_j\}\in\mathfrak{P}\left(I,m\right)}\left[\frac{1}{n}\sum_{j\in J}\sum_{i\in I_j}\lVert y_i-\text{mean}\left(I_j\right)\rVert_2^2\right]^{1/2} \\ &\lVert y_i\rVert_2\leq1 \:\forall i\in I\\
+        &=\bar{C}_2\left(n,m\right).
+    \end{align*}
+    Where the last inequality comes from Cauchy-Schwartz inequality. For all $i\in[\![1;n]\!], x_i\in\RR^d$, 
+    $$
+    \frac{1}{n}<x,\mathbf{1}>=\frac{1}{n}\sum_{i=1}^nx_i \leq \frac{\sqrt{n}}{n}\lVert x\rVert=\sqrt{\frac{\sum_{i=1}^nx_i^2}{n}}.
+    $$
+    In that case, $d=1, x_{ij}\gets y_i-\text{mean}\left(I_j\right)$.
 \end{proof}
 Maybe the bound can be tightened because the proof only proves : $$\bar{C}_1\left(n,m \right)\leq\bar{C}_2\left(n,m \right).$$
 Unlike $\bar{C}_2\left(n,m \right)$, we also get a lower bound on $\bar{C}_1\left(n,m \right)$: $$\bar{C}_1\left(n,m \right)\geq\sqrt{\frac{(n-m)(n-m+1)}{n(n-1)}}\geq \frac{n-m}{n-1}.$$
@@ -293,7 +312,7 @@ The discrete scenario reduction problem can be formulated as the MILP
     \end{align*}
     with $D\in \mathbb{S}^n$ and $D_{ij}=\lVert x_i-x_j\rVert^l$
 \end{theorem}
-\rp{first constraint means $\sum_{j=1}^n\pi_{ij}=1$ for all $i$ (what seems weird), second forces $\lambda_i$ to be 1 if you choose $x_j$ and the third one counts the number of atoms you choose.}
+\rp{first constraint means $\sum_{j=1}^n\pi_{ij}=1$ for all $i$ (what seems weird), second forces $\lambda_i$ to be 1 if you choose $x_j$ and the third one counts the number of atoms you choose. So basically I didn't understand the formulation}
 \clearpage
 \appendix
 \section{Wasserstein distance is a distance}
