@@ -104,25 +104,39 @@ The right hand side which is 1 doesn't depend on $\mathbb{P}$, so we can go to t
 The aim of what's next is to tighten that bound for particular $l$ and with $\lVert.\rVert_2$
 \newline
 
-$\mathfrak{P}(I,m)$ is the family of m-set partitions of $I$.
-\begin{theorem}{Reformulation}
+$\mathfrak{P}(I,m)$ is the family of m-set partitions of $I$. Following \cite{rujeerapaiboon_scenario_2022}, we write $\{I_j\}$ an element of $\mathfrak{P}(I,m)$ and $I_j$ for $j\in\{1,..,m\}$ a set of the partition $\{I_j\}$.
+\begin{theorem}{Reformulation}\label{theorem1}
 $$C_l(\mathbb{P},m)=\min_{\{I_j\}\in \mathfrak{P}(I,m)}\left\{ \frac{1}{n}\sum_{j\in J}\min_{y_j\in\mathbb{R}^d}\sum_{i\in I_j}\lVert x_i-y_j\rVert^l \right\}^{1/l}.$$
 \end{theorem}
 
-For $l=2$, the inner minimum, $y_j^*=\frac{1}{|I_j|}\sum_{i\in I_j}x_i$. For $l=1$, $y_j^*$ is attained by any geometric median (minimizer of the distance - not squared - to a family).
+\begin{remark}
+    For $l=2$, the inner minimum, $y_j^*=\frac{1}{|I_j|}\sum_{i\in I_j}x_i$. For $l=1$, $y_j^*$ is attained by any geometric median (minimizer of the distance - not squared - to a family). Indeed, let $\{I_j\}\in\mathfrak{P}\left(I,m\right)$ and $I_j\in\{I_j\}$ fixed. We want to compute the inner minimum : 
+    $$
+    \min_{y\in\RR^d}f(y)=\min_{y\in\RR^d}\sum_{i\in I}\lVert x_i-y\rVert^2.
+    $$
+    We have to minimize an unconstrained function, when the norm is the $L-2$ norm, the gradient of this function is : 
+    $$
+    \nabla f(y)=-2\sum_{i\in I}\left(x_i-y\right).
+    $$
+    This gradient is worth zero when :
+    $$
+    y=\frac{1}{n}\sum_{i\in I}x_i=\text{mean}\left(I\right).
+    $$
+\end{remark}
 
 \begin{theorem} Type-2 Wasserstein distance upper bound
     $$\bar{C}_2\left(n,m \right)\leq \sqrt{\frac{n-m}{n-1}}.$$
 \end{theorem}
-The use of $\tau$ in the proof is legit as $\tau \leq \sum_{j\in J}\sum_{i\in I_j}\lVert x_i-\text{mean}(I_j)\rVert_2^2,\:\forall \{I_j\}$ means that $\tau\leq\min_{\{I_j\}}\sum_{j\in J}\sum_{i\in I_j}\lVert x_i-mean(I_j)\rVert_2^2$ but as we want to maximize the function $\tau$ will be the highest he can, so it'll be equal to the minimum, thereafter it gets technical but understandable.
+The use of $\tau$ in the proof is legit as $\tau \leq \sum_{j\in J}\sum_{i\in I_j}\lVert x_i-\text{mean}(I_j)\rVert_2^2,\:\forall \{I_j\}$ means that $\tau\leq\min_{\{I_j\}}\sum_{j\in J}\sum_{i\in I_j}\lVert x_i-\text{mean}(I_j)\rVert_2^2$ but as we want to maximize the function $\tau$ will be the highest he can, so it'll be equal to the minimum, thereafter it gets technical but understandable.
 Two lemmas are used to prove this inequality. Lemma 1 is kind of technical as the set of solutions of a convex problem is convex, which is necessary to say that : $S=\frac{1}{n!}\sum_{\sigma\in\mathfrak{S}}S^\sigma$ is also a solution. This matrix S is indeed invariant under permutations. Lemma 2 is easy but I give an easier proof in \ref{eigen}.
 
 Then we show a distribution \textbf{that reaches the upper bound for \boldmath{$d\geq n-1$}(meaning that the upper bound is optimal)} under these assumptions.
 
 For $l=1$, we prove :
-$$
-\bar{C}_1\left(n,m \right)\leq\bar{C}_2\left(n,m \right) \leq\sqrt{\frac{n-m}{n-1}}.
-$$
+\begin{theorem}
+    $$\bar{C}_1\left(n,m \right)\leq\bar{C}_2\left(n,m \right) \leq\sqrt{\frac{n-m}{n-1}}.$$
+\end{theorem}
+
 \begin{proof}
     \begin{align*}\bar{C}_1\left(n,m\right)=&
         \max_{\{y_i\}\subseteq\RR^d}\min_{\{I_j\}\in\mathfrak{P}\left(I,m\right)}\frac{1}{n}\sum_{j\in J}\sum_{i\in I_j}\lVert y_i-\text{gmed}\left(I_j\right)\rVert_2 \\ &\lVert y_i\rVert_2\leq1 \:\forall i\in I
@@ -130,9 +144,9 @@ $$
     By definition of the geometric median we have that : $$\sum_{i\in I_j}\lVert x_i-\text{gmed}(I_j)\rVert_2\leq \sum_{i\in I_j}\lVert x_i-\text{mean}(I_j)\rVert_2, \: \forall j\in J.$$ 
     Then we have that :
     \begin{align*}
-        \bar{C}_1\left(n,m\right)\leq&
-        \max_{\{y_i\}\subseteq\RR^d}\min_{\{I_j\}\in\mathfrak{P}\left(I,m\right)}\frac{1}{n}\sum_{j\in J}\sum_{i\in I_j}\lVert y_i-\text{mean}\left(I_j\right)\rVert_2 \\ &\lVert y_i\rVert_2\leq1 \:\forall i\in I \\
-        \leq&\max_{\{y_i\}\subseteq\RR^d}\min_{\{I_j\}\in\mathfrak{P}\left(I,m\right)}\left[\frac{1}{n}\sum_{j\in J}\sum_{i\in I_j}\lVert y_i-\text{mean}\left(I_j\right)\rVert_2^2\right]^{1/2} \\ &\lVert y_i\rVert_2\leq1 \:\forall i\in I\\
+        \bar{C}_1\left(n,m\right)&\leq
+        \max_{\{y_i\}\subseteq\RR^d}\left\{\min_{\{I_j\}\in\mathfrak{P}\left(I,m\right)}\frac{1}{n}\sum_{j\in J}\sum_{i\in I_j}\lVert y_i-\text{mean}\left(I_j\right)\rVert_2\quad,\quad \lVert y_i\rVert_2\leq1 \:\forall i\in I  \right\}\\ 
+        &\leq\max_{\{y_i\}\subseteq\RR^d}\left\{\min_{\{I_j\}\in\mathfrak{P}\left(I,m\right)}\left[\frac{1}{n}\sum_{j\in J}\sum_{i\in I_j}\lVert y_i-\text{mean}\left(I_j\right)\rVert_2^2\right]^{1/2}, \quad\lVert y_i\rVert_2\leq1 \:\forall i\in I\right\} \\
         &=\bar{C}_2\left(n,m\right).
     \end{align*}
     Where the last inequality comes from Cauchy-Schwartz inequality. For all $i\in[\![1;n]\!], x_i\in\RR^d$, 
@@ -178,7 +192,7 @@ $$
 C_l\left( \mathbb{P},m\right)\leq D_l\left( \mathbb{P},m\right)
 $$
 Just like we've done in the beginning of \ref{limit}, it's time to reformulate the discrete scenario reduction problem such as :
-\begin{theorem}
+\begin{theorem}\label{reformulation 2}
     For any type-l Wasserstein distance induced by any norm $\lVert.\rVert$, the discrete scenario reduction problem can be reformulated as 
     $$
     D_l\left(\mathbb{P},m\right)=\min_{\{I_j\}\in\mathfrak{P}\left(I,m\right)}\left[ \frac{1}{n}\sum_{j\in J}\min_{y_j\in\{x_i : i\in I_j\}}\sum_{i\in I_j}\lVert x_i-y_j\rVert^l\right]^{1/l}.
@@ -190,31 +204,45 @@ In this part we'll find $\bar{\kappa}_2\left(n,m\right), \underline\kappa_2\left
 \begin{theorem}
     The upper bound $\bar\kappa_2\left(n,m\right)$ satisfies $\bar\kappa_2\left(n,m\right)\leq \sqrt{2}$ for all n, m.
 \end{theorem}
-The proof is very interesting for one's intuition and easy to understand.
+The proof is very interesting for one's intuition and easy to understand even though it might look long.
 \begin{proof}
-    Step 1 proves the result for $m=1$. Let $\mathbb{P}=\frac{1}{n}\sum_{i\in I}\delta_{x_i}\in\mathcal{P}_E\left(\RR^d,n\right)$ (remember that sampling is why we consider $\mathbb{P}$ uniform and if $\mathbb{P}$ doesn't come from sampling, we could consider an uniform distribution with many atoms close to an atom with "huge" probability). W.l.o.g., we can assume that $\frac{1}{n}\sum_{i\in I}x_i=0$ and $\frac{1}{n}\sum_{i\in I}\lVert x_i\rVert^2=1$ because re-positionning doesn't affect $C_l$ and $D_l$ (easy to prove) and re-scaling affects equally $D_l$ and $C_l$ (see \ref{scaled}, \ref{scaled 2}).
+    \textbf{Step 1} proves the result for $m=1$. Let $\mathbb{P}=\frac{1}{n}\sum_{i\in I}\delta_{x_i}\in\mathcal{P}_E\left(\RR^d,n\right)$ (remember that sampling is why we consider $\mathbb{P}$ uniform and if $\mathbb{P}$ doesn't come from sampling, we could consider an uniform distribution with many atoms close to an atom with "huge" probability). W.l.o.g., we can assume that $\frac{1}{n}\sum_{i\in I}x_i=0$ and $\frac{1}{n}\sum_{i\in I}\lVert x_i\rVert^2=1$ because re-positionning doesn't affect $C_l$ and $D_l$ and re-scaling affects equally $D_l$ and $C_l$ (see \ref{scaled}, \ref{scaled 2}).
     \newline
     The first reformulation gives that :
     $$
-    C_2\left(\mathbb{P},1\right)=\left[\frac{1}{n}\sum_{i\in I}\lVert x_i-mean(I)\rVert_2^2\right]^{1/2}=1.
+    C_2\left(\mathbb{P},1\right)=\left[\frac{1}{n}\sum_{i\in I}\lVert x_i-\text{mean}(I)\rVert_2^2\right]^{1/2}=1.
     $$
     Now we use the latest reformulation to compute $D_2$ :
     $$
     D_2\left(\mathbb{P},1\right)^2=\frac{1}{n}\min_{j\in I}\sum_{i\in I}\lVert x_i-x_j\rVert^2_2.
     $$
-    So the $\left(j, x_j\right)$ minimizing this expression minimizes the sum of squared distances with all atoms of $\mathbb{P}$ ! Let's develop :
+    So the $\left(j, x_j\right)$ minimizing this expression minimizes the sum of squared distances with all atoms of $\mathbb{P}$ (but as the family is centered it'll be easier) ! Let's develop :
     \begin{align*}
     D_2\left(\mathbb{P},1\right)^2&=\frac{1}{n}\min_{j\in I}\sum_{i\in I}\left(\rVert x_i\rVert^2_2-2x_i^Tx_j+\rVert x_j\rVert^2_2\right)\\&=\frac{1}{n}\sum_{i\in I}\lVert x_i\rVert_2^2-\frac{2}{n}\min_{j\in I}\left(\sum_{i\in I}x_i^T\right)x_j+\min_{j\in I}\lVert x_j\rVert^2_2 \\&=1+\min_{j\in I}\lVert x_j\rVert^2_2\leq2.
     \end{align*}
-Where the third equality is due to $mean(I)=0$ and the inequality is due to $\min_{j\in I}\lVert x_j\rVert^2_2=\frac{1}{n}\sum_{i\in I}\min_{j\in I}\lVert x_j\rVert^2_2\leq \frac{1}{n}\sum_{i\in I}\lVert x_j\rVert^2_2=1$. Then $$D_2\left(\mathbb{P},1\right)\leq\sqrt{2}$$
-In order to make it complete for the case $m=1$. Let $\mathbb{P}=\frac{1}{n}\sum_{i\in I}\delta_{x_i}\in\mathcal{P}_E\left(\RR^d,n\right)$. We consider $\mathbb{P}'=\frac{1}{n}\sum_{i\in I}\delta_{\frac{x_i-mean(I)}{r}}$ with $r=\sqrt{\sum_{i\in I}\rVert x_i-mean(I)\lVert^2_2}$. $\mathbb{P}'$ verifies the aforementionned conditions. Then : 
+Where the third equality is due to $\text{mean}(I)=0$ and the inequality is due to $\min_{j\in I}\lVert x_j\rVert^2_2=\frac{1}{n}\sum_{i\in I}\min_{j\in I}\lVert x_j\rVert^2_2\leq \frac{1}{n}\sum_{i\in I}\lVert x_j\rVert^2_2=1$. Then $$D_2\left(\mathbb{P},1\right)\leq\sqrt{2}$$
+In order to make it complete for the case $m=1$. Let $\mathbb{P}=\frac{1}{n}\sum_{i\in I}\delta_{x_i}\in\mathcal{P}_E\left(\RR^d,n\right)$. We consider $\mathbb{P}'=\frac{1}{n}\sum_{i\in I}\delta_{\frac{x_i-\text{mean}(I)}{r}}$ with $r=\sqrt{\sum_{i\in I}\rVert x_i-\text{mean}(I)\lVert^2_2}$. $\mathbb{P}'$ verifies the aforementionned conditions. Then we have : 
 $$
 \frac{D_2\left(\mathbb{P},1\right)}{C_2\left(\mathbb{P},1\right)}=\frac{rD_2\left(\mathbb{P}',1\right)}{rC_2\left(\mathbb{P}',1\right)}=\frac{D_2\left(\mathbb{P}',1\right)}{C_2\left(\mathbb{P}',1\right)}\leq \sqrt{2}.
 $$
-Then $$\bar\kappa_2\left(n,1\right)\leq\sqrt{2}.$$
+Finally, we have : $$\bar\kappa_2\left(n,1\right)\leq\sqrt{2}.$$
 \newline
 
-Step 2 extends the result for $m\in\{1,...,n-1\}$ using the result above for $m=1$ by decomposing with $m$ scenario reduction problem with 1 atom, see \cite[Theorem 5]{rujeerapaiboon_scenario_2022}.
+\textbf{Step 2} extends the result for $n,m\in\{1,...,n-1\}$ using the result above for $m=1$ by decomposing with $m$ scenario reduction problem with 1 atom. Let $\mathbb{P}\in\mathcal{P}_E\left(\RR^d,n\right). $ With \ref{theorem1}, we can write that :
+$$
+C_2\left(\mathbb{P},m\right)=\min_{\{I_j\}\in \mathfrak{P}(I,m)}\left\{ \frac{1}{n}\sum_{j\in J}\sum_{i\in I_j}\lVert x_i-\text{mean}\left(I_j\right)\rVert^2_2 \right\}^{1/2}
+$$
+For an optimal $\{I_j^*\}\in\mathfrak{P}\left(I,m\right)$, we have that :
+$$
+C_2\left(\mathbb{P},m\right)=\left(\frac{1}{n}\sum_{j\in J}\sum_{i\in I_j^*} \lVert x_i-\text{mean}\left(I_j^*\right)\rVert^2_2\right)^{1/2}=\left(\frac{1}{n}\sum_{j\in J}\lvert I_j^*\rvert C^2_{2,j}\right)^{1/2}.
+$$
+with $C_{2,j}=\left(\frac{1}{\lvert I_j^*\rvert}\sum_{i\in I_j^*}\lVert x_i -\text{mean}\left(I_j\right)\rVert^2_2\right)$. So typically,  $C_{2,j}=C_2\left(\frac{1}{\lvert I_j^*\rvert}\sum_{i\in I_j^*}\delta_{x_i},1\right)$ as reminded for \textbf{step 1}.
+
+With $D_{2,k}=\min_{i\in I_k}\left(\frac{1}{\lvert I_k\rvert}\sum_{j\in I_k}\lVert x_j -x_i\rVert^2_2\right)^{1/2}$ and \ref{reformulation 2}, we have the analogous expression for an optimal $\{I_k^*\}\in\mathfrak{P}\left(I,m\right)$ : 
+$$
+D_2\left(\mathbb{P},m\right)=\left[ \sum_{k\in K}\frac{\lvert I_k^*\rvert}{n}D_{2,k}^2\right]^{1/2}\leq \left[ \sum_{j\in J}\frac{\lvert I_j^*\rvert}{n}D_{2,j}^2\right]^{1/2}\leq \left[ \sum_{j\in J}\frac{\lvert I_j^*\rvert}{n}2C_{2,j}^2\right]^{1/2}=\sqrt{2}C_2\left(\mathbb{P},m\right).
+$$
+The first inequality stands because $I_j^*\in\{I_j^*\}$ is an optimal partition for $C_2$, thus it is worse than or equal at $I_k^*$ for $D_2$. The second inequality stems from \textbf{step 1}. The statement is thus proven.
 \end{proof}
 \begin{proposition}
     $\bar\kappa_2\left(n,m\right)=\sqrt{2}$, meaning that there exists $\mathbb{P}\in\mathcal{P}_E\left(\RR^d,n\right)$ such that $D_2\left(\mathbb{P},m\right)=\sqrt{2}C_2\left(\mathbb{P},m\right)$
@@ -320,7 +348,7 @@ In this appendix, we prove that Wasserstein distance is indeed a distance whenev
 \begin{enumerate}
     \item $d_l$ has values in $\RR_+$.
     \item Symmetry is easy.
-    \item Definiteness requires a little more work. First, we prove that $d_l\left(\mathbb{P},\mathbb{Q}\right)=0\implies \lvert\mathbb{P}\rvert=\lvert\mathbb{Q}\rvert$ where $ \lvert.\rvert $ stands for the number of different atoms and then $d_l\left(\mathbb{P},\mathbb{Q}\right)=0\implies\mathbb{P}=\mathbb{Q}$. Alright, let $\mathbb{P}=\sum_{i\in I}\delta_{x_i}p_i,\mathbb{Q}=\sum_{j\in J}\delta_{y_j}q_j$ such that $d_l\left(\mathbb{P},\mathbb{Q}\right)=0$ if $n=\lvert\mathbb{P}\rvert \neq m=\lvert\mathbb{Q}\rvert$, let's assume that $n>m$. Then there exists $x\in \text{supp}\left(P\right)$ such that $x\neq y, \:\forall y\in\text{supp}\left(\mathbb{Q}\right)$ as you have $n$ different atoms for $\text{supp}\left(\mathbb{P}\right)$ and $m$ for $\text{supp}\left(\mathbb{Q}\right)$. But if $d_l\left(\mathbb{P},\mathbb{Q}\right)=0$ then :$$
+    \item Definiteness requires a little more work. First, we prove that $d_l\left(\mathbb{P},\mathbb{Q}\right)=0\implies \text{supp}\left(\mathbb{P}\right)=\text{supp}\left(\mathbb{Q}\right)$. Alright, let $\mathbb{P}=\sum_{i\in I}\delta_{x_i}p_i,\mathbb{Q}=\sum_{j\in J}\delta_{y_j}q_j$ such that $d_l\left(\mathbb{P},\mathbb{Q}\right)=0$, let's assume that $\text{supp}\left(\mathbb{P}\right)\ne\text{supp}\left(\mathbb{Q}\right)$. Then there exists $x_{i_0}\in \text{supp}\left(P\right)$ such that $x_{i_0}\neq y, \:\forall y\in\text{supp}\left(\mathbb{Q}\right)$ (if not, then a $y_{i_0}$ exists in $\text{supp}\left(Q\right)$ and $y_{i_0}\notin \text{supp}\left(P\right)$ as the support are different but it's the same, it doesn't matter). As $d_l\left(\mathbb{P},\mathbb{Q}\right)=0$ we have that :$$
     \exists\pi\in\RR^{nm}_+ : \sum_{i\in I}\pi_{ij}=q_j, \sum_{j\in J}\pi_{ij}=p_i, \forall i,j \text{ and } \sum_{j\in J}\sum_{i\in I}\pi_{ij}\lVert x_i-y_j\rVert^l=0.
     $$
     Look at the last equation, each term of the sum is positive, then it follows that :
@@ -331,15 +359,15 @@ In this appendix, we prove that Wasserstein distance is indeed a distance whenev
     $$
      \forall i,j \in I\times J, \: \pi_{ij}\lVert x_i-y_j\rVert=0.
     $$
-    But we said that there exists $x_{i_0}\in\text{supp}\left(P\right)\setminus\text{supp}\left(Q\right)$. It follows that $\forall j\in J, \pi_{i_0j}=0$ what's impossible because of the constraints we had, $0=\sum_{j\in J}\pi_{i_0j}=p_{i_0}\neq0.$ First step : check ! $$d_l\left(\mathbb{P},\mathbb{Q}\right)=0\implies \lvert \mathbb{P}\rvert=\lvert \mathbb{Q}\rvert.$$
-    The same proof gives $\text{supp}\left(P\right)=\text{supp}\left(Q\right)$. We must show that $p_i=q_j$ whenever $p_i$ and $q_j$ are associated to the same atom. W.l.o.g. we can renumber the atom and then say $p_i$ and $q_i$ are associated to the same atom. We use \ref{useful} and we have that :
+    But we said that there exists $x_{i_0}\in\text{supp}\left(P\right)\setminus\text{supp}\left(Q\right)$. It follows that $\forall j\in J, \pi_{i_0j}=0$ what's impossible because of the constraints we had, $0=\sum_{j\in J}\pi_{i_0j}=p_{i_0}\neq0.$ First step : check ! $$d_l\left(\mathbb{P},\mathbb{Q}\right)=0\implies \text{supp}\left(\mathbb{P}\right)=\text{supp}\left(\mathbb{Q}\right).$$
+    W.l.o.g. we can renumber the atom and then say $p_i$ and $q_i$ are associated to the same atom. We use \ref{useful} and we have that :
     $$
     \forall k\in I, k\neq i, \pi_{ki}=0, \pi_{ik}=0.
     $$
-    Then the constraints on $\pi$ give  : $$ 
+    Then the constraints on $\pi$'s sum on rows and columns give  : $$ 
     \sum_{k\in I}\pi_{ki}=\pi_{ii}=q_i \text{ and } \sum_{k\in J}\pi_{ik}=\pi_{ii}=p_i.
     $$
-    We've proven the definiteness of $d_l$.
+    We've proven the definiteness of $d_l$. Because supports and weights are the same for both distribution : $\mathbb{P}=\mathbb{Q}$.
     \item Triangle inequality, see \cite[Proposition 2.2]{peyre_computational_2019}
 \end{enumerate}
 \begin{remark}
@@ -396,8 +424,8 @@ Similarly we can prove : $C_l(\mathbb{P}^\lambda,m)\geq \lambda\cdot C_l(\mathbb
 The result holds for $\lambda=0$. $m\geq 1$ (don't you dare trying to reduce a distribution to a distribution without a single atom...), $\mathbb{P}^0=\delta_0$. We have that : $$0\leq C_l(\mathbb{P}^0,m)\leq d_l(\mathbb{P}^0,\delta_0)=0.$$
 \section{Scaled distribution and Wasserstein distance 2.0}
 \label{scaled 2}
-Using what we did in the appendix above, with $\mathbb{Q}\in\mathcal{P}\left(\text{supp}\left(P\right),m\right)$, it's easy to verify that $\mathbb{Q}^\lambda\in\mathcal{P}\left(\text{supp}\left(P^\lambda\right),m\right)$ and we have that : $$\lambda D_l\left(\mathbb{P},m\right)\leq \lambda d_l\left(\mathbb{P},\mathbb{Q}\right)=d_l\left(\mathbb{P}^\lambda,\mathbb{Q}^\lambda\right).$$ 
-Similarly to the above appendix, we can now minimize the right hand side because the left hand side doesn't depend on $\mathbb{Q}$.
+Using what we did in the appendix above, with $\mathbb{Q}\in\mathcal{P}\left(\text{supp}\left(P\right),m\right)\subset \mathcal{P}(X,m)$, it's easy to verify that $\mathbb{Q}^\lambda\in\mathcal{P}\left(\text{supp}\left(P^\lambda\right),m\right)$ and we have that : $$\lambda D_l\left(\mathbb{P},m\right)\leq \lambda d_l\left(\mathbb{P},\mathbb{Q}\right)=d_l\left(\mathbb{P}^\lambda,\mathbb{Q}^\lambda\right).$$ 
+Similarly to the above appendix, we can now minimize the right hand side because the left hand side doesn't depend on $\mathbb{Q}, \lambda$.
 We have :
 $$
 \lambda D_l\left(\mathbb{P},m\right)\leq D_l\left(\mathbb{P}^\lambda,m\right).
@@ -411,6 +439,33 @@ $$
 \lambda D_l\left(\mathbb{P},m\right)=D_l\left(\mathbb{P}^\lambda,m\right).
 $$
 As a reminder, we've proven the same thing for $C_l$. Works too when $\lambda= 0$.
+\section{Re-positionning and Wasserstein distance}
+We want to prove that re-positionning doesn't affect $C_l$ ($D_l$ equally). Let $\mathbb{P}=\sum_{i\in I}\delta_{x_i}p_i,\mathbb{Q}=\sum_{j\in J}\delta_{y_j}q_j, a\in\RR^d$. Let's write : $\mathbb{P}_a=\sum_{i\in I}\delta_{x_i+a}p_i$. 
+\begin{align*}
+d_l(\mathbb{P}_a,\mathbb{Q})&=\left(\min_{\pi\in\mathbb{R_+^{|I|\times|J|}}}\left\{ 
+\sum_{i\in I}\sum_{j\in J}\pi_{ij}\lVert (x_i+a)-y_j\rVert^l \: \text{ : } \:  \begin{aligned}
+& \sum_{j\in J}\pi_{ij}=p_i \: \forall i\in I \\
+& \sum_{i\in I}\pi_{ij}=q_j \: \forall j\in J
+\end{aligned}\right\}\right)^{1/l}
+\\ &= \left(\min_{\pi\in\mathbb{R_+^{|I|\times|J|}}}\left\{ 
+\sum_{i\in I}\sum_{j\in J}\pi_{ij}\lVert x_i-(y_j-a)\rVert \: \text{ : } \:  \begin{aligned}
+& \sum_{j\in J}\pi_{ij}=p_i \: \forall i\in I \\
+& \sum_{i\in I}\pi_{ij}=q_j \: \forall j\in J
+\end{aligned}\right\}\right)^{1/l}
+\\ &=d_l\left(\mathbb{P},\mathbb{Q}_{-a}\right)
+\end{align*}
+Let's do it again... alright. Let $\mathbb{Q}\in\mathcal{P}\left(\RR^d,m\right)$, we have that :
+$$
+C_l\left(P_a,m\right)\leq d_l\left(\mathbb{P}_a,\mathbb{Q}\right)=d_l\left(\mathbb{P},\mathbb{Q}_{-a}\right).
+$$
+Once again, yes, the left hand side doesn't depend on $\mathbb{Q}, a$ and $\mathbb{Q}_{-a}\in\mathcal{P}\left(\RR^d,m\right)$, it follows that :
+$$
+C_l\left(P_a,m\right)\leq C_l\left(P,m\right).
+$$
+And we can do the same thing to get the opposite inequality, then we have : 
+$$
+C_l\left(P_a,m\right)= C_l\left(P,m\right).
+$$
 \section{Eigenvalues of a matrix invariant under permutations}
  \label{eigen}
  A matrix $A$ that is invariant under permutations can be written as $A=\alpha I_n + \beta \mathbf{1}\mathbf{1}^T$ whose characteristic polynomial is :
