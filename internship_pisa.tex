@@ -49,11 +49,21 @@
 \LinesNumbered
 \RestyleAlgo{boxruled}
 \maketitle
-In this draft, I aim to sum up \cite{rujeerapaiboon_scenario_2022}.
+In this draft, I aim to sum up \cite{rujeerapaiboon_scenario_2022} in order to give an initial introduction to finite scenario reduction. Various proofs can get very technical especially when it comes to finding a distribution that meets a special propriety and will be skipped for brevity. 
 
 \section{Introduction}
+\subsection{Why ?}
+From a finite distribution, the aim of scenario reduction is to compute a distribution that is close to the initial one but with a reduced number of atoms. Why would that be useful ? Take a stochastic program that can be written as : 
+$$
+\min_{x\in X}\int_\Xi f\left(x,\xi\right)P\left(d\xi\right)
+$$
+To compute a solution of this program, one uses numerical integral techniques which modify the objective function such as :
+$$
+\min_{x\in X}\sum_{i\in I} f\left(x,\xi_i\right)p_i
+$$
+with $p_i=P\left(\{\xi_i\}\right)$. The function $f$ can be expensive to compute, then a good idea would be to reduce the number of atoms of $P$ without throwing its structure.
 \subsection{Context}
-The goal of scenario reduction is to compute a distribution that is "close" to an initial distribution but with a reduced number of atoms. In this part, we present tools and concepts useful for scenario reduction. We define closeness between two objects through distances. When objects are distributions, the Wasserstein distance is a good candidate. In the case of discrete distributions $\mathbb{P}=\sum_{i\in I}p_i\delta_{x_i}$ and $\mathbb{Q}=\sum_{j\in J}q_j\delta_{y_j}$, one can note that $x_i$ and $y_j$ must live in the same normed space ($\lVert.\rVert$ denotes the norm). The type-$l$ Wasserstein distance between $\mathbb{P}$ and $\mathbb{Q}$ is defined as :  
+In this part, we present tools and concepts useful for scenario reduction. We will define distance between two distributions : the Wasserstein distance is a good candidate. In the case of discrete distributions $\mathbb{P}=\sum_{i\in I}p_i\delta_{x_i}$ and $\mathbb{Q}=\sum_{j\in J}q_j\delta_{y_j}$, one can note that $x_i$ and $y_j$ must live in the same normed space ($\lVert\cdot\rVert$ denotes the norm). The type-$l$ Wasserstein distance between $\mathbb{P}$ and $\mathbb{Q}$ is defined as :  
 \[
 d_l(\mathbb{P},\mathbb{Q})=\left(\min_{\pi\in\mathbb{R_+^{|I|\times|J|}}}\left\{ 
 \sum_{i\in I}\sum_{j\in J}\pi_{ij}\lVert x_i-y_j\rVert^l \: \text{ : } \:  \begin{aligned}
@@ -61,7 +71,7 @@ d_l(\mathbb{P},\mathbb{Q})=\left(\min_{\pi\in\mathbb{R_+^{|I|\times|J|}}}\left\{
 & \sum_{i\in I}\pi_{ij}=q_j \: \forall j\in J
 \end{aligned}\right\}\right)^{1/l}.
 \]
-The parameter $l$ is said to be greater than or equal to 1. \rp{don't really know why it's not only greater than 0} \bt{To prove that $d^\ell$ is distance, the difficult part is the triangle inequality. It is a distance for $\ell \geq 1$ and the proof of the triangle inequality is here called the "gluing lemma" (Peyré-Cuturi chapter 1 for our "simple" case). This gluing lemma uses Minkowski's inequality in the case $\ell\geq1$ so that's the reason why. 
+The parameter $l$ has to be greater than or equal to 1 in order to satisfy axioms of distances, see \ref{distance}. One can \bt{To prove that $d^\ell$ is distance, the difficult part is the triangle inequality. It is a distance for $\ell \geq 1$ and the proof of the triangle inequality is here called the "gluing lemma" (Peyré-Cuturi chapter 1 for our "simple" case). This gluing lemma uses Minkowski's inequality in the case $\ell\geq1$ so that's the reason why. 
 It is still an interesting question for $0 < \ell \leq 1$. We have $d_\ell^\ell$ (and not $d\ell$ itself) is a distance as $(x,y) \mapsto \lVert x - y \rVert^\ell$ is already a distance when $0 < \ell \leq 1$ thanks to Minkowski's inequality in the case $\ell \leq 1$.
 }. See \ref{compute} in order to have an idea on how to compute the distance of Wasserstein between two distributions and more precision.
 \newline
@@ -81,12 +91,12 @@ Let $\mathbb{P}$ be a finite distribution on $\RR^d$, obviously $\text{supp}(\ma
 
 \section{Fundamental limits of scenario reduction}\label{limit}
 \subsection{Bounds}
-Here, we try to provide bounds on the value of the Wasserstein distance in order to guarantee closeness between the reduced distribution and the original one. We work with $\lVert.\rVert_2$ and atoms within the unit ball because of the positive homogeneity of the Wasserstein distance $C_l(\mathbb{P}^\lambda,m)=\lambda \cdot C_l(\mathbb{P},m)$ for $\lambda\in\mathbb{R}_+$ and $\mathbb{P}^\lambda=\sum_{i\in I}p_i\delta_{\lambda\cdot x_i}$. See \ref{scaled} for a proof. \rp{not obvious tbh} Generally, we have that $$\forall \lambda\in\mathbb{R}, C_l(\mathbb{P}^\lambda,m)=|\lambda|C_l(\mathbb{P},m).$$ 
-With this homogeneity, working in the unit ball is a legit assumption as we can scale distributions w.l.o.g. Another goal of this part is to quantify and study the worst case of scenario reduction defined by
+Here, we try to provide bounds on the value of the Wasserstein distance in order to guarantee closeness between the reduced distribution and the original one. We work with $\lVert.\rVert_2$ and atoms within the unit ball because of the positive homogeneity of the Wasserstein distance $C_l(\mathbb{P}^\lambda,m)=\lambda \cdot C_l(\mathbb{P},m)$ for $\lambda\in\mathbb{R}_+$ and $\mathbb{P}^\lambda=\sum_{i\in I}p_i\delta_{\lambda\cdot x_i}$. See \ref{scaled} for a proof. \rp{not obvious tbh} Generally, we have that : $$\forall \lambda\in\mathbb{R}, C_l(\mathbb{P}^\lambda,m)=|\lambda|C_l(\mathbb{P},m).$$ 
+The homogeneity allows us to investigate inside the unit ball as we can scale distributions w.l.o.g. Another goal of this part is to quantify and study the worst case of scenario reduction defined by :
 $$
 \bar{C}_l\left(n,m \right)=\left\{\max_{\mathbb{P}\in\mathcal{P}_E(\mathbb{R}^d,n)}C_l(\mathbb{P},m)\: :\: \text{supp}(\mathbb{P})\in B(0,1)\right\}.
 $$
-The goal is to find an upper bound better than 1 for $\bar{C}_l\left(n,m \right)$. First, we prove that : $\bar{C}_l\left(n,m \right)\leq 1$. By definition, for $\mathbb{P}\in\mathcal{P}_E(\mathbb{R}^d,n)$, we have that  
+The goal is to find an upper bound better than 1 for $\bar{C}_l\left(n,m \right)$. First, we prove that : $\bar{C}_l\left(n,m \right)\leq 1$. By definition, for $\mathbb{P}\in\mathcal{P}_E(\mathbb{R}^d,n)$, we have that : 
 $$d_l(\mathbb{P},\delta_0)^l=\left(\min_{\pi\in\mathbb{R_+^n}}\left\{ 
 \sum_{i=1}^n\pi_i\lVert x_i\rVert^l \: \text{ : } \:  \begin{aligned}
 & \pi_{i}=p_i, \: \forall i\in I \\
@@ -101,7 +111,7 @@ $$
 C_l(\mathbb{P},m)\leq C_l(\mathbb{P},1)\leq d_l(\mathbb{P},\delta_0)\leq 1.
 $$
 The right hand side which is 1 doesn't depend on $\mathbb{P}$, so we can go to the upper bound for $\mathbb{P}\in\mathcal{P}_E(\mathbb{R}^d,n), \text{supp}(\mathbb{P})\in B(0,1)$ and we proved that $\bar{C}_l\left(n,m \right)\leq1$ \rp{this bound even works for non uniform discrete distributions and doesn't matter on the norm we use as long as $\text{supp}(\mathbb{P})\in B(0,1)$ for the norm}
-The aim of what's next is to tighten that bound for particular $l$ and with $\lVert.\rVert_2$
+The aim of what's next is to tighten that bound for $l\in\{0,1\}$ and with $\lVert\cdot\rVert_2$.
 \newline
 
 $\mathfrak{P}(I,m)$ is the family of m-set partitions of $I$. Following \cite{rujeerapaiboon_scenario_2022}, we write $\{I_j\}$ an element of $\mathfrak{P}(I,m)$ and $I_j$ for $j\in\{1,..,m\}$ a set of the partition $\{I_j\}$.
@@ -112,27 +122,37 @@ $$C_l(\mathbb{P},m)=\min_{\{I_j\}\in \mathfrak{P}(I,m)}\left\{ \frac{1}{n}\sum_{
 \begin{remark}
     For $l=2$, the inner minimum, $y_j^*=\frac{1}{|I_j|}\sum_{i\in I_j}x_i$. For $l=1$, $y_j^*$ is attained by any geometric median (minimizer of the distance - not squared - to a family). Indeed, let $\{I_j\}\in\mathfrak{P}\left(I,m\right)$ and $I_j\in\{I_j\}$ fixed. We want to compute the inner minimum : 
     $$
-    \min_{y\in\RR^d}f(y)=\min_{y\in\RR^d}\sum_{i\in I}\lVert x_i-y\rVert^2.
+    \min_{y\in\RR^d}f(y)=\min_{y\in\RR^d}\sum_{i\in I_j}\lVert x_i-y\rVert^2.
     $$
-    We have to minimize an unconstrained function, when the norm is the $L-2$ norm, the gradient of this function is : 
+    We have to minimize an unconstrained function, when we work with $\lVert\cdot\rVert_2$, the gradient of $f$ is : 
     $$
-    \nabla f(y)=-2\sum_{i\in I}\left(x_i-y\right).
+    \nabla f(y)=-2\sum_{i\in I_j}\left(x_i-y\right).
     $$
-    This gradient is worth zero when :
+    This gradient is worth $0_{\RR^d}$ when :
     $$
-    y=\frac{1}{n}\sum_{i\in I}x_i=\text{mean}\left(I\right).
+    y=\frac{1}{n}\sum_{i\in I_j}x_i=\text{mean}\left(I_j\right).
     $$
+    The Hessian is :    $$\nabla^2f\left(\text{mean}\left(I_j\right)\right)=2Id_d\succcurlyeq 0$$
 \end{remark}
 
 \begin{theorem} Type-2 Wasserstein distance upper bound
     $$\bar{C}_2\left(n,m \right)\leq \sqrt{\frac{n-m}{n-1}}.$$
 \end{theorem}
-The use of $\tau$ in the proof is legit as $\tau \leq \sum_{j\in J}\sum_{i\in I_j}\lVert x_i-\text{mean}(I_j)\rVert_2^2,\:\forall \{I_j\}$ means that $\tau\leq\min_{\{I_j\}}\sum_{j\in J}\sum_{i\in I_j}\lVert x_i-\text{mean}(I_j)\rVert_2^2$ but as we want to maximize the function $\tau$ will be the highest he can, so it'll be equal to the minimum, thereafter it gets technical but understandable.
-Two lemmas are used to prove this inequality. Lemma 1 is kind of technical as the set of solutions of a convex problem is convex, which is necessary to say that : $S=\frac{1}{n!}\sum_{\sigma\in\mathfrak{S}}S^\sigma$ is also a solution. This matrix S is indeed invariant under permutations. Lemma 2 is easy but I give an easier proof in \ref{eigen}.
+\begin{proof}
+    We give a sketch of the proof. From \ref{theorem1} and its remark, we have that : 
+    \begin{align*}\bar{C}_2\left(n,m\right)=&
+        \max_{\{y_i\}\subseteq\RR^d}\min_{\{I_j\}\in\mathfrak{P}\left(I,m\right)}\left[\frac{1}{n}\sum_{j\in J}\sum_{i\in I_j}\lVert y_i-\text{mean}\left(I_j\right)\rVert_2^2\right]^{1/2} \\ &\lVert y_i\rVert_2\leq1 \:\forall i\in I
+    \end{align*}
+    Now, they reformulate this as : 
+    \begin{align*}\bar{C}_2\left(n,m\right)^2=&
+        \max_{\tau\in\RR, \{y_i\}\subseteq\RR^d}\quad\frac{1}{n}\tau \\ &\text{s.t. }\tau\leq\sum_{j\in J}\sum_{i\in I_j}\lVert y_i-\text{mean}\left(I_j\right)\rVert_2^2\; :\; \forall \{I_j\}\in\mathfrak{P}\left(I,m\right) \\
+        &\quad\quad y_i^Ty_i\leq1 \quad\quad\quad\quad\quad\quad\quad\quad\quad : \forall i\in I
+    \end{align*}
+    The use of $\tau$ is legit as the first constraint means that $\tau\leq\min_{\{I_j\}}\sum_{j\in J}\sum_{i\in I_j}\lVert x_i-\text{mean}(I_j)\rVert_2^2$ but as we want to maximize the function $\tau$ will be the highest he can, so it'll be equal to the minimum, thereafter it gets technical but understandable. To your best understanding of the proof in \cite[Theorem 2]{rujeerapaiboon_scenario_2022} two lemmas are used to prove this inequality. Lemma 1 is kind of technical as the set of solutions of a convex problem is convex, which is necessary to say that : $S=\frac{1}{n!}\sum_{\sigma\in\mathfrak{S}}S^\sigma$ is also a solution. This matrix S is indeed invariant under permutations. Lemma 2 is easy but I give an easier proof in \ref{eigen}.
+\end{proof}
 
-Then we show a distribution \textbf{that reaches the upper bound for \boldmath{$d\geq n-1$}(meaning that the upper bound is optimal)} under these assumptions.
+Then the article highlights a distribution \textbf{that reaches the upper bound for \boldmath{$d\geq n-1$}(meaning that the upper bound is optimal)} under these assumptions. We now treat the case $l=1$.
 
-For $l=1$, we prove :
 \begin{theorem}
     $$\bar{C}_1\left(n,m \right)\leq\bar{C}_2\left(n,m \right) \leq\sqrt{\frac{n-m}{n-1}}.$$
 \end{theorem}
@@ -172,12 +192,11 @@ As an example, we can choose : $\mu=\frac{1}{n}\sum_{i\in I}x_i$ and $r=\max_i\l
 $$
 C_l(\mathbb{P},m)\leq \max_i\left\{{\lVert x_i-\mu\rVert}\right\}\sqrt{1-p}.
 $$
-what depends only on $\mathbb{P}$. \rp{maybe that helps a very little the article}. A good idea \rp{imo} is to find the smallest bound for a given distribution $\mathbb{P}$ and a given norm $\lVert.\rVert$, so we can have a better upper bound. One must find the Chebychev center : 
+what depends only on $\mathbb{P}$. \rp{maybe that helps a very little the article}. A good idea \rp{imo} is to find the smallest bound for a given distribution $\mathbb{P}$ and a given norm $\lVert\cdot\rVert$, so we can have a better upper bound. One must find the Chebyshev center (see \ref{chebyshev}) :
 \begin{align*}
     &\min_{r\in\RR^+,\mu\in\RR^d} \quad r\\
     &\text{s.t.}\quad \lVert\frac{x_i-\mu}{r}\rVert \leq 1, \;\forall i\in I.
 \end{align*}
-See \ref{chebyshev} but geometrically what I wrote seemed to be a good candidate.
 \newline
 
 \section{What about discrete scenario reduction}
@@ -343,7 +362,7 @@ The discrete scenario reduction problem can be formulated as the MILP
 \rp{first constraint means $\sum_{j=1}^n\pi_{ij}=1$ for all $i$ (what seems weird), second forces $\lambda_i$ to be 1 if you choose $x_j$ and the third one counts the number of atoms you choose. So basically I didn't understand the formulation}
 \clearpage
 \appendix
-\section{Wasserstein distance is a distance}
+\section{Wasserstein distance is a distance}\label{distance}
 In this appendix, we prove that Wasserstein distance is indeed a distance whenever $l\geq1$.
 \begin{enumerate}
     \item $d_l$ has values in $\RR_+$.
