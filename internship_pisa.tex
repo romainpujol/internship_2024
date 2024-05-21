@@ -91,7 +91,7 @@ Let $\mathbb{P}$ be a finite distribution on $\RR^d$, obviously $\text{supp}(\ma
 
 \section{Fundamental limits of scenario reduction}\label{limit}
 \subsection{Bounds}
-Here, we try to provide bounds on the value of the Wasserstein distance in order to guarantee closeness between the reduced distribution and the original one. We work with $\lVert.\rVert_2$ and atoms within the unit ball because of the positive homogeneity of the Wasserstein distance $C_l(\mathbb{P}^\lambda,m)=\lambda \cdot C_l(\mathbb{P},m)$ for $\lambda\in\mathbb{R}_+$ and $\mathbb{P}^\lambda=\sum_{i\in I}p_i\delta_{\lambda\cdot x_i}$. See \ref{scaled} for a proof. \rp{not obvious tbh} Generally, we have that : $$\forall \lambda\in\mathbb{R}, C_l(\mathbb{P}^\lambda,m)=|\lambda|C_l(\mathbb{P},m).$$ 
+Here, we try to provide bounds on the value of the Wasserstein distance in order to guarantee closeness between the reduced distribution and the original one. We work with $\lVert\cdot\rVert_2$ and atoms within the unit ball because of the positive homogeneity of the Wasserstein distance $C_l(\mathbb{P}^\lambda,m)=\lambda \cdot C_l(\mathbb{P},m)$ for $\lambda\in\mathbb{R}_+$ and $\mathbb{P}^\lambda=\sum_{i\in I}p_i\delta_{\lambda\cdot x_i}$. See \ref{scaled} for a proof. \rp{not obvious tbh} Generally, we have that : $$\forall \lambda\in\mathbb{R}, C_l(\mathbb{P}^\lambda,m)=|\lambda|C_l(\mathbb{P},m).$$ 
 The homogeneity allows us to investigate inside the unit ball as we can scale distributions w.l.o.g. Another goal of this part is to quantify and study the worst case of scenario reduction defined by :
 $$
 \bar{C}_l\left(n,m \right)=\left\{\max_{\mathbb{P}\in\mathcal{P}_E(\mathbb{R}^d,n)}C_l(\mathbb{P},m)\: :\: \text{supp}(\mathbb{P})\in B(0,1)\right\}.
@@ -212,7 +212,7 @@ C_l\left( \mathbb{P},m\right)\leq D_l\left( \mathbb{P},m\right)
 $$
 Just like we've done in the beginning of \ref{limit}, it's time to reformulate the discrete scenario reduction problem such as :
 \begin{theorem}\label{reformulation 2}
-    For any type-l Wasserstein distance induced by any norm $\lVert.\rVert$, the discrete scenario reduction problem can be reformulated as 
+    For any type-l Wasserstein distance induced by any norm $\lVert\cdot\rVert$, the discrete scenario reduction problem can be reformulated as 
     $$
     D_l\left(\mathbb{P},m\right)=\min_{\{I_j\}\in\mathfrak{P}\left(I,m\right)}\left[ \frac{1}{n}\sum_{j\in J}\min_{y_j\in\{x_i : i\in I_j\}}\sum_{i\in I_j}\lVert x_i-y_j\rVert^l\right]^{1/l}.
     $$
@@ -525,15 +525,18 @@ The gradient isn't always defined according to the norm but when it's $\lVert\cd
     \forall i\in I,\;\lambda_i(\lVert x_i-\mu\rVert^2-r^2)=0 \\
     \lambda_0r=0
 \end{align*}
-All $\lambda_i, \: i\in I$ can't be $0$, otherwise, the equation $1+\lambda_0-2r\sum_{i\in I}\lambda_i=0$ is impossible (as $\lambda_0$ is also positive). Then, there exists $i\in I$ such that $\lambda_i>0$, thus for this particular $i$, $\lVert x_i-\mu\lVert^2=r^2$. Moreover, initial constraints give that :
+All $\lambda_i, \: i\in I$ can't be $0$, otherwise, the equation $1+\lambda_0-2r\sum_{i\in I}\lambda_i=0$ is impossible (as $\lambda_0$ is also positive). Then, there exists $i\in I$ such that $\lambda_i>0$, for this particular $i$, $\lVert x_i-\mu\lVert^2=r^2$. Moreover, initial constraints give that :
 $$
 r^2\geq \max_{i\in I}\lVert x_i-\mu \rVert^2
 $$
 Then we can conclude that :
 $$
-r^*=\max_{i\in I}\lVert x_i-\mu\rVert^2.
+r^*\left(\mu\right)=\max_{i\in I}\lVert x_i-\mu\rVert^2.
 $$
-
+But we haven't found the optimal $\mu$, thus the problem becomes : 
+$$
+\min_{\mu\in\RR^d}r^*\left(\mu\right)=\min_{\mu\in\RR^d}\max_{i\in I}\lVert x_i-\mu\rVert^2.
+$$
 
 \bibliography{biblio}
 \bibliographystyle{alpha}
