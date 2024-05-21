@@ -535,7 +535,7 @@ r^*\left(\mu\right)=\max_{i\in I}\lVert x_i-\mu\rVert^2.
 $$
 But we haven't found the optimal $\mu$, thus the problem becomes : 
 $$
-\min_{\mu\in\RR^d}r^*\left(\mu\right)=\min_{\mu\in\RR^d}\max_{i\in I}\lVert x_i-\mu\rVert^2.
+\min_{\mu\in\RR^d}r^*\left(\mu\right)=\min_{\mu\in\RR^d}\max_{i\in I}\lVert x_i-\mu\rVert^2=\min_{\mu\in\RR^d}\left\{\mu^T\mu+\max_{i\in I}\left[x_i^Tx_i-2\mu^Tx_i\right]\right\}.
 $$
 
 \bibliography{biblio}
