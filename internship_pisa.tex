@@ -498,7 +498,7 @@ $$\chi_A(X)=\text{det}(\begin{bmatrix}
 where $\text{P}_{A_1}\left(X\right)$ is the determinant of the matrix $XI_n-A$ with its first column replaced by a column of ones. The first equality arises from adding every column to the first one, so the first column is a column of $X-\alpha-n\beta$, so we can factorize by $X-\alpha-n\beta$. What we have to do next is do add $\beta\cdot C_1$ ($C_1$ is the column of ones) to every other column, what gives us a lower triangular matrix with the diagonal $diag(1,X-\alpha,...,X-\alpha)$, and we have $$
 \chi_A(X)=(X-\alpha-n\beta)(X-\alpha)^{n-1}$$
 
-\section{Chebyshev center problem}
+\section{Chebyshev center problem for the norm L2}
 \label{chebyshev}
 The Chebyshev problem is :
 \begin{align*}
@@ -517,7 +517,7 @@ KKT conditions provide at optimality : \begin{align*}
     \forall i\in I,\;\lambda_i(\lVert x_i-\mu\rVert^2-r^2)=0 \\
     \lambda_0r=0
 \end{align*}
-The gradient isn't always defined according to the norm but when it's $\lVert.\rVert_2$ : 
+The gradient isn't always defined according to the norm but when it's $\lVert\cdot\rVert_2$ : 
 \begin{align*}
     \lambda\geq0\\
     1+\lambda_0-2r\sum_{i\in I}\lambda_i=0\\
@@ -525,8 +525,14 @@ The gradient isn't always defined according to the norm but when it's $\lVert.\r
     \forall i\in I,\;\lambda_i(\lVert x_i-\mu\rVert^2-r^2)=0 \\
     \lambda_0r=0
 \end{align*}
-\rp{Can't conclude right now with these conditions, need to think more I guess, maybe I can start by proving that $0_{\RR^d},max\lVert x_i\rVert$ is the optimal couple when the family is centered and then extending it to every family by centering the family with $x_i-\mu$ with $\mu$ being the mean of the family}
-\rp{smallest circle problem}
+All $\lambda_i, \: i\in I$ can't be $0$, otherwise, the equation $1+\lambda_0-2r\sum_{i\in I}\lambda_i=0$ is impossible (as $\lambda_0$ is also positive). Then, there exists $i\in I$ such that $\lambda_i>0$, thus for this particular $i$, $\lVert x_i-\mu\lVert^2=r^2$. Moreover, initial constraints give that :
+$$
+r^2\geq \max_{i\in I}\lVert x_i-\mu \rVert^2
+$$
+Then we can conclude that :
+$$
+r^*=\max_{i\in I}\lVert x_i-\mu\rVert^2.
+$$
 
 
 \bibliography{biblio}
