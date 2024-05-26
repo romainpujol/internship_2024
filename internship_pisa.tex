@@ -49,7 +49,7 @@
 \LinesNumbered
 \RestyleAlgo{boxruled}
 \maketitle
-In this draft, I aim to sum up \cite{rujeerapaiboon_scenario_2022} in order to give an initial introduction to finite scenario reduction. Various proofs can get very technical especially when it comes to finding a distribution that meets a special propriety and will be skipped for brevity. 
+In this draft, I'm writting a summary of \cite{rujeerapaiboon_scenario_2022} to gather important elements of finite scenario reduction . Various proofs can get very technical and will be skipped for brevity. I'll also explore new ways of considering this problem.
 
 \section{Introduction}
 \subsection{Why ?}
@@ -293,17 +293,74 @@ $$
 Same thing with $C_l$ if the algorithm is meant to provide a candidate for continuous scenario reduction. If the approximation ratio is unbounded it means that :
 $$\forall A\in\RR^+, \exists n,m,\mathbb{P}\in\mathcal{P}_E\left(\RR^d,n\right) : \frac{\bar{D}_l\left(\mathbb{P},m\right)}{D_l\left(\mathbb{P},m\right)}\geq A.$$
 With words, it means that the upper bound given by the algorithm can become arbitrarily big compared to the real distance of the projection of $\mathbb{P}$ over the considered subspace.
-\subsection{Dupacova et al. algorithm}
+\subsection{Dupačová et al. algorithm}
 Dupačová et al. \cite{dupacova_scenario_2003} provides a greedy algorithm for $D_l\left(\mathbb{P},m\right)$. Generally, the distribution obtained isn't a solution of the discrete scenario reduction problem.
 \begin{algorithm}
-  \caption{Dupačová et al.}
+  \caption{Dupačová et al.}\label{dupacova}
   Initialize the set of atoms in the reduced set as $R\gets \emptyset.$ \\ Select the next atom to be added to the reduced set as $$ y\in\argmin_{y\in \text{supp}\left(\mathbb{P}\right)}D_l\left(\mathbb{P},R\cup\{y\}\right).
   $$
   Update $R\gets R\cup \{y\}$.\\ Repeat Step 2 until $\lvert R\rvert=m$.
 \end{algorithm}
 \rp{box is too large, don't know how to deal with that}
-Now that we have all atoms we will use, it's interesting to know the mass of each atom. Let $\{I_y\}\in \mathfrak{P}\left(I,m\right)$ be any partition of supp$\left(\mathbb{P}\right)$ into sets $I_y$ , $y\in R$, such that $I_y$ contains all elements of supp$\left(\mathbb{P}\right)$ that are closest to $y$ (ties may be broken arbitrarily). Then $\mathbb{Q}=\sum_{y\in R}q_y\delta_y$ where $q_y=\frac{\lvert I_y\rvert}{n}$.
+In order to add another atom to the distribution, one can now wonder how to compute $D_l\left(\mathbb{P},R\cup\{y\}\right)$ before finding the minimum of those $D_l$ because we still have the choices of probabilities attached to the atoms (that are fixed). In fact it is easy and quite intuitive if you remember that Wasserstein distance translates the cost of moving one pile (distribution here) to an other knowing that both piles have the same weight.
+\begin{theorem}
+    If $\mathbb{P}=\sum_{i\in I}p_i\delta_{x_i}$ fixed, $\mathbb{Q}=\sum_{j\in J}q_j\delta_{y_j}$, with all $y_j$ fixed. Then, 
+    $$\sum_{j\in J}\left(\sum_{i\in I_j}p_i\right)\delta_{y_j}\in \argmin_\mathbb{Q} D_l\left(\mathbb{P},\mathbb{Q}\right)$$
+    with $I_j=\left\{i\in I \mid j=\argmin_{k\in J} \lVert x_i-y_k\rVert^l\right\}$ (ties may be broken arbitrarily but must be broken). Basically, the probability of observing $y_j$ is the probability of observing atoms of $\mathbb{P}$ whose closest atom of $\mathbb{Q}$ is $y_j$ according to the chosen norm.
+\end{theorem}
+\begin{proof}
+    Let's write carefully the problem, we intend to find :
+    $$
+        \min_{q}\:\left\{d_l\left(\mathbb{P},\sum_{j\in J}q_j\delta_{y_j}\right)\text{ such that} \; \forall j\in J, q_j\geq 0 \text{ and } \;\sum_{j\in J}q_j=1 \right\}\\
+    $$
+    We'll first find a lower bound of that expression, then we'll prove that the lower bound is attained by the distribution given by the theorem.
+    \newline
+    For obvious reasons of readability, I'll write $U\left(p,q\right)$ the space allowed for $\pi$ by the distance of Wasserstein :\newline
+    $\pi\in U\left(p,q\right) \iff \pi\in\RR^{\lvert I\rvert \times\lvert J\vert}_+, \forall j\in J, \sum_{i\in I}\pi_{ij}=q_j \text{ and } \forall i\in I, \sum_{j\in J}\pi_{ij}=p_i$.
+    \newline
+    Let $q\geq 0$ such that $\sum_{j\in J}q_j=1$. We write $\mathbb{Q}=\sum_{j\in J}q_j\delta_{y_j}$ and $\mathbb{P}=\sum_{i\in I}p_i\delta_{x_i}$.  We have that :
+    \begin{align*}
+        d_l\left(\mathbb{P},\mathbb{Q}\right)^l&=            \min_{\pi\in U\left(p,q\right)}\sum_{i\in I}\sum_{j\in J}\pi_{ij}\lVert x_i-y_j\rVert^l \\ &= \min_{\pi\in U\left(p,q\right)}\sum_{i\in I}\left[\sum_{j\in J}\pi_{ij}\lVert x_i-y_j\rVert^l\right] \\
+        &\geq \min_{\pi\in U\left(p,q\right)}\sum_{i\in I}\left[\sum_{j\in J}\pi_{ij}\min_{k\in J}\left\{\lVert x_i-y_k\lVert^l\right\}\right] \\ &= \min_{\pi\in U\left(p,q\right)}\sum_{i\in I}\min_{k\in J}\left\{\lVert x_i-y_k\lVert^l\right\}\sum_{j\in J}\pi_{ij} \\
+        &=\min_{\pi\in U\left(p,q\right)}\sum_{i\in I}\min_{k\in J}\left\{\lVert x_i-y_k\lVert^l\right\}p_i \\& =\sum_{i\in I}\min_{k\in J}\left\{\lVert x_i-y_k\lVert^l\right\}p_i.
+    \end{align*}
+First inequality stems from the positivity of $\pi$ and well $\forall j\in J, \lVert x_i-y_j\rVert^l \geq \min_{k\in J}\lVert x_i-y_j\rVert^l$ for obvious reasons. Before last expression no longer depends on $\pi$ then comes the last expression. Then it is a lower bound for all $\pi\in U\left(p,q\right)$. Meaning that :
+$$
+\min_{q} D_l\left(\mathbb{P},\sum_{j\in J}\delta_{y_j}q_j\right) \geq \left(\sum_{i\in I}\min_{k\in J}\left\{\lVert x_i-y_k\lVert^l\right\}p_i\right)^{1/l}
+$$
+\newline
 
+With $\delta$ being the Kronecker delta, we choose : \begin{align*}
+    q_j&=\sum_{i\in I_j}p_i \\
+    \pi_{ij}&=p_i\delta_{j,\argmin_{k\in J}\lVert x_i-y_j\rVert^l}
+\end{align*}
+First of all, as $I_j$ represents a partition of $I$ (ties \textbf{must} be broken), $\sum_{j\in J}q_j=\sum_{i\in I}p_i=1$.\newline
+$\pi$ is positive, $\sum_{j\in J}\pi_{ij}=p_i\sum_{j\in J}\delta_{j,\argmin_{k\in J}\lVert x_i-y_j\rVert^l}=p_i$ as ties have to be broken and \newline $\sum_{i\in I}\pi_{ij}=\sum_{i\in I}p_i\delta_{j,\argmin_{k\in J}\lVert x_i-y_j\rVert^l}=\sum_{i\in I_j}p_i=q_j$. So $q$ is legit and $\pi\in U\left(p,q\right)$, with $q,\pi$, the objective function (at the $l^{\text{th}}$ power) is worth : 
+\begin{align*}
+    \sum_{i\in I}\sum_{j\in J}\pi_{ij}\lVert x_i-y_j\rVert^l &=\sum_{i\in I}\sum_{j\in J}p_i\delta_{j, \argmin_{k\in J}\lVert x_i-y_j\rVert^l}\lVert x_i-y_j\rVert^l \\ &=\sum_{i\in I}p_i\left[\sum_{j\in J}\delta_{j, \argmin_{k\in J}\lVert x_i-y_j\rVert^l}\lVert x_i-y_j\rVert^l\right] \\ &=\sum_{i\in I}p_i\min_{k\in J}\lVert x_i-y_k\rVert ^l.
+\end{align*}
+All in all, with the notation $\mathbb{Q}_0=\sum_{j\in J}\left(\sum_{i\in I_j}p_i\right)\delta_{y_j}$ we've proven that :
+$$
+\sum_{i\in I}p_i\min_{k\in J}\lVert x_i-y_k\rVert ^l\leq \min_{q} D_l^l\left(\mathbb{P},\sum_{j\in J}\delta_{y_j}q_j\right)\leq d_l^l\left(\mathbb{P},\mathbb{Q}_0\right) \leq \sum_{i\in I}p_i\min_{k\in J}\lVert x_i-y_k\rVert ^l.
+$$
+First inequality is due to the lower bound we found earlier. Second comes from the fact that we fixed $q_j$ for $\mathbb{Q}_0$. Third stems from the definition of $d_l$ and because we chose a $\pi\in U\left(p,q\right)$. Then we have that :
+$$
+\min_{q} D_l^l\left(\mathbb{P},\sum_{j\in J}\delta_{y_j}q_j\right)= d_l^l\left(\mathbb{P},\mathbb{Q}_0\right)= \sum_{i\in I}p_i\min_{k\in J}\lVert x_i-y_k\rVert ^l.
+$$
+What gives us,
+$$\sum_{j\in J}\left(\sum_{i\in I_j}p_i\right)\delta_{y_j}\in \argmin_\mathbb{Q} D_l\left(\mathbb{P},\mathbb{Q}\right).$$
+\end{proof}
+\rp{what do you think of this proof ? i gave it all}
+So we can compute the value $D_l$ for each distribution $R\cup\{y\}$ easily as follows : we write $R\cup \{y\}=\{y_1,...,y_j\}$ and $x_i$ the atoms of $\mathbb{P}$.
+\begin{algorithm}
+    \caption{Easy computation of $D_l\left(\mathbb{P},R\cup \{y\}\right)$}\label{easy compute of d_l}
+    Compute $D$ the matrix of distances, $D_{ij}=\lVert x_i-y_j\rVert$. \\
+    Let $Q=\begin{bmatrix}
+        0 & \hdots &0
+    \end{bmatrix}$ representing the probabilities given to $y_1,...,y_j.$ \\
+    For each $i\in I$, find $k=\argmin_{j\in J}d_{ij}$ (ties must be broken, the breaking decision may be arbitrary), $$
+    Q_{k}\gets Q_{k}+p_i$$ \\ Compute $d_l\left(\mathbb{P},\mathbb{Q}\right)$, $\mathbb{Q}$ is now fixed and this value is $D_l\left(\mathbb{P}, R\cup\{y\}\right).$
+\end{algorithm}
 \begin{proposition}
     For every $d\geq2$ and $l$, $p\geq1$ the approximation ratio of Dupačová et al.'s algorithm is unbounded.
 \end{proposition}
@@ -323,7 +380,7 @@ The reduced distribution is :
 $$
 \mathbb{Q}=\frac{1}{n}\sum_{y\in R}\delta_{y}c\left(y\right)
 $$
-where $ c\left(y\right)$ denotes the amount of atoms of $\mathbb{P}$ in the cluster $y$.
+where $ c\left(y\right)$ denotes the amount of atoms of $\mathbb{P}$ in the cluster $y$. Because here we consider $\mathbb{P}$ uniform.
 \begin{theorem}
     If initialized randomly in Step 1, the approximation ratio of the k-means clustering algorithm is unbounded for every $d,l,p\geq1$ with significant probability.
 \end{theorem}
@@ -333,14 +390,14 @@ where $ c\left(y\right)$ denotes the amount of atoms of $\mathbb{P}$ in the clus
 \subsection{Algorithm bounding the approximation ratio}
 In the article, they propose a new algorithm with the advantage of bounding the approximation ratio under the type-1 Wasserstein distance for both the continuous and discrete scenario reduction problem. The approximation ratio is bounded by 5 for the discrete scenario reduction problem and 10 for the continuous.
 \begin{algorithm}
-    \caption{Local search algorithm for $D_l\left(\mathbb{P},m\right)$}
+    \caption{Local search algorithm for $D_l\left(\mathbb{P},m\right)$}\label{Local search}
     Initialize the reduced set $R\subseteq \text{supp}\left(\mathbb{P}\right), \lvert R\rvert = m$, arbitrarily. \\ Select the next change to be applied to the reduced set as 
     $$
     \left(y,y'\right)\in\argmin\left\{D_l\left(\mathbb{P},R\cup\{y\}\setminus \{y'\}\right) : \left(y,y'\right)\in\text{supp}\left(\mathbb{P}\setminus R\right)\times R\right\},
     $$
     and update $R\gets R\cup \{y\}\setminus \{y'\}$ if $D_l\left(\mathbb{P}, R\cup\{y\}\setminus \{y'\} \right)<D_l\left(\mathbb{P},R\right).$ \\ Repeat Step 2 until no further improvement is possible.
 \end{algorithm}
-If various changes are possible in Step 2, you can either choose to use a "first-fit" (swap whenever you find a couple that reduces the distance) or a "best-fit" (explore all possible exchanges and swap the best one) strategy. The first one reduces the calculation time but both techniques have an approximation ratio of 5 for the discrete scenario reduction problem for all $d$.
+If various changes are possible in Step 2, you can either choose to use a "first-fit" (swap whenever you find a couple that reduces the distance) or a "best-fit" (explore all possible exchanges and swap the best one) strategy. The first one reduces the calculation time but both techniques have an approximation ratio of 5 for the discrete scenario reduction problem for all $d$. $D_l$ is computed as for \ref{dupacova}.
 \begin{remark}
     To some extent, this algorithm can make you think of the Lin-Kernighan heuristic developped for the TSP.
 \end{remark}
@@ -353,13 +410,66 @@ We can now maximize the left hand side on $n,m,\mathbb{P}$ as the right hand sid
 \subsection{MILP reformulation of the discrete scenario reduction problem}
 We first review a well-known mixed-integer linear programming (MILP) reformulation of the discrete scenario reduction problem $D_l\left(\mathbb{P},m\right)$.
 \begin{theorem}
-The discrete scenario reduction problem can be formulated as the MILP
-    \begin{align*}
+The discrete scenario reduction problem can be formulated as the MILP : 
+\begin{align*}
     D_l^l\left(\mathbb{P},m\right)=&\min_{\Pi,\lambda}\:\frac{1}{n}<\pi,D> \\ &\text{s.t. } \;\pi e=e, \; \pi \leq e\lambda^T,\; \lambda^Te=m\\&\quad\quad \pi\in\RR^{n\times m}_+, \; \lambda\in\{0,1\}^n
     \end{align*}
     with $D\in \mathbb{S}^n$ and $D_{ij}=\lVert x_i-x_j\rVert^l$
 \end{theorem}
 \rp{first constraint means $\sum_{j=1}^n\pi_{ij}=1$ for all $i$ (what seems weird), second forces $\lambda_i$ to be 1 if you choose $x_j$ and the third one counts the number of atoms you choose. So basically I didn't understand the formulation}
+
+\section{Results}
+
+\section{Efficient implementation}
+The SMS++ ecosystem aims to deliver an efficient interface for a wide range of optimization problems through the concept of block which represents a type of problem namely "BinaryKnapsackBlock", "MCFBlock" (for Min-Cost flow) and many others. Developped in C++, it is to be able to manage memory, calculation what can be somewhat difficult in interpreted languages such as Python or Julia. In SMS++ it is easy and almost free to turn ON/OFF variables (decision variables, constraints...). In this part, we'll try to find ways to implement proficiently Dupačová et al's algorithm \ref{dupacova} and local search algorithm \ref{Local search}.
+
+\subsection{Dupačová et al's algorithm}
+In this part we try to reduce computational time of Dupačová et al's algorithm, meaning we want to reuse what we've already computed. 
+\newline
+
+Imagine we have selected $R$ and we want to find the $y$ that will be added to the distribution. Let's write $R=\{r_1,...,r_k\}$ and we are testing $y_1$ and $y_2$ (this idea can be used for a large number of vectors to test).
+\textbf{For $\mathbf{y_1}$}, the objective function of the Wasserstein distance we need to compute is : 
+$$
+\begin{pmatrix}
+    \lVert x_1-r_1 \rVert^l \\ \vdots \\ \lVert x_1-r_k \rVert^l \\ \lVert x_1-y_1 \rVert^l\\  \lVert x_2-r_1 \rVert^l \\ \vdots  \\  \lVert x_2-y_1 \rVert^l \\ \vdots
+\end{pmatrix}
+\begin{pmatrix}
+    \pi_{11} & \hdots & \pi_{1k} & \pi_{1,k+1} & \pi_{21} &\hdots &\pi_{2,k+1} & \hdots
+\end{pmatrix}
+$$
+\textbf{For $\mathbf{y_2}$}, the cost vector is almost the same, you just have to modify the $\left(k+1\right)\times i^{\text{th}}, \text{ coefficient, for } i\in I$ by $\lVert x_i-y_2\rVert^l$.
+\newline 
+
+About the constraints, the matrix remains the same when you want to design the constraints for $y_1$ and $y_2$ as presentend in \ref{compute}. There's still a modification to make in the end of the constraint vector. \textbf{For $\mathbf{y_1}$} it is :
+$$
+\begin{pmatrix}
+    p_1 \\ \vdots \\p_n \\ q^1_1 \\ \hdots \\ q^1_{k+1}
+\end{pmatrix}
+$$
+with $q^1_j$ computed as presented in \ref{easy compute of d_l}. \textbf{For $\mathbf{y_1}$} it is :
+$$
+\begin{pmatrix}
+    p_1 \\ \vdots \\p_n \\ q^2_1 \\ \hdots \\ q^2_{k+1}
+\end{pmatrix}
+$$
+
+\subsection{Local search algorithm}
+\section{Entropic regularization}
+We often need to compute $d_l\left(\mathbb{P},\mathbb{Q}\right)$ with $\mathbb{P}$ the initial distribution to be reduced and $\mathbb{Q}$ the reduced distribution in construction and solving these linear programs can be very costly as $n,m,d$ grow. 
+\begin{corollary}[Number of linear programs solved]
+    Dupačová et al's algorithm solves $$\sum_{i=0}^{m-1}n-i=m(n+\frac{1}{2})-\frac{1}{2}m^2$$ linear programs. 
+\end{corollary}
+\begin{corollary}[Number of linear programs solved]
+    The local search algorithm solves at most $$\lceil \frac{\binom{n}{m}}{\left(n-m\right)\left(m-1\right)}\rceil m\left(n-m\right)$$ linear programs when using best-first strategy.  \rp{the factor in front is in fact not true, need to think more}
+\end{corollary}
+\begin{proof}
+    Each iteration computes $m\left(n-m\right)$ linear programs so the number of linear programs solved can be written as $km\left(n-m\right)$. We have to find the largest $k$. Let $X^i$ be the vector of selected atoms at iteration $i$, what happens now is that we check the distance to $\mathbb{P}$ with all $X^i$ where you change only one atom of $X^i$ with one atom of $\text{supp}\left(\mathbb{P}\right)\setminus X^i$. If there's a closer distribution then you change the atom with the one that makes the distance smaller. So you've checked $m\left(n-m\right)$ combinations (amongst the $\binom{n}{m}$ possible, you select $m$ atoms amongst $n$ atoms without order)\rp{the factor in front is in fact not true, need to think more}
+\end{proof}
+Solving these optimal transport problems to get the value $d_l$ can be very demanding itself and it is often required. \cite[Chapter 4]{peyre_computational_2019} presents entropic regularization in the context of optimal transport. The objective function considered in the OT problem will be slightly modified by adding a convex term. Solving this new problem will be faster and it is granted that this new distance is close to the real distance of Wasserstein. 
+The regularized problem is defined as : 
+$$
+R_l^\epsilon\left(\mathbb{P},\mathbb{Q}\right)=\min_{\pi}\left\{\sum_{i\in I}\sum_{j\in J}\pi_{ij}\lVert x_i-y_j\rVert+\epsilon\sum_{i\in I}\sum_{j\in J}\pi_{ij}\left(\log{\left(\pi_{ij}\right)}-1\right)\right\}
+$$
 \clearpage
 \appendix
 \section{Wasserstein distance is a distance}\label{distance}
