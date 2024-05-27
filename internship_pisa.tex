@@ -427,7 +427,10 @@ The SMS++ ecosystem aims to deliver an efficient interface for a wide range of o
 In this part we try to reduce computational time of Dupačová et al's algorithm, meaning we want to reuse what we've already computed. 
 \newline
 
+\subsubsection{When choosing the best atom}
 Imagine we have selected $R$ and we want to find the $y$ that will be added to the distribution. Let's write $R=\{r_1,...,r_k\}$ and we are testing $y_1$ and $y_2$ (this idea can be used for a large number of vectors to test).
+\newline 
+
 \textbf{For $\mathbf{y_1}$}, the objective function of the Wasserstein distance we need to compute is : 
 $$
 \begin{pmatrix}
@@ -435,7 +438,7 @@ $$
 \end{pmatrix}
 \begin{pmatrix}
     \pi_{11} & \hdots & \pi_{1k} & \pi_{1,k+1} & \pi_{21} &\hdots &\pi_{2,k+1} & \hdots
-\end{pmatrix}
+\end{pmatrix}.
 $$
 \textbf{For $\mathbf{y_2}$}, the cost vector is almost the same, you just have to modify the $\left(k+1\right)\times i^{\text{th}}, \text{ coefficient, for } i\in I$ by $\lVert x_i-y_2\rVert^l$.
 \newline 
@@ -444,16 +447,37 @@ About the constraints, the matrix remains the same when you want to design the c
 $$
 \begin{pmatrix}
     p_1 \\ \vdots \\p_n \\ q^1_1 \\ \hdots \\ q^1_{k+1}
-\end{pmatrix}
+\end{pmatrix},
 $$
 with $q^1_j$ computed as presented in \ref{easy compute of d_l}. \textbf{For $\mathbf{y_1}$} it is :
 $$
 \begin{pmatrix}
     p_1 \\ \vdots \\p_n \\ q^2_1 \\ \hdots \\ q^2_{k+1}
-\end{pmatrix}
+\end{pmatrix}.
 $$
-
+\subsubsection{When adding a new atom}
+When we want to add a new atom, we must add $n$ lines to the cost vector. Each line is added after the position $i\times k$ for $i\in [\![1;n]\!]$ (the second distribution has one more atom). The matrix of constraints also has to be modified. The size goes from $n\times k$ to $n\times \left(k+1\right)$ though the structure is still the one presented in \ref{compute}. The constraint vector also changes a bit, one more line in the end.
 \subsection{Local search algorithm}
+Can we do such a thing for the local search algorithm ? We write $R=\{r_1,...,r_m\}\subset\text{supp}\left(P\right)=\{x_1,...,x_n\}$ the selected atoms, $\text{supp}\left(P\right)\setminus R =\{r_{m+1},...,r_{n}\}$. For an iteration of this algorithm, we try to swap one at a time an element of $R$ with an element of $\text{supp}\left(P\right)\setminus R$. For example, when we try to swap $r_1$, it happens the thing we found for Dupačová et al's algorithm. But if no swap of $r_1$ decreases the value of $D_l$, then we'll try to swap $r_2$. When this happens, how can we get the most of it ? 
+Trying to swap $r_1$ with any element $r\in\text{supp}\left(P\right)\setminus R$, the cost vector is : 
+$$
+\begin{pmatrix}
+    \lVert r-x_1 \rVert^l \\ \vdots \\ \lVert r-x_n \rVert^l \\ \lVert r_2-x_1 \rVert^l\\  \vdots  \\  \lVert r_2-x_n \rVert^l \\ \vdots \\ \lVert r_m-x_n \rVert ^l
+\end{pmatrix}.$$
+But when we try to swap $r_2$ now with an element $r\in\text{supp}\left(P\right)\setminus R$, the cost vector becomes : 
+$$
+\begin{pmatrix}
+    \lVert r_1-x_1 \rVert^l \\ \vdots \\ \lVert r_1-x_n \rVert^l \\ \lVert r-x_1 \rVert^l\\  \vdots  \\  \lVert r-x_n \rVert^l \\ \vdots \\ \lVert r_m-x_n \rVert ^l
+\end{pmatrix}.
+$$
+Meaning that only the second block changed. It could be interesting to compute ONE time the vector at the beginning of the algorithm :
+$$
+\begin{pmatrix}
+    \lVert r_1-x_1 \rVert^l \\ \vdots \\ \lVert r_1-x_n \rVert^l \\ \lVert r_2-x_1 \rVert^l\\  \vdots  \\  \lVert r_2-x_n \rVert^l \\ \vdots \\ \lVert r_m-x_n \rVert ^l
+\end{pmatrix}.
+$$
+Then changing only $n$ coefficients out of the $n\times m$.
+The matrix of constraints remains the same however the constraint vector does not, the $m$ last coefficients are variable as presented in the above subsection.
 \section{Entropic regularization}
 We often need to compute $d_l\left(\mathbb{P},\mathbb{Q}\right)$ with $\mathbb{P}$ the initial distribution to be reduced and $\mathbb{Q}$ the reduced distribution in construction and solving these linear programs can be very costly as $n,m,d$ grow. 
 \begin{corollary}[Number of linear programs solved]
