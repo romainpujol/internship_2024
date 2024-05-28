@@ -1,0 +1,328 @@
+\documentclass{beamer}
+\usetheme[progressbar=frametitle, numbering=fraction, block=fill]{metropolis}           % Use metropolis theme
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{color}
+\usepackage{tikz}
+\usepackage{algorithm, algorithmic}
+\usepackage[colorinlistoftodos,bordercolor=orange,backgroundcolor=orange!20,linecolor=orange,textsize=scriptsize]{todonotes}
+\usepackage{xcolor}
+\renewcommand{\algorithmicrequire}{\textbf{Input:}}
+\renewcommand{\algorithmicensure}{\textbf{Output:}}
+\usepackage{graphicx} % for pdf, bitmapped graphics files+9-*9*-------------------------
+\usepackage{epsfig} % for postscript graphics files
+\usepackage{subcaption}
+\usepackage{algorithm, algorithmic}
+
+%% For causal graphs
+\usetikzlibrary{shapes,decorations,arrows,calc,arrows.meta,fit,positioning}
+\tikzset{
+    -Latex,auto,node distance =0.5 cm and 1 cm,semithick,
+    state/.style ={ellipse, draw, minimum width = 0.7 cm},
+    point/.style = {circle, draw, inner sep=0.04cm,fill,node contents={}},
+    bidirected/.style={Latex-Latex,dashed},
+    el/.style = {inner sep=2pt, align=left, sloped},
+}
+
+%% Bigger progress bars
+\makeatletter
+\setlength{\metropolis@titleseparator@linewidth}{1pt}
+\setlength{\metropolis@progressonsectionpage@linewidth}{2pt}
+\setlength{\metropolis@progressinheadfoot@linewidth}{2pt}
+\makeatother
+
+% Macros
+\newcommand{\np}[1]{\left(#1\right)}
+\newcommand{\bp}[1]{\big(#1\big)}                           % Parenth\`{e}se big
+\newcommand{\Bp}[1]{\Big(#1\Big)}                           % Parenth\`{e}se Big
+\newcommand{\bgp}[1]{\bigg(#1\bigg)}                        % Parenth\`{e}se bigg
+\newcommand{\Bgp}[1]{\Bigg(#1\Bigg)}                        % Parenth\`{e}se Bigg
+
+\newcommand{\nc}[1]{\left[#1\right]}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\K}{\mathbb{K}}
+\renewcommand{\C}{\mathbb{C}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\X}{\mathbb{X}}
+\renewcommand{\U}{\mathbb{U}}
+\newcommand{\Sphere}{\mathbf{S}}
+\newcommand{\Pro}{\mathbb{P}}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\newcommand*\diff{\mathop{}\!\mathrm{d}}
+\DeclareMathOperator*{\opt}{opt}
+\newcommand{\func}{\phi} % Fonctionnelle
+\newcommand{\ufunc}{\overline{\phi}} %u(pper) function
+\newcommand{\lfunc}{\underline{\phi}} %l(ower) function
+\newcommand{\Func}{F}
+\newcommand{\lFunc}{\underline{F}}
+\newcommand{\uFunc}{\overline{F}}
+\newcommand{\Funcb}{\mathbf{F}} % Ensemble specifiques de fonctionnelles
+\newcommand{\lFuncb}{\underline{\mathbf{F}}}
+\newcommand{\Funcbb}{\mathbb{F}} % Ensemble de fonctionnelles
+\newcommand{\relint}{\mathop{\mathrm{ri}}}
+\newcommand{\ce}[1]{[\![#1]\!]}
+\newcommand{\Rb}{\overline{\R}}
+\newcommand{\RbX}{\Rb^\X}
+\newcommand{\Selection}[2][]{ % Selection function)
+  \def\tst{#1}
+  \def\testt{#2}
+  \ifx\tst\empty
+    \ifx\testt\empty
+      S_t
+    \else
+      S_t\left( #2 \right)
+    \fi
+  \else
+    S_t^{#1}\left( #2 \right)
+  \fi
+}
+\newcommand{\lSelection}[2][w]{ % l(ower)Selection function)
+  \def\tst{#1}
+  \def\testt{#2}
+  \ifx\tst\empty
+    \ifx\testt\empty
+      \underline{S}_t
+    \else
+      \underline{S}_t\left( #2 \right)
+    \fi
+  \else
+    \underline{S}_t^{#1}\left( #2 \right)
+  \fi
+}
+\newcommand{\uSelection}[2][w]{ % u(pper)Selection function)
+  \def\tst{#1}
+  \def\testt{#2}
+  \ifx\tst\empty
+    \ifx\testt\empty
+      \overline{S}_t
+    \else
+      \overline{S}_t\left( #2 \right)
+    \fi
+  \else
+    \overline{S}_t^{ #1 }\left( #2 \right)
+  \fi
+}
+\newcommand{\lV}{\underline{V}} % l(ower)V
+\newcommand{\uV}{\overline{V}} % u(pper)V
+\newcommand{\supp}[1]{\mathrm{supp}\left(#1\right)} % support of a random variable
+\newcommand{\cU}{\mathcal{U}_t^w} % constraint set-valued
+\newcommand{\dom}{\mathrm{dom}\;}
+\newcommand{\proj}{\pi} % euclidean projector
+
+% In the following macros one optional parameter can be put between [].
+\newcommand{\Qf}[3][w]{ % Q function
+  \def\tst{#2}
+  \ifx\tst\empty
+    Q_{\func}^{#1}
+  \else
+    Q_{#2}^{#1}\left( #3 \right)
+  \fi
+}
+\newcommand{\dyn}[2][w]{ % dynamic
+  \def\tst{#2}
+  \ifx\tst\empty
+    f_t^{#1}
+  \else
+    f_t^{#1}\left(#2\right)
+  \fi
+}
+\newcommand{\cost}[2][w]{ % cost function
+  \def\tst{#2}
+  \ifx\tst\empty
+    c_t^{#1}
+  \else
+    c_t^{#1}\left(#2\right)
+  \fi
+}
+\newcommand{\pB}[3][w]{ % p(ointwise)B(ellman operator)
+  \def\tst{#2}
+  \ifx\tst\empty
+    \mathcal{B}_t^{#1}
+  \else
+    \mathcal{B}_t^{#1}\left( #2 \right) \left( #3 \right)
+  \fi
+}
+\newcommand{\aB}[2]{ % a(verage)B(ellman operator)
+  \def\tst{#1}
+  \def\testt{#2}
+  \ifx\tst\empty
+    \mathfrak{B}_t
+  \else
+    \ifx\testt\empty
+      \mathfrak{B}_t\left( #1 \right)
+    \else
+      \mathfrak{B}_t\left( #1 \right) \left(#2 \right)
+    \fi
+  \fi
+}
+\theoremstyle{plain}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{assumption}{Assumption}
+
+%%A Min-plus-SDDP Algorithm for Deterministic Multistage Convex Programming
+
+\title{Scenario reduction : theory and algorithms}
+\date{May 2024}
+%\author{}
+%\institute{}
+
+\usepackage{tcolorbox}
+
+\begin{document}
+
+%%%% Beamer metropolis tweeks
+\setbeamertemplate{section in toc}[sections numbered]
+\setbeamertemplate{subsection in toc}[subsections numbered]
+\setbeamerfont{section in toc}{series=\bfseries}
+\setbeamerfont{footnote}{size=\scriptsize}
+
+% \AtBeginSection[]{
+%  \begin{frame}[noframenumbering]
+%   \frametitle{Section content}
+%   \tableofcontents[currentsection, sectionstyle=show/hide, currentsubsection, subsectionstyle=show/show/hide]
+%  \end{frame}}
+%%%%
+
+\begin{frame}[plain]
+ \maketitle
+\end{frame}
+
+\begin{frame}[noframenumbering]{Outline}
+ \metroset{outer/numbering=none}
+ \setbeamertemplate{section in toc}[sections numbered]
+ \tableofcontents[hideallsubsections]
+\end{frame}
+
+\section{Theoretical fundations}
+
+\begin{frame}{Motivation}
+ Consider a stochastic program with a continuous distribution :
+$$
+\min_{x\in X}\int_\Xi f\left(x,\xi\right)P\left(d\xi\right).
+$$
+In order to solve this problem, we use numerical integral techniques which modify the objective function such as:
+$$
+\min_{x\in X}\sum_{i\in I}f\left(x,\xi_i\right)p_i
+$$
+with $p_i=P\left(\{\xi_i\}\right)$. Since $f$ can be expensive to compute, $\lvert I\rvert$ should be as small as we can, the role of scenario reduction is to provide a distribution that is close to $P=\sum_{i\in I}\delta_{\xi_i}p_i$ (in this case) but with a reduced number of atoms.
+%https://www.mathematik.hu-berlin.de/~romisch/papers/Sapp09.pdf
+
+ 
+\end{frame}
+
+
+\begin{frame}{Wasserstein distance}
+ Wasserstein distance defines closeness between probabilities using the structure $\lVert \cdot\rVert$ of the underlying space where atoms live. We write $\mathbb{P}=\sum_{i\in I}p_i\delta_{x_i}$, $\mathbb{Q}=\sum_{j\in J }q_j\delta_{y_j}$. The type-$l$ Wasserstein distance ($l\geq1$) between $\mathbb{P}$ and $\mathbb{Q}$ is : 
+ \[
+d_l(\mathbb{P},\mathbb{Q})^l=\min_{\pi\in\mathbb{R_+^{|I|\times|J|}}}\left\{ 
+\sum_{i\in I}\sum_{j\in J}\pi_{ij}\lVert x_i-y_j\rVert^l \: \text{ : } \:  \begin{aligned}
+& \sum_{j\in J}\pi_{ij}=p_i \: \forall i\in I \\
+& \sum_{i\in I}\pi_{ij}=q_j \: \forall j\in J
+\end{aligned}\right\}.
+\]
+\newline
+
+Basically, the goal is to find the optimal way to move the masses from the atoms of $\mathbb{P}$ to the atoms of $\mathbb{Q}$ such that the total transportation cost is minimized.
+\end{frame}
+
+\begin{frame}{Notation}
+\[
+d_l(\mathbb{P},\mathbb{Q})^l=\min_{\pi\in\mathbb{R_+^{|I|\times|J|}}}\left\{ 
+\sum_{i\in I}\sum_{j\in J}\pi_{ij}\lVert x_i-y_j\rVert^l \: \text{ : } \:  \begin{aligned}
+& \sum_{j\in J}\pi_{ij}=p_i \: \forall i\in I \\
+& \sum_{i\in I}\pi_{ij}=q_j \: \forall j\in J
+\end{aligned}\right\}.
+\]
+    $\pi^*$ is the transportation plan and the constraints are named mass conservation.
+    \newline
+    
+    $\mathcal{P}_E(X,n)$ denotes the set of all \textbf{uniform} discrete distribution on $X\subset R^d$ with \textbf{exactly} $n$ distinct scenarii and $\mathcal{P}(X,m)$ denotes the set of discrete distributions on $X\subset R^d$ with \textbf{at most} m scenarii. 
+\end{frame}
+
+\begin{frame}{What do we want to solve}
+    The continuous scenario reduction problem : 
+$$
+C_l(\mathbb{P},m)=\min_\mathbb{Q}\left\{d_l(\mathbb{P},\mathbb{Q}),\: \mathbb{Q}\in\mathcal{P}(\mathbb{R}^d,m)\right\}. 
+$$
+The discrete scenario reduction problem :
+$$
+D_l(\mathbb{P},m)=\min_\mathbb{Q}\left\{d_l(\mathbb{P},\mathbb{Q}),\: \mathbb{Q}\in\mathcal{P}(\text{supp}(\mathbb{P}),m)\right\}.
+$$
+\end{frame}
+
+\section{Algorithms}
+\begin{frame}{K-means clustering}
+Generalization of k-means clustering to arbitrary norm and power $l$. Gives an approximation of $C_l\left(\mathbb{P},k\right).$
+\begin{algorithm}[H]
+    \caption{k-means clustering for $C_l\left(\mathbb{P},m\right)$}
+    1. Initialize the reduced set $R=\{y_1,...,y_m\} \subseteq \text{supp}\left(\mathbb{P}\right)$ arbitrarily. \\ 2. Let $\{I_j\}\in\mathfrak{P}\left(I,m\right)$ be any partition whose sets $I_j, j\in J$, contain all atoms of supp$\left(P\right)$ that are closest to $y_j$ (ties may be broken arbitrarily). \\ 3. For each $j\in J$, update $y_j$ as : $$y_j \gets \argmin_{y\in\RR^d} \left\{ \sum_{i\in I_j}\lVert x_i-y\rVert^l\right\}$$ \\ 4. Repeat Steps 2 and 3 until the reduced set $R$ no longer changes.
+\end{algorithm}
+\end{frame}
+
+\begin{frame}{Dupačová et al.}
+Dupačová et al. \cite{dupacova_scenario_2003} provides a greedy algorithm for $D_l\left(\mathbb{P},m\right)$. Generally, the distribution obtained isn't a solution of the discrete scenario reduction problem.
+\begin{algorithm}[H]
+  \caption{Dupačová et al.}\label{dupacova}
+  1. Initialize the set of atoms in the reduced set as $R\gets \emptyset.$ \\ 2. Select the next atom to be added to the reduced set as $$ y\in\argmin_{y\in \text{supp}\left(\mathbb{P}\right)}D_l\left(\mathbb{P},R\cup\{y\}\right).
+  $$
+  Update $R\gets R\cup \{y\}$.\\ 3. Repeat Step 2 until $\lvert R\rvert=m$.
+\end{algorithm}
+\end{frame}
+
+\begin{frame}{Step 2 ?}
+    Step 2 of the above algorithm requires to compute :
+    $$
+    D_l\left(\mathbb{P},R\cup\{y\}\right).
+    $$
+    If we write $R\cup\{y\}=\{y_j\}_{j\in J}$, this problem can be written as : 
+    $$
+    \min_{q\geq 0}d_l\left(\mathbb{P}, \sum_{j\in J}q_j\delta_{y_j}\right).
+    $$
+    We'll talk about it at the end of the presentation.
+\end{frame}
+
+\begin{frame}{Local search algorithm (1/2)}
+    \begin{algorithm}[H]
+    \caption{Local search algorithm for $D_l\left(\mathbb{P},m\right)$}\label{Local search}
+    1. Initialize the reduced set $R\subseteq \text{supp}\left(\mathbb{P}\right), \lvert R\rvert = m$, arbitrarily. \\ 2. Select the next change to be applied to the reduced set as 
+    $$
+    \left(y,y'\right)\in\argmin\left\{D_l\left(\mathbb{P},R\cup\{y\}\setminus \{y'\}\right) : \left(y,y'\right)\in\text{supp}\left(\mathbb{P}\setminus R\right)\times R\right\}.
+    $$
+    Update $R\gets R\cup \{y\}\setminus \{y'\}$ if $D_l\left(\mathbb{P}, R\cup\{y\}\setminus \{y'\} \right)<D_l\left(\mathbb{P},R\right).$ \\ 3. Repeat Step 2 until no further improvement is possible.
+    \end{algorithm}
+    This algorithm can make you think of the Lin-Kernighan heuristic for the TSP when you have to visit only $m$ towns out of the $n$.
+\end{frame}
+
+\begin{frame}{Local search algorithm (2/2)}
+    Same issue for Step 2, we have to compute :
+    $$
+    \min_{q\geq 0}d_l\left(\mathbb{P}, \sum_{j\in J}q_j\delta_{y_j}\right).
+    $$
+    Unlike Dupačová et al., this algorithm has theoretical guarantees about the output, it'll always be close to the optimal output, the approximation ratio is bounded. 
+\end{frame}
+
+\begin{frame}{Explicit value for Step 2.}
+    What maybe exists but we haven't found on article talking about these algorithms \cite{rujeerapaiboon_scenario_2022}, \cite{bertsimas_optimization-based_2023} is an explicit value for step 2, meaning : 
+    $$
+    \min_{q\geq 0}d_l\left(\mathbb{P}, \sum_{j\in J}q_j\delta_{y_j}\right)= \min_{q\geq 0}d_l\left(\sum_{i\in I}\delta_{x_i}p_i, \sum_{j\in J}q_j\delta_{y_j}\right).
+    $$
+    If my proof works indeed : 
+$$
+    \min_{q\geq 0}d_l^l\left(\sum_{i\in I}\delta_{x_i}p_i, \sum_{j\in J}q_j\delta_{y_j}\right)=\sum_{i\in I}p_i\min_{k\in J}\lVert x_i-y_k\rVert^l
+$$
+The proof also gives a transporation plan and a distribution $\mathbb{Q}$ reaching this value. Then, we wouldn't rely on solving optimal transport problems in order to compute for Dupačová et al' algorithm and local search algorithm.
+\end{frame}
+
+\begin{frame}{MILP reformulation}
+    
+\end{frame}
+\bibliography{biblio}
+\bibliographystyle{alpha}
+
+\end{document}
