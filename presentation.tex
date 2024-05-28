@@ -44,12 +44,10 @@
 \newcommand{\R}{\mathbb{R}}
 \newcommand{\Q}{\mathbb{Q}}
 \newcommand{\K}{\mathbb{K}}
-\renewcommand{\C}{\mathbb{C}}
 \newcommand{\Z}{\mathbb{Z}}
 \newcommand{\N}{\mathbb{N}}
 \newcommand{\E}{\mathbb{E}}
 \newcommand{\X}{\mathbb{X}}
-\renewcommand{\U}{\mathbb{U}}
 \newcommand{\Sphere}{\mathbf{S}}
 \newcommand{\Pro}{\mathbb{P}}
 \DeclareMathOperator*{\argmin}{arg\,min}
@@ -261,7 +259,11 @@ $$
 Generalization of k-means clustering to arbitrary norm and power $l$. Gives an approximation of $C_l\left(\mathbb{P},k\right).$
 \begin{algorithm}[H]
     \caption{k-means clustering for $C_l\left(\mathbb{P},m\right)$}
-    1. Initialize the reduced set $R=\{y_1,...,y_m\} \subseteq \text{supp}\left(\mathbb{P}\right)$ arbitrarily. \\ 2. Let $\{I_j\}\in\mathfrak{P}\left(I,m\right)$ be any partition whose sets $I_j, j\in J$, contain all atoms of supp$\left(P\right)$ that are closest to $y_j$ (ties may be broken arbitrarily). \\ 3. For each $j\in J$, update $y_j$ as : $$y_j \gets \argmin_{y\in\RR^d} \left\{ \sum_{i\in I_j}\lVert x_i-y\rVert^l\right\}$$ \\ 4. Repeat Steps 2 and 3 until the reduced set $R$ no longer changes.
+    1. Initialize the reduced set $R=\{y_1,...,y_m\} \subseteq \text{supp}\left(\mathbb{P}\right)$ arbitrarily. \\ 2. Let $\{I_j\}\in\mathfrak{P}\left(I,m\right)$ be any partition whose sets $I_j, j\in J$, contain all atoms of supp$\left(P\right)$ that are closest to $y_j$ (ties may be broken arbitrarily). \\ 3. For each $j\in J$, update $y_j$ as : 
+    \[
+      y_j \gets \argmin_{y\in\R^d} \left\{ \sum_{i\in I_j} \lVert x_i-y \rVert^l \right\}
+    \] 
+    \\ 4. Repeat Steps 2 and 3 until the reduced set $R$ no longer changes.
 \end{algorithm}
 \end{frame}
 
