@@ -61,19 +61,19 @@ To compute a solution of this program, one uses numerical integral techniques wh
 $$
 \min_{x\in X}\sum_{i\in I} f\left(x,\xi_i\right)p_i
 $$
-with $p_i=P\left(\{\xi_i\}\right)$. The function $f$ can be expensive to compute, then a good idea would be to reduce the number of atoms of $P$ without throwing its structure.
+with $p_i=P\left(\{\xi_i\}\right)$. The function $f$ can be expensive to compute, then a good idea would be to reduce the number of atoms of $P$ without throwing away its structure.
 \subsection{Context}
 In this part, we present tools and concepts useful for scenario reduction. We will define distance between two distributions : the Wasserstein distance is a good candidate. In the case of discrete distributions $\mathbb{P}=\sum_{i\in I}p_i\delta_{x_i}$ and $\mathbb{Q}=\sum_{j\in J}q_j\delta_{y_j}$, one can note that $x_i$ and $y_j$ must live in the same normed space ($\lVert\cdot\rVert$ denotes the norm). The type-$l$ Wasserstein distance between $\mathbb{P}$ and $\mathbb{Q}$ is defined as :  
 \[
-d_l(\mathbb{P},\mathbb{Q})=\left(\min_{\pi\in\mathbb{R_+^{|I|\times|J|}}}\left\{ 
+d_l(\mathbb{P},\mathbb{Q})=\left(\min_{\pi\in\mathbb{R}_+^{\lvert I\rvert\times\lvert J\rvert}}\left\{ 
 \sum_{i\in I}\sum_{j\in J}\pi_{ij}\lVert x_i-y_j\rVert^l \: \text{ : } \:  \begin{aligned}
 & \sum_{j\in J}\pi_{ij}=p_i \: \forall i\in I \\
 & \sum_{i\in I}\pi_{ij}=q_j \: \forall j\in J
 \end{aligned}\right\}\right)^{1/l}.
 \]
-The parameter $l$ has to be greater than or equal to 1 in order to satisfy axioms of distances, see \ref{distance}. One can \bt{To prove that $d^\ell$ is distance, the difficult part is the triangle inequality. It is a distance for $\ell \geq 1$ and the proof of the triangle inequality is here called the "gluing lemma" (Peyré-Cuturi chapter 1 for our "simple" case). This gluing lemma uses Minkowski's inequality in the case $\ell\geq1$ so that's the reason why. 
+The parameter $l$ has to be greater than or equal to 1 in order to satisfy axioms of distances, see \Cref{distance}. One can \bt{To prove that $d^\ell$ is distance, the difficult part is the triangle inequality. It is a distance for $\ell \geq 1$ and the proof of the triangle inequality is here called the "gluing lemma" (Peyré-Cuturi chapter 1 for our "simple" case). This gluing lemma uses Minkowski's inequality in the case $\ell\geq1$ so that's the reason why. 
 It is still an interesting question for $0 < \ell \leq 1$. We have $d_\ell^\ell$ (and not $d\ell$ itself) is a distance as $(x,y) \mapsto \lVert x - y \rVert^\ell$ is already a distance when $0 < \ell \leq 1$ thanks to Minkowski's inequality in the case $\ell \leq 1$.
-}. See \ref{compute} in order to have an idea on how to compute the distance of Wasserstein between two distributions and more precision.
+}. See \Cref{compute} in order to have an idea on how to compute the distance of Wasserstein between two distributions and more precision.
 \newline
 
 $\mathcal{P}_E(X,n)$ denotes the set of all \textbf{uniform} discrete distribution on $X\subset R^d$ with \textbf{exactly} $n$ distinct scenarii and $\mathcal{P}(X,m)$ denotes the set of discrete distributions on $X\subset R^d$ with \textbf{at most} m scenarii. In the article, one assume that $\mathbf{P}\in\mathcal{P}_E(X,n)$. What is true when you obtain the distribution $\mathbb{P}$ via sampling, every issue has the probability of $\frac{1}{n}$ and if a same value occurs twice or more, they say we can decompose the distribution with two or more close atoms.
@@ -91,7 +91,7 @@ Let $\mathbb{P}$ be a finite distribution on $\RR^d$, obviously $\text{supp}(\ma
 
 \section{Fundamental limits of scenario reduction}\label{limit}
 \subsection{Bounds}
-Here, we try to provide bounds on the value of the Wasserstein distance in order to guarantee closeness between the reduced distribution and the original one. We work with $\lVert\cdot\rVert_2$ and atoms within the unit ball because of the positive homogeneity of the Wasserstein distance $C_l(\mathbb{P}^\lambda,m)=\lambda \cdot C_l(\mathbb{P},m)$ for $\lambda\in\mathbb{R}_+$ and $\mathbb{P}^\lambda=\sum_{i\in I}p_i\delta_{\lambda\cdot x_i}$. See \ref{scaled} for a proof. \rp{not obvious tbh} Generally, we have that : $$\forall \lambda\in\mathbb{R}, C_l(\mathbb{P}^\lambda,m)=|\lambda|C_l(\mathbb{P},m).$$ 
+Here, we try to provide bounds on the value of the Wasserstein distance in order to guarantee closeness between the reduced distribution and the original one. We work with $\lVert\cdot\rVert_2$ and atoms within the unit ball because of the positive homogeneity of the Wasserstein distance $C_l(\mathbb{P}^\lambda,m)=\lambda \cdot C_l(\mathbb{P},m)$ for $\lambda\in\mathbb{R}_+$ and $\mathbb{P}^\lambda=\sum_{i\in I}p_i\delta_{\lambda\cdot x_i}$. See \Cref{scaled} for a proof. \rp{not obvious tbh} Generally, we have that : $$\forall \lambda\in\mathbb{R}, C_l(\mathbb{P}^\lambda,m)=|\lambda|C_l(\mathbb{P},m).$$ 
 The homogeneity allows us to investigate inside the unit ball as we can scale distributions w.l.o.g. Another goal of this part is to quantify and study the worst case of scenario reduction defined by :
 $$
 \bar{C}_l\left(n,m \right)=\left\{\max_{\mathbb{P}\in\mathcal{P}_E(\mathbb{R}^d,n)}C_l(\mathbb{P},m)\: :\: \text{supp}(\mathbb{P})\in B(0,1)\right\}.
@@ -139,7 +139,7 @@ $$C_l(\mathbb{P},m)=\min_{\{I_j\}\in \mathfrak{P}(I,m)}\left\{ \frac{1}{n}\sum_{
     $$\bar{C}_2\left(n,m \right)\leq \sqrt{\frac{n-m}{n-1}}.$$
 \end{theorem}
 \begin{proof}
-    We give a sketch of the proof. From \ref{theorem1} and its remark, we have that : 
+    We give a sketch of the proof. From \Cref{theorem1} and its remark, we have that : 
     \begin{align*}\bar{C}_2\left(n,m\right)=&
         \max_{\{y_i\}\subseteq\RR^d}\min_{\{I_j\}\in\mathfrak{P}\left(I,m\right)}\left[\frac{1}{n}\sum_{j\in J}\sum_{i\in I_j}\lVert y_i-\text{mean}\left(I_j\right)\rVert_2^2\right]^{1/2} \\ &\lVert y_i\rVert_2\leq1 \:\forall i\in I
     \end{align*}
@@ -148,7 +148,7 @@ $$C_l(\mathbb{P},m)=\min_{\{I_j\}\in \mathfrak{P}(I,m)}\left\{ \frac{1}{n}\sum_{
         \max_{\tau\in\RR, \{y_i\}\subseteq\RR^d}\quad\frac{1}{n}\tau \\ &\text{s.t. }\tau\leq\sum_{j\in J}\sum_{i\in I_j}\lVert y_i-\text{mean}\left(I_j\right)\rVert_2^2\; :\; \forall \{I_j\}\in\mathfrak{P}\left(I,m\right) \\
         &\quad\quad y_i^Ty_i\leq1 \quad\quad\quad\quad\quad\quad\quad\quad\quad : \forall i\in I
     \end{align*}
-    The use of $\tau$ is legit as the first constraint means that $\tau\leq\min_{\{I_j\}}\sum_{j\in J}\sum_{i\in I_j}\lVert x_i-\text{mean}(I_j)\rVert_2^2$ but as we want to maximize the function $\tau$ will be the highest he can, so it'll be equal to the minimum, thereafter it gets technical but understandable. To your best understanding of the proof in \cite[Theorem 2]{rujeerapaiboon_scenario_2022} two lemmas are used to prove this inequality. Lemma 1 is kind of technical as the set of solutions of a convex problem is convex, which is necessary to say that : $S=\frac{1}{n!}\sum_{\sigma\in\mathfrak{S}}S^\sigma$ is also a solution. This matrix S is indeed invariant under permutations. Lemma 2 is easy but I give an easier proof in \ref{eigen}.
+    The use of $\tau$ is legit as the first constraint means that $\tau\leq\min_{\{I_j\}}\sum_{j\in J}\sum_{i\in I_j}\lVert x_i-\text{mean}(I_j)\rVert_2^2$ but as we want to maximize the function $\tau$ will be the highest he can, so it'll be equal to the minimum, thereafter it gets technical but understandable. To your best understanding of the proof in \cite[Theorem 2]{rujeerapaiboon_scenario_2022} two lemmas are used to prove this inequality. Lemma 1 is kind of technical as the set of solutions of a convex problem is convex, which is necessary to say that : $S=\frac{1}{n!}\sum_{\sigma\in\mathfrak{S}}S^\sigma$ is also a solution. This matrix S is indeed invariant under permutations. Lemma 2 is easy but I give an easier proof in \Cref{eigen}.
 \end{proof}
 
 Then the article highlights a distribution \textbf{that reaches the upper bound for \boldmath{$d\geq n-1$}(meaning that the upper bound is optimal)} under these assumptions. We now treat the case $l=1$.
@@ -192,7 +192,7 @@ As an example, we can choose : $\mu=\frac{1}{n}\sum_{i\in I}x_i$ and $r=\max_i\l
 $$
 C_l(\mathbb{P},m)\leq \max_i\left\{{\lVert x_i-\mu\rVert}\right\}\sqrt{1-p}.
 $$
-what depends only on $\mathbb{P}$. \rp{maybe that helps a very little the article}. A good idea \rp{imo} is to find the smallest bound for a given distribution $\mathbb{P}$ and a given norm $\lVert\cdot\rVert$, so we can have a better upper bound. One must find the Chebyshev center (see \ref{chebyshev}) :
+what depends only on $\mathbb{P}$. \rp{maybe that helps a very little the article}. A good idea \rp{imo} is to find the smallest bound for a given distribution $\mathbb{P}$ and a given norm $\lVert\cdot\rVert$, so we can have a better upper bound. One must find the Chebyshev center (see \Cref{chebyshev}) :
 \begin{align*}
     &\min_{r\in\RR^+,\mu\in\RR^d} \quad r\\
     &\text{s.t.}\quad \lVert\frac{x_i-\mu}{r}\rVert \leq 1, \;\forall i\in I.
@@ -210,7 +210,7 @@ Because we've already proven :
 $$
 C_l\left( \mathbb{P},m\right)\leq D_l\left( \mathbb{P},m\right)
 $$
-Just like we've done in the beginning of \ref{limit}, it's time to reformulate the discrete scenario reduction problem such as :
+Just like we've done in the beginning of \Cref{limit}, it's time to reformulate the discrete scenario reduction problem such as :
 \begin{theorem}\label{reformulation 2}
     For any type-l Wasserstein distance induced by any norm $\lVert\cdot\rVert$, the discrete scenario reduction problem can be reformulated as 
     $$
@@ -225,7 +225,7 @@ In this part we'll find $\bar{\kappa}_2\left(n,m\right), \underline\kappa_2\left
 \end{theorem}
 The proof is very interesting for one's intuition and easy to understand even though it might look long.
 \begin{proof}
-    \textbf{Step 1} proves the result for $m=1$. Let $\mathbb{P}=\frac{1}{n}\sum_{i\in I}\delta_{x_i}\in\mathcal{P}_E\left(\RR^d,n\right)$ (remember that sampling is why we consider $\mathbb{P}$ uniform and if $\mathbb{P}$ doesn't come from sampling, we could consider an uniform distribution with many atoms close to an atom with "huge" probability). W.l.o.g., we can assume that $\frac{1}{n}\sum_{i\in I}x_i=0$ and $\frac{1}{n}\sum_{i\in I}\lVert x_i\rVert^2=1$ because re-positionning doesn't affect $C_l$ and $D_l$ and re-scaling affects equally $D_l$ and $C_l$ (see \ref{scaled}, \ref{scaled 2}).
+    \textbf{Step 1} proves the result for $m=1$. Let $\mathbb{P}=\frac{1}{n}\sum_{i\in I}\delta_{x_i}\in\mathcal{P}_E\left(\RR^d,n\right)$ (remember that sampling is why we consider $\mathbb{P}$ uniform and if $\mathbb{P}$ doesn't come from sampling, we could consider an uniform distribution with many atoms close to an atom with "huge" probability). W.l.o.g., we can assume that $\frac{1}{n}\sum_{i\in I}x_i=0$ and $\frac{1}{n}\sum_{i\in I}\lVert x_i\rVert^2=1$ because re-positionning doesn't affect $C_l$ and $D_l$ and re-scaling affects equally $D_l$ and $C_l$ (see \Cref{scaled}, \Cref{scaled 2}).
     \newline
     The first reformulation gives that :
     $$
@@ -247,7 +247,7 @@ $$
 Finally, we have : $$\bar\kappa_2\left(n,1\right)\leq\sqrt{2}.$$
 \newline
 
-\textbf{Step 2} extends the result for $n,m\in\{1,...,n-1\}$ using the result above for $m=1$ by decomposing with $m$ scenario reduction problem with 1 atom. Let $\mathbb{P}\in\mathcal{P}_E\left(\RR^d,n\right). $ With \ref{theorem1}, we can write that :
+\textbf{Step 2} extends the result for $n,m\in\{1,...,n-1\}$ using the result above for $m=1$ by decomposing with $m$ scenario reduction problem with 1 atom. Let $\mathbb{P}\in\mathcal{P}_E\left(\RR^d,n\right). $ With \Cref{theorem1}, we can write that :
 $$
 C_2\left(\mathbb{P},m\right)=\min_{\{I_j\}\in \mathfrak{P}(I,m)}\left\{ \frac{1}{n}\sum_{j\in J}\sum_{i\in I_j}\lVert x_i-\text{mean}\left(I_j\right)\rVert^2_2 \right\}^{1/2}
 $$
@@ -257,7 +257,7 @@ C_2\left(\mathbb{P},m\right)=\left(\frac{1}{n}\sum_{j\in J}\sum_{i\in I_j^*} \lV
 $$
 with $C_{2,j}=\left(\frac{1}{\lvert I_j^*\rvert}\sum_{i\in I_j^*}\lVert x_i -\text{mean}\left(I_j\right)\rVert^2_2\right)$. So typically,  $C_{2,j}=C_2\left(\frac{1}{\lvert I_j^*\rvert}\sum_{i\in I_j^*}\delta_{x_i},1\right)$ as reminded for \textbf{step 1}.
 
-With $D_{2,k}=\min_{i\in I_k}\left(\frac{1}{\lvert I_k\rvert}\sum_{j\in I_k}\lVert x_j -x_i\rVert^2_2\right)^{1/2}$ and \ref{reformulation 2}, we have the analogous expression for an optimal $\{I_k^*\}\in\mathfrak{P}\left(I,m\right)$ : 
+With $D_{2,k}=\min_{i\in I_k}\left(\frac{1}{\lvert I_k\rvert}\sum_{j\in I_k}\lVert x_j -x_i\rVert^2_2\right)^{1/2}$ and \Cref{reformulation 2}, we have the analogous expression for an optimal $\{I_k^*\}\in\mathfrak{P}\left(I,m\right)$ : 
 $$
 D_2\left(\mathbb{P},m\right)=\left[ \sum_{k\in K}\frac{\lvert I_k^*\rvert}{n}D_{2,k}^2\right]^{1/2}\leq \left[ \sum_{j\in J}\frac{\lvert I_j^*\rvert}{n}D_{2,j}^2\right]^{1/2}\leq \left[ \sum_{j\in J}\frac{\lvert I_j^*\rvert}{n}2C_{2,j}^2\right]^{1/2}=\sqrt{2}C_2\left(\mathbb{P},m\right).
 $$
@@ -332,12 +332,12 @@ $$
 
 With $\delta$ being the Kronecker delta, we choose : \begin{align*}
     q_j&=\sum_{i\in I_j}p_i \\
-    \pi_{ij}&=p_i\delta_{j,\argmin_{k\in J}\lVert x_i-y_j\rVert^l}
+    \pi_{ij}&=p_i\delta_{j,\argmin_{k\in J}\lVert x_i-y_k\rVert^l}
 \end{align*}
-First of all, as $I_j$ represents a partition of $I$ (ties \textbf{must} be broken), $\sum_{j\in J}q_j=\sum_{i\in I}p_i=1$.\newline
-$\pi$ is positive, $\sum_{j\in J}\pi_{ij}=p_i\sum_{j\in J}\delta_{j,\argmin_{k\in J}\lVert x_i-y_j\rVert^l}=p_i$ as ties have to be broken and \newline $\sum_{i\in I}\pi_{ij}=\sum_{i\in I}p_i\delta_{j,\argmin_{k\in J}\lVert x_i-y_j\rVert^l}=\sum_{i\in I_j}p_i=q_j$. So $q$ is legit and $\pi\in U\left(p,q\right)$, with $q,\pi$, the objective function (at the $l^{\text{th}}$ power) is worth : 
+First of all, as $\cup_{j\in J}I_j$ represents a partition of $I$ (ties \textbf{must} be broken), $\sum_{j\in J}q_j=\sum_{i\in I}p_i=1$.\newline
+$\pi$ is positive, $\sum_{j\in J}\pi_{ij}=p_i\sum_{j\in J}\delta_{j,\argmin_{k\in J}\lVert x_i-y_k\rVert^l}=p_i$ as ties have to be broken and \newline $\sum_{i\in I}\pi_{ij}=\sum_{i\in I}p_i\delta_{j,\argmin_{k\in J}\lVert x_i-y_k\rVert^l}=\sum_{i\in I_j}p_i=q_j$. So $q$ is legit and $\pi\in U\left(p,q\right)$, with $q,\pi$, the objective function (at the $l^{\text{th}}$ power) is worth : 
 \begin{align*}
-    \sum_{i\in I}\sum_{j\in J}\pi_{ij}\lVert x_i-y_j\rVert^l &=\sum_{i\in I}\sum_{j\in J}p_i\delta_{j, \argmin_{k\in J}\lVert x_i-y_j\rVert^l}\lVert x_i-y_j\rVert^l \\ &=\sum_{i\in I}p_i\left[\sum_{j\in J}\delta_{j, \argmin_{k\in J}\lVert x_i-y_j\rVert^l}\lVert x_i-y_j\rVert^l\right] \\ &=\sum_{i\in I}p_i\min_{k\in J}\lVert x_i-y_k\rVert ^l.
+    \sum_{i\in I}\sum_{j\in J}\pi_{ij}\lVert x_i-y_j\rVert^l &=\sum_{i\in I}\sum_{j\in J}p_i\delta_{j, \argmin_{k\in J}\lVert x_i-y_k\rVert^l}\lVert x_i-y_j\rVert^l \\ &=\sum_{i\in I}p_i\left[\sum_{j\in J}\delta_{j, \argmin_{k\in J}\lVert x_i-y_k\rVert^l}\lVert x_i-y_j\rVert^l\right] \\ &=\sum_{i\in I}p_i\min_{k\in J}\lVert x_i-y_k\rVert ^l.
 \end{align*}
 All in all, with the notation $\mathbb{Q}_0=\sum_{j\in J}\left(\sum_{i\in I_j}p_i\right)\delta_{y_j}$ we've proven that :
 $$
@@ -397,7 +397,7 @@ In the article, they propose a new algorithm with the advantage of bounding the 
     $$
     and update $R\gets R\cup \{y\}\setminus \{y'\}$ if $D_l\left(\mathbb{P}, R\cup\{y\}\setminus \{y'\} \right)<D_l\left(\mathbb{P},R\right).$ \\ Repeat Step 2 until no further improvement is possible.
 \end{algorithm}
-If various changes are possible in Step 2, you can either choose to use a "first-fit" (swap whenever you find a couple that reduces the distance) or a "best-fit" (explore all possible exchanges and swap the best one) strategy. The first one reduces the calculation time but both techniques have an approximation ratio of 5 for the discrete scenario reduction problem for all $d$. $D_l$ is computed as for \ref{dupacova}.
+If various changes are possible in Step 2, you can either choose to use a "first-fit" (swap whenever you find a couple that reduces the distance) or a "best-fit" (explore all possible exchanges and swap the best one) strategy. The first one reduces the calculation time but both techniques have an approximation ratio of 5 for the discrete scenario reduction problem for all $d$. $D_l$ is computed as for \Cref{dupacova}.
 \begin{remark}
     To some extent, this algorithm can make you think of the Lin-Kernighan heuristic developped for the TSP.
 \end{remark}
@@ -421,7 +421,7 @@ The discrete scenario reduction problem can be formulated as the MILP :
 \section{Results}
 
 \section{Efficient implementation}
-The SMS++ ecosystem aims to deliver an efficient interface for a wide range of optimization problems through the concept of block which represents a type of problem namely "BinaryKnapsackBlock", "MCFBlock" (for Min-Cost flow) and many others. Developped in C++, it is to be able to manage memory, calculation what can be somewhat difficult in interpreted languages such as Python or Julia. In SMS++ it is easy and almost free to turn ON/OFF variables (decision variables, constraints...). In this part, we'll try to find ways to implement proficiently Dupačová et al's algorithm \ref{dupacova} and local search algorithm \ref{Local search}.
+The SMS++ ecosystem aims to deliver an efficient interface for a wide range of optimization problems through the concept of block which represents a type of problem namely "BinaryKnapsackBlock", "MCFBlock" (for Min-Cost flow) and many others. Developped in C++, it is to be able to manage memory, calculation what can be somewhat difficult in interpreted languages such as Python or Julia. In SMS++ it is easy and almost free to turn ON/OFF variables (decision variables, constraints...). In this part, we'll try to find ways to implement proficiently Dupačová et al's algorithm \Cref{dupacova} and local search algorithm \Cref{Local search}.
 
 \subsection{Dupačová et al's algorithm}
 In this part we try to reduce computational time of Dupačová et al's algorithm, meaning we want to reuse what we've already computed. 
@@ -443,20 +443,20 @@ $$
 \textbf{For $\mathbf{y_2}$}, the cost vector is almost the same, you just have to modify the $\left(k+1\right)\times i^{\text{th}}, \text{ coefficient, for } i\in I$ by $\lVert x_i-y_2\rVert^l$.
 \newline 
 
-About the constraints, the matrix remains the same when you want to design the constraints for $y_1$ and $y_2$ as presentend in \ref{compute}. There's still a modification to make in the end of the constraint vector. \textbf{For $\mathbf{y_1}$} it is :
+About the constraints, the matrix remains the same when you want to design the constraints for $y_1$ and $y_2$ as presentend in \Cref{compute}. There's still a modification to make in the end of the constraint vector. \textbf{For $\mathbf{y_1}$} it is :
 $$
 \begin{pmatrix}
     p_1 \\ \vdots \\p_n \\ q^1_1 \\ \hdots \\ q^1_{k+1}
 \end{pmatrix},
 $$
-with $q^1_j$ computed as presented in \ref{easy compute of d_l}. \textbf{For $\mathbf{y_1}$} it is :
+with $q^1_j$ computed as presented in \Cref{easy compute of d_l}. \textbf{For $\mathbf{y_1}$} it is :
 $$
 \begin{pmatrix}
     p_1 \\ \vdots \\p_n \\ q^2_1 \\ \hdots \\ q^2_{k+1}
 \end{pmatrix}.
 $$
 \subsubsection{When adding a new atom}
-When we want to add a new atom, we must add $n$ lines to the cost vector. Each line is added after the position $i\times k$ for $i\in [\![1;n]\!]$ (the second distribution has one more atom). The matrix of constraints also has to be modified. The size goes from $n\times k$ to $n\times \left(k+1\right)$ though the structure is still the one presented in \ref{compute}. The constraint vector also changes a bit, one more line in the end.
+When we want to add a new atom, we must add $n$ lines to the cost vector. Each line is added after the position $i\times k$ for $i\in [\![1;n]\!]$ (the second distribution has one more atom). The matrix of constraints also has to be modified. The size goes from $n\times k$ to $n\times \left(k+1\right)$ though the structure is still the one presented in \Cref{compute}. The constraint vector also changes a bit, one more line in the end.
 \subsection{Local search algorithm}
 Can we do such a thing for the local search algorithm ? We write $R=\{r_1,...,r_m\}\subset\text{supp}\left(P\right)=\{x_1,...,x_n\}$ the selected atoms, $\text{supp}\left(P\right)\setminus R =\{r_{m+1},...,r_{n}\}$. For an iteration of this algorithm, we try to swap one at a time an element of $R$ with an element of $\text{supp}\left(P\right)\setminus R$. For example, when we try to swap $r_1$, it happens the thing we found for Dupačová et al's algorithm. But if no swap of $r_1$ decreases the value of $D_l$, then we'll try to swap $r_2$. When this happens, how can we get the most of it ? 
 Trying to swap $r_1$ with any element $r\in\text{supp}\left(P\right)\setminus R$, the cost vector is : 
@@ -513,7 +513,7 @@ In this appendix, we prove that Wasserstein distance is indeed a distance whenev
      \forall i,j \in I\times J, \: \pi_{ij}\lVert x_i-y_j\rVert=0.
     $$
     But we said that there exists $x_{i_0}\in\text{supp}\left(P\right)\setminus\text{supp}\left(Q\right)$. It follows that $\forall j\in J, \pi_{i_0j}=0$ what's impossible because of the constraints we had, $0=\sum_{j\in J}\pi_{i_0j}=p_{i_0}\neq0.$ First step : check ! $$d_l\left(\mathbb{P},\mathbb{Q}\right)=0\implies \text{supp}\left(\mathbb{P}\right)=\text{supp}\left(\mathbb{Q}\right).$$
-    W.l.o.g. we can renumber the atom and then say $p_i$ and $q_i$ are associated to the same atom. We use \ref{useful} and we have that :
+    W.l.o.g. we can renumber the atom and then say $p_i$ and $q_i$ are associated to the same atom. We use \Cref{useful} and we have that :
     $$
     \forall k\in I, k\neq i, \pi_{ki}=0, \pi_{ik}=0.
     $$

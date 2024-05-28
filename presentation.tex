@@ -1,3 +1,4 @@
+
 \documentclass{beamer}
 \usetheme[progressbar=frametitle, numbering=fraction, block=fill]{metropolis}           % Use metropolis theme
 \usepackage{amsfonts}
@@ -165,7 +166,7 @@
 
 %%A Min-plus-SDDP Algorithm for Deterministic Multistage Convex Programming
 
-\title{Scenario reduction : theory and algorithms}
+\title{Scenario reduction: theory and algorithms}
 \date{May 2024}
 %\author{}
 %\institute{}
@@ -180,13 +181,6 @@
 \setbeamerfont{section in toc}{series=\bfseries}
 \setbeamerfont{footnote}{size=\scriptsize}
 
-% \AtBeginSection[]{
-%  \begin{frame}[noframenumbering]
-%   \frametitle{Section content}
-%   \tableofcontents[currentsection, sectionstyle=show/hide, currentsubsection, subsectionstyle=show/show/hide]
-%  \end{frame}}
-%%%%
-
 \begin{frame}[plain]
  \maketitle
 \end{frame}
@@ -200,7 +194,7 @@
 \section{Theoretical fundations}
 
 \begin{frame}{Motivation}
- Consider a stochastic program with a continuous distribution :
+ Consider a \alert{stochastic program} with a continuous distribution:
 $$
 \min_{x\in X}\int_\Xi f\left(x,\xi\right)P\left(d\xi\right).
 $$
@@ -208,7 +202,7 @@ In order to solve this problem, we use numerical integral techniques which modif
 $$
 \min_{x\in X}\sum_{i\in I}f\left(x,\xi_i\right)p_i
 $$
-with $p_i=P\left(\{\xi_i\}\right)$. Since $f$ can be expensive to compute, $\lvert I\rvert$ should be as small as we can, the role of scenario reduction is to provide a distribution that is close to $P=\sum_{i\in I}\delta_{\xi_i}p_i$ (in this case) but with a reduced number of atoms.
+with $p_i=P\left(\{\xi_i\}\right)$. Since $f$ can be expensive to compute, $\lvert I\rvert$ should be as small as we can, the role of scenario reduction is to provide a distribution that is close to $P=\sum_{i\in I}\delta_{\xi_i}p_i$ (in this case) but with a \alert{reduced number of atoms}.
 %https://www.mathematik.hu-berlin.de/~romisch/papers/Sapp09.pdf
 
  
@@ -216,113 +210,123 @@ with $p_i=P\left(\{\xi_i\}\right)$. Since $f$ can be expensive to compute, $\lve
 
 
 \begin{frame}{Wasserstein distance}
- Wasserstein distance defines closeness between probabilities using the structure $\lVert \cdot\rVert$ of the underlying space where atoms live. We write $\mathbb{P}=\sum_{i\in I}p_i\delta_{x_i}$, $\mathbb{Q}=\sum_{j\in J }q_j\delta_{y_j}$. The type-$l$ Wasserstein distance ($l\geq1$) between $\mathbb{P}$ and $\mathbb{Q}$ is : 
+ Wasserstein distance defines closeness between probabilities using \alert{the structure $\lVert \cdot\rVert$ of the underlying space} where atoms live. We write $\mathbb{P}=\sum_{i\in I}p_i\delta_{x_i}$, $\mathbb{Q}=\sum_{j\in J }q_j\delta_{y_j}$. The type-$\ell$ Wasserstein distance ($\ell\geq1$) between $\mathbb{P}$ and $\mathbb{Q}$ is:
  \[
-d_l(\mathbb{P},\mathbb{Q})^l=\min_{\pi\in\mathbb{R_+^{|I|\times|J|}}}\left\{ 
-\sum_{i\in I}\sum_{j\in J}\pi_{ij}\lVert x_i-y_j\rVert^l \: \text{ : } \:  \begin{aligned}
-& \sum_{j\in J}\pi_{ij}=p_i \: \forall i\in I \\
-& \sum_{i\in I}\pi_{ij}=q_j \: \forall j\in J
+d_\ell(\mathbb{P},\mathbb{Q})^\ell=\min_{\pi\in\mathbb{R}_+^{\lvert I\rvert\times\lvert J\rvert}}\left\{ 
+\sum_{i\in I}\sum_{j\in J}\pi_{ij}\lVert x_i-y_j\rVert^\ell \: \text{ : } \:  \begin{aligned}
+& \sum_{j\in J}\pi_{ij}=p_i, \: \forall i\in I \\
+& \sum_{i\in I}\pi_{ij}=q_j, \: \forall j\in J
 \end{aligned}\right\}.
 \]
 \newline
 
-Basically, the goal is to find the optimal way to move the masses from the atoms of $\mathbb{P}$ to the atoms of $\mathbb{Q}$ such that the total transportation cost is minimized.
+Basically, the goal is to find \alert{the optimal way to move the masses} from the atoms of $\mathbb{P}$ to the atoms of $\mathbb{Q}$ such that \alert{the total transportation cost is minimized.}
 \end{frame}
 
 \begin{frame}{Notation}
 \[
-d_l(\mathbb{P},\mathbb{Q})^l=\min_{\pi\in\mathbb{R_+^{|I|\times|J|}}}\left\{ 
-\sum_{i\in I}\sum_{j\in J}\pi_{ij}\lVert x_i-y_j\rVert^l \: \text{ : } \:  \begin{aligned}
-& \sum_{j\in J}\pi_{ij}=p_i \: \forall i\in I \\
-& \sum_{i\in I}\pi_{ij}=q_j \: \forall j\in J
+d_\ell(\mathbb{P},\mathbb{Q})^\ell=\min_{\pi\in\mathbb{R}_+^{\lvert I\rvert\times\lvert J\rvert}}\left\{ 
+\sum_{i\in I}\sum_{j\in J}\pi_{ij}\lVert x_i-y_j\rVert^\ell \: \text{ : } \:  \begin{aligned}
+& \sum_{j\in J}\pi_{ij}=p_i, \: \forall i\in I \\
+& \sum_{i\in I}\pi_{ij}=q_j, \: \forall j\in J
 \end{aligned}\right\}.
 \]
-    $\pi^*$ is the transportation plan and the constraints are named mass conservation.
+    $\pi^*$ is the \alert{transportation plan} and the constraints are named \alert{mass conservation}.
     \newline
     
     $\mathcal{P}_E(X,n)$ denotes the set of all \textbf{uniform} discrete distribution on $X\subset R^d$ with \textbf{exactly} $n$ distinct scenarii and $\mathcal{P}(X,m)$ denotes the set of discrete distributions on $X\subset R^d$ with \textbf{at most} m scenarii. 
 \end{frame}
 
 \begin{frame}{What do we want to solve}
-    The continuous scenario reduction problem : 
+    The \alert{continuous} scenario reduction problem : 
 $$
-C_l(\mathbb{P},m)=\min_\mathbb{Q}\left\{d_l(\mathbb{P},\mathbb{Q}),\: \mathbb{Q}\in\mathcal{P}(\mathbb{R}^d,m)\right\}. 
+C_\ell(\mathbb{P},m)=\min_\mathbb{Q}\left\{d_\ell(\mathbb{P},\mathbb{Q}),\: \mathbb{Q}\in\mathcal{P}(\mathbb{R}^d,m)\right\}. 
 $$
-The discrete scenario reduction problem :
+The \alert{discrete} scenario reduction problem :
 $$
-D_l(\mathbb{P},m)=\min_\mathbb{Q}\left\{d_l(\mathbb{P},\mathbb{Q}),\: \mathbb{Q}\in\mathcal{P}(\text{supp}(\mathbb{P}),m)\right\}.
+D_\ell(\mathbb{P},m)=\min_\mathbb{Q}\left\{d_\ell(\mathbb{P},\mathbb{Q}),\: \mathbb{Q}\in\mathcal{P}(\text{supp}(\mathbb{P}),m)\right\}.
 $$
 \end{frame}
 
 \section{Algorithms}
 \begin{frame}{K-means clustering}
-Generalization of k-means clustering to arbitrary norm and power $l$. Gives an approximation of $C_l\left(\mathbb{P},k\right).$
+Generalization of k-means clustering to arbitrary norm and power $\ell$. Gives an approximation of \alert{$C_\ell\left(\mathbb{P},k\right).$}
 \begin{algorithm}[H]
-    \caption{k-means clustering for $C_l\left(\mathbb{P},m\right)$}
-    1. Initialize the reduced set $R=\{y_1,...,y_m\} \subseteq \text{supp}\left(\mathbb{P}\right)$ arbitrarily. \\ 2. Let $\{I_j\}\in\mathfrak{P}\left(I,m\right)$ be any partition whose sets $I_j, j\in J$, contain all atoms of supp$\left(P\right)$ that are closest to $y_j$ (ties may be broken arbitrarily). \\ 3. For each $j\in J$, update $y_j$ as : 
+    \caption{k-means clustering for $C_\ell\left(\mathbb{P},m\right)$}
+    1. Initialize the reduced set $R=\{y_1,...,y_m\} \subseteq \text{supp}\left(\mathbb{P}\right)$ arbitrarily. \\ 2. Let $\{I_j\}\in\mathfrak{P}\left(I,m\right)$ be any partition whose sets $I_j, j\in J$, contain all atoms of supp$\left(P\right)$ that are closest to $y_j$ (ties may be broken arbitrarily). \\ 3. For each $j\in J$, update $y_j$ as: 
     \[
-      y_j \gets \argmin_{y\in\R^d} \left\{ \sum_{i\in I_j} \lVert x_i-y \rVert^l \right\}
+      y_j \gets \argmin_{y\in\R^d} \left\{ \sum_{i\in I_j} \lVert x_i-y \rVert^\ell \right\}
     \] 
     \\ 4. Repeat Steps 2 and 3 until the reduced set $R$ no longer changes.
 \end{algorithm}
 \end{frame}
 
 \begin{frame}{Dupačová et al.}
-Dupačová et al. \cite{dupacova_scenario_2003} provides a greedy algorithm for $D_l\left(\mathbb{P},m\right)$. Generally, the distribution obtained isn't a solution of the discrete scenario reduction problem.
+Dupačová et al. \cite{dupacova_scenario_2003} provides a greedy algorithm for $D_\ell\left(\mathbb{P},m\right)$. Generally, the distribution obtained is \alert{not a solution} of the discrete scenario reduction problem.
 \begin{algorithm}[H]
   \caption{Dupačová et al.}\label{dupacova}
-  1. Initialize the set of atoms in the reduced set as $R\gets \emptyset.$ \\ 2. Select the next atom to be added to the reduced set as $$ y\in\argmin_{y\in \text{supp}\left(\mathbb{P}\right)}D_l\left(\mathbb{P},R\cup\{y\}\right).
+  1. Initialize the set of atoms in the reduced set as $R\gets \emptyset.$ \\ 2. Select the next atom to be added to the reduced set as: $$ y\in\argmin_{y\in \text{supp}\left(\mathbb{P}\right)}D_\ell\left(\mathbb{P},R\cup\{y\}\right).
   $$
   Update $R\gets R\cup \{y\}$.\\ 3. Repeat Step 2 until $\lvert R\rvert=m$.
 \end{algorithm}
 \end{frame}
 
 \begin{frame}{Step 2 ?}
-    Step 2 of the above algorithm requires to compute :
+    Step 2 of the above algorithm requires to compute:
     $$
-    D_l\left(\mathbb{P},R\cup\{y\}\right).
+    \alert{D_\ell\left(\mathbb{P},R\cup\{y\}\right).}
     $$
-    If we write $R\cup\{y\}=\{y_j\}_{j\in J}$, this problem can be written as : 
+    The smallest Wasserstein distance between $\mathbb{P}$ and a distribution supported on $R\cup\{y\}$. Let $R\cup\{y\}=\{y_j\}_{j\in J}$, this problem can be written as: 
     $$
-    \min_{q\geq 0}d_l\left(\mathbb{P}, \sum_{j\in J}q_j\delta_{y_j}\right).
+    \min_{q\geq 0}d_\ell\left(\mathbb{P}, \sum_{j\in J}q_j\delta_{y_j}\right).
     $$
     We'll talk about it at the end of the presentation.
 \end{frame}
 
 \begin{frame}{Local search algorithm (1/2)}
     \begin{algorithm}[H]
-    \caption{Local search algorithm for $D_l\left(\mathbb{P},m\right)$}\label{Local search}
-    1. Initialize the reduced set $R\subseteq \text{supp}\left(\mathbb{P}\right), \lvert R\rvert = m$, arbitrarily. \\ 2. Select the next change to be applied to the reduced set as 
+    \caption{Local search algorithm for $D_\ell\left(\mathbb{P},m\right)$}\label{Local search}
+    1. Initialize the reduced set $R\subseteq \text{supp}\left(\mathbb{P}\right), \lvert R\rvert = m$, arbitrarily. \\ 2. Select the next change to be applied to the reduced set as:
     $$
-    \left(y,y'\right)\in\argmin\left\{D_l\left(\mathbb{P},R\cup\{y\}\setminus \{y'\}\right) : \left(y,y'\right)\in\text{supp}\left(\mathbb{P}\setminus R\right)\times R\right\}.
+    \left(y,y'\right)\in\argmin\left\{D_\ell\left(\mathbb{P},R\cup\{y\}\setminus \{y'\}\right) : \left(y,y'\right)\in\text{supp}\left(\mathbb{P}\setminus R\right)\times R\right\}.
     $$
-    Update $R\gets R\cup \{y\}\setminus \{y'\}$ if $D_l\left(\mathbb{P}, R\cup\{y\}\setminus \{y'\} \right)<D_l\left(\mathbb{P},R\right).$ \\ 3. Repeat Step 2 until no further improvement is possible.
+    Update $R\gets R\cup \{y\}\setminus \{y'\}$ if $D_\ell\left(\mathbb{P}, R\cup\{y\}\setminus \{y'\} \right)<D_\ell\left(\mathbb{P},R\right).$ \\ 3. Repeat Step 2 until no further improvement is possible.
     \end{algorithm}
     This algorithm can make you think of the Lin-Kernighan heuristic for the TSP when you have to visit only $m$ towns out of the $n$.
 \end{frame}
 
 \begin{frame}{Local search algorithm (2/2)}
-    Same issue for Step 2, we have to compute :
+    Same issue for Step 2, we have to compute:
     $$
-    \min_{q\geq 0}d_l\left(\mathbb{P}, \sum_{j\in J}q_j\delta_{y_j}\right).
+    \min_{q\geq 0}d_\ell\left(\mathbb{P}, \sum_{j\in J}q_j\delta_{y_j}\right).
     $$
-    Unlike Dupačová et al., this algorithm has theoretical guarantees about the output, it'll always be close to the optimal output, the approximation ratio is bounded. 
+    Unlike Dupačová et al., this algorithm has theoretical guarantees about the output, it'll always be close to the optimal output, \alert{the approximation ratio is bounded.}
 \end{frame}
 
 \begin{frame}{Explicit value for Step 2.}
-    What maybe exists but we haven't found on article talking about these algorithms \cite{rujeerapaiboon_scenario_2022}, \cite{bertsimas_optimization-based_2023} is an explicit value for step 2, meaning : 
+    What maybe exists but we haven't found on article talking about these algorithms \cite{rujeerapaiboon_scenario_2022}, \cite{bertsimas_optimization-based_2023} is an \alert{explicit value} for step 2, meaning an explicit value for: 
     $$
-    \min_{q\geq 0}d_l\left(\mathbb{P}, \sum_{j\in J}q_j\delta_{y_j}\right)= \min_{q\geq 0}d_l\left(\sum_{i\in I}\delta_{x_i}p_i, \sum_{j\in J}q_j\delta_{y_j}\right).
+     \min_{q\geq 0}d_\ell\left(\sum_{i\in I}\delta_{x_i}p_i, \sum_{j\in J}q_j\delta_{y_j}\right).
     $$
-    If my proof works indeed : 
+    If my proof indeed works: 
+    $$
+    \min_{q\geq 0}d_\ell^\ell\left(\sum_{i\in I}\delta_{x_i}p_i, \sum_{j\in J}q_j\delta_{y_j}\right)=\sum_{i\in I}p_i\min_{k\in J}\lVert x_i-y_k\rVert^\ell
 $$
-    \min_{q\geq 0}d_l^l\left(\sum_{i\in I}\delta_{x_i}p_i, \sum_{j\in J}q_j\delta_{y_j}\right)=\sum_{i\in I}p_i\min_{k\in J}\lVert x_i-y_k\rVert^l
-$$
-The proof also gives a transporation plan and a distribution $\mathbb{Q}$ reaching this value. Then, we wouldn't rely on solving optimal transport problems in order to compute for Dupačová et al' algorithm and local search algorithm.
+The proof also gives \alert{a transporation plan} and a \alert{distribution $\mathbb{Q}$} reaching this value. Then, \alert{we wouldn't rely on solving optimal transport problems to find $D_\ell\left(\mathbb{P},R\cup\{y\}\right)$} (less costly) in order to compute for Dupačová et al' algorithm and local search algorithm.
 \end{frame}
 
 \begin{frame}{MILP reformulation}
-    
+    There exists a MILP reformulation for \alert{$C_\ell\left(\mathbb{P},m\right)$} and \alert{$D_\ell\left(\mathbb{P},m\right)$} that I should study a little more to understand completly.
+\end{frame}
+\section{Perspective goals}
+\begin{frame}{What's next ?}
+    \begin{enumerate}
+        \item \alert{Implement} these methods in SMS++ for $C_\ell$ and $D_\ell$.
+        \item \alert{Compare} carefully these methods as in \cite{rujeerapaiboon_scenario_2022}.
+        \item Study and implement \alert{an other algorithm} presented in \cite{bertsimas_optimization-based_2023}.
+        \item Think if a \alert{new algorithm} based on the proof and on finding optimal $\{y_j\}_{j\in J}$ at fixed transportation plan and probabilities may be a thing.
+        \item An idea would have been to study \alert{the entropic regularization of the OT problem}. The solution of this regularized problem gives an approximation of $d_\ell$ hence $D_\ell$ after optimizing $q_j$ for step 2. Indeed there exists \alert{fast ways to compute the solution} of the regularized OT problem. As we found a closed formula, a formula that doesn't look very expensive (compared to a simplex) to compute, we are kind of erasing this idea.   
+    \end{enumerate}
 \end{frame}
 \bibliography{biblio}
 \bibliographystyle{alpha}
