@@ -24,6 +24,8 @@
 }
 
 \usepackage{subcaption}
+\SetAlgoNlRelativeSize{-1}
+
 \ifdefined\theorem\else \newtheorem{theorem}{Theorem}\fi
 \ifdefined\proposition\else \newtheorem{proposition}[theorem]{Proposition}\fi
 \ifdefined\definition\else \newtheorem{definition}[theorem]{Definition}\fi
@@ -303,7 +305,7 @@ Dupačová et al. \cite{dupacova_scenario_2003} provides a greedy algorithm for 
 \end{algorithm}
 \rp{box is too large, don't know how to deal with that}
 In order to add another atom to the distribution, one can now wonder how to compute $D_l\left(\mathbb{P},R\cup\{y\}\right)$ before finding the minimum of those $D_l$ because we still have the choices of probabilities attached to the atoms (that are fixed). In fact it is easy and quite intuitive if you remember that Wasserstein distance translates the cost of moving one pile (distribution here) to an other knowing that both piles have the same weight.
-\begin{theorem}
+\begin{theorem}\label{closed formula}
     If $\mathbb{P}=\sum_{i\in I}p_i\delta_{x_i}$ fixed, $\mathbb{Q}=\sum_{j\in J}q_j\delta_{y_j}$, with all $y_j$ fixed. Then, 
     $$\sum_{j\in J}\left(\sum_{i\in I_j}p_i\right)\delta_{y_j}\in \argmin_\mathbb{Q} D_l\left(\mathbb{P},\mathbb{Q}\right)$$
     with $I_j=\left\{i\in I \mid j=\argmin_{k\in J} \lVert x_i-y_k\rVert^l\right\}$ (ties may be broken arbitrarily but must be broken). Basically, the probability of observing $y_j$ is the probability of observing atoms of $\mathbb{P}$ whose closest atom of $\mathbb{Q}$ is $y_j$ according to the chosen norm.
@@ -421,79 +423,100 @@ The discrete scenario reduction problem can be formulated as the MILP :
 \section{Results}
 
 \section{Efficient implementation}
-The SMS++ ecosystem aims to deliver an efficient interface for a wide range of optimization problems through the concept of block which represents a type of problem namely "BinaryKnapsackBlock", "MCFBlock" (for Min-Cost flow) and many others. Developped in C++, it is to be able to manage memory, calculation what can be somewhat difficult in interpreted languages such as Python or Julia. In SMS++ it is easy and almost free to turn ON/OFF variables (decision variables, constraints...). In this part, we'll try to find ways to implement proficiently Dupačová et al's algorithm \Cref{dupacova} and local search algorithm \Cref{Local search}.
+The main goal of the internship was first to study the scenario reduction problem and algorithms related to this problem and then to implement it within the SMS++ ecosystem. SMS++ aims to deliver an efficient interface for a wide range of optimization problems through the concept of block which represents a type of problem namely "BinaryKnapsackBlock", "MCFBlock" (for Min-Cost flow) and many others. Developped in C++, it is to be able to manage memory, calculation what can be somewhat difficult in interpreted languages such as Python or Julia. In SMS++ it is easy and almost free to turn ON/OFF variables (decision variables, constraints...). In this part, we'll try to find ways to implement proficiently Dupačová et al's algorithm \Cref{dupacova} and local search algorithm \Cref{Local search}.
 
 \subsection{Dupačová et al's algorithm}
 In this part we try to reduce computational time of Dupačová et al's algorithm, meaning we want to reuse what we've already computed. 
 \newline
 
-\subsubsection{When choosing the best atom}
-Imagine we have selected $R$ and we want to find the $y$ that will be added to the distribution. Let's write $R=\{r_1,...,r_k\}$ and we are testing $y_1$ and $y_2$ (this idea can be used for a large number of vectors to test).
-\newline 
+Knowing the closed formula of \Cref{closed formula}, it isn't hard to find an efficient way to compute $D_l$ of step 2 : 
+$$
+D_l\left(\mathbb{P},R\cup \{y_j\}\right)=\sum_{i\in I}p_i\min_{z\in R\cup\{y\}}\lVert x_i-z \rVert^l.
+$$
+An efficient idea would be to store at iteration $0$, one big matrix of distance, which is : 
+$$
+D = \left(\lVert x_i-x_j\rVert ^l \right)_{i,j}.
+$$
+Then you can choose the first atom $x$ to add to R as :
+$$
+i_1 \in \argmin_{i\in I} pD^i.
+$$
+With $D^i$ being the $i^{th}$ column of $D$ and $p=\begin{pmatrix}
+    p_1 & \hdots & p_n
+\end{pmatrix}$.
+We create $m^1=D^{i_1}$. For the second iteration, we can only select the indexes $[\![1;n]\!]\setminus \{i_1\}$. For each $x_i\in [\![1;n]\!]\setminus \{i_1\}$, let's create a vector $m_i$ such that : $\left(m_i\right)_j=\min\left\{\left(m^1\right)_j,\left(D^i\right)_j\right\}$, now we can write $D_l$ as : $$
+D_l\left(\mathbb{P},\{x_{i_1}\}\cup \{x_i\}\right)=pm_i.
+$$
+Then follows the efficient algorithm :
+\begin{algorithm}
+\caption{Efficient Dupačová et al}
+Initialize the set of atoms in the reduced set as $R \gets \emptyset$.\\
+Compute the matrix $D = \left(\| x_i - x_j \|^l \right)_{i,j \in I^2}$ once and for all.\\
+Create $m^0 = \begin{bmatrix} a & \hdots & a \end{bmatrix}$ with $a$ arbitrarily large (choose $a \geq \max_{i,j} \| x_i - x_j \|^l$).\\
+\While{$|R| < m$}{
+    Select the next atom to be added from $I \setminus R$ by following this procedure.\\
+    \For{$i \in I \setminus R$}{
+        Compute $\left(m_i\right)_j = \min \left\{ \left(m^0\right)_j, \left(D^i\right)_j \right\}$.\\
+        Compute $D_l(\mathbb{P}, R \cup \{x_i\}) = p m_i$.\\
+        Store the best $m_i$ so far, named $m_{\text{best}}$.\\
+    }
+    Update $m^0 = m_{\text{best}}$. \\
+    Update $R = R \cup \{x_{\text{best}}\}$.\\
+}
+\Return $R$\\
+\end{algorithm}
 
-\textbf{For $\mathbf{y_1}$}, the objective function of the Wasserstein distance we need to compute is : 
-$$
-\begin{pmatrix}
-    \lVert x_1-r_1 \rVert^l \\ \vdots \\ \lVert x_1-r_k \rVert^l \\ \lVert x_1-y_1 \rVert^l\\  \lVert x_2-r_1 \rVert^l \\ \vdots  \\  \lVert x_2-y_1 \rVert^l \\ \vdots
-\end{pmatrix}
-\begin{pmatrix}
-    \pi_{11} & \hdots & \pi_{1k} & \pi_{1,k+1} & \pi_{21} &\hdots &\pi_{2,k+1} & \hdots
-\end{pmatrix}.
-$$
-\textbf{For $\mathbf{y_2}$}, the cost vector is almost the same, you just have to modify the $\left(k+1\right)\times i^{\text{th}}, \text{ coefficient, for } i\in I$ by $\lVert x_i-y_2\rVert^l$.
-\newline 
-
-About the constraints, the matrix remains the same when you want to design the constraints for $y_1$ and $y_2$ as presentend in \Cref{compute}. There's still a modification to make in the end of the constraint vector. \textbf{For $\mathbf{y_1}$} it is :
-$$
-\begin{pmatrix}
-    p_1 \\ \vdots \\p_n \\ q^1_1 \\ \hdots \\ q^1_{k+1}
-\end{pmatrix},
-$$
-with $q^1_j$ computed as presented in \Cref{easy compute of d_l}. \textbf{For $\mathbf{y_1}$} it is :
-$$
-\begin{pmatrix}
-    p_1 \\ \vdots \\p_n \\ q^2_1 \\ \hdots \\ q^2_{k+1}
-\end{pmatrix}.
-$$
-\subsubsection{When adding a new atom}
-When we want to add a new atom, we must add $n$ lines to the cost vector. Each line is added after the position $i\times k$ for $i\in [\![1;n]\!]$ (the second distribution has one more atom). The matrix of constraints also has to be modified. The size goes from $n\times k$ to $n\times \left(k+1\right)$ though the structure is still the one presented in \Cref{compute}. The constraint vector also changes a bit, one more line in the end.
 \subsection{Local search algorithm}
-Can we do such a thing for the local search algorithm ? We write $R=\{r_1,...,r_m\}\subset\text{supp}\left(P\right)=\{x_1,...,x_n\}$ the selected atoms, $\text{supp}\left(P\right)\setminus R =\{r_{m+1},...,r_{n}\}$. For an iteration of this algorithm, we try to swap one at a time an element of $R$ with an element of $\text{supp}\left(P\right)\setminus R$. For example, when we try to swap $r_1$, it happens the thing we found for Dupačová et al's algorithm. But if no swap of $r_1$ decreases the value of $D_l$, then we'll try to swap $r_2$. When this happens, how can we get the most of it ? 
-Trying to swap $r_1$ with any element $r\in\text{supp}\left(P\right)\setminus R$, the cost vector is : 
-$$
-\begin{pmatrix}
-    \lVert r-x_1 \rVert^l \\ \vdots \\ \lVert r-x_n \rVert^l \\ \lVert r_2-x_1 \rVert^l\\  \vdots  \\  \lVert r_2-x_n \rVert^l \\ \vdots \\ \lVert r_m-x_n \rVert ^l
-\end{pmatrix}.$$
-But when we try to swap $r_2$ now with an element $r\in\text{supp}\left(P\right)\setminus R$, the cost vector becomes : 
-$$
-\begin{pmatrix}
-    \lVert r_1-x_1 \rVert^l \\ \vdots \\ \lVert r_1-x_n \rVert^l \\ \lVert r-x_1 \rVert^l\\  \vdots  \\  \lVert r-x_n \rVert^l \\ \vdots \\ \lVert r_m-x_n \rVert ^l
-\end{pmatrix}.
-$$
-Meaning that only the second block changed. It could be interesting to compute ONE time the vector at the beginning of the algorithm :
-$$
-\begin{pmatrix}
-    \lVert r_1-x_1 \rVert^l \\ \vdots \\ \lVert r_1-x_n \rVert^l \\ \lVert r_2-x_1 \rVert^l\\  \vdots  \\  \lVert r_2-x_n \rVert^l \\ \vdots \\ \lVert r_m-x_n \rVert ^l
-\end{pmatrix}.
-$$
-Then changing only $n$ coefficients out of the $n\times m$.
-The matrix of constraints remains the same however the constraint vector does not, the $m$ last coefficients are variable as presented in the above subsection.
-\section{Entropic regularization}
-We often need to compute $d_l\left(\mathbb{P},\mathbb{Q}\right)$ with $\mathbb{P}$ the initial distribution to be reduced and $\mathbb{Q}$ the reduced distribution in construction and solving these linear programs can be very costly as $n,m,d$ grow. 
-\begin{corollary}[Number of linear programs solved]
-    Dupačová et al's algorithm solves $$\sum_{i=0}^{m-1}n-i=m(n+\frac{1}{2})-\frac{1}{2}m^2$$ linear programs. 
-\end{corollary}
-\begin{corollary}[Number of linear programs solved]
-    The local search algorithm solves at most $$\lceil \frac{\binom{n}{m}}{\left(n-m\right)\left(m-1\right)}\rceil m\left(n-m\right)$$ linear programs when using best-first strategy.  \rp{the factor in front is in fact not true, need to think more}
-\end{corollary}
-\begin{proof}
-    Each iteration computes $m\left(n-m\right)$ linear programs so the number of linear programs solved can be written as $km\left(n-m\right)$. We have to find the largest $k$. Let $X^i$ be the vector of selected atoms at iteration $i$, what happens now is that we check the distance to $\mathbb{P}$ with all $X^i$ where you change only one atom of $X^i$ with one atom of $\text{supp}\left(\mathbb{P}\right)\setminus X^i$. If there's a closer distribution then you change the atom with the one that makes the distance smaller. So you've checked $m\left(n-m\right)$ combinations (amongst the $\binom{n}{m}$ possible, you select $m$ atoms amongst $n$ atoms without order)\rp{the factor in front is in fact not true, need to think more}
-\end{proof}
-Solving these optimal transport problems to get the value $d_l$ can be very demanding itself and it is often required. \cite[Chapter 4]{peyre_computational_2019} presents entropic regularization in the context of optimal transport. The objective function considered in the OT problem will be slightly modified by adding a convex term. Solving this new problem will be faster and it is granted that this new distance is close to the real distance of Wasserstein. 
-The regularized problem is defined as : 
-$$
-R_l^\epsilon\left(\mathbb{P},\mathbb{Q}\right)=\min_{\pi}\left\{\sum_{i\in I}\sum_{j\in J}\pi_{ij}\lVert x_i-y_j\rVert+\epsilon\sum_{i\in I}\sum_{j\in J}\pi_{ij}\left(\log{\left(\pi_{ij}\right)}-1\right)\right\}
-$$
+The same approach doesn't work for the local search as you swap atoms. An idea would have been to store an index vector, a vector that tells you with atom reaches $\min_{x\in R}\lVert x_i-x\rVert^l$ so that you know when you have to compute again the minimum on $R$ (whenever the swap removes the atom reaching the minimum). That doesn't look very efficient, but it would have looked that way : 
+\begin{algorithm}
+\caption{Maybe efficient local search}
+Initialize the set of atoms in the reduced set $R, \lvert R\rvert=m$.\\
+Compute the matrix $D = \left(\| x_i - x_j \|^l \right)_{i,j \in I^2}$ once and for all.\\
+Create $m^0 = \begin{pmatrix}\min_{i\in R}\lVert x_1-x_i\rVert^l & \hdots & \min_{i\in R}\lVert x_1-x_i\rVert^l \end{pmatrix}$ and $I=\begin{pmatrix}\argmin_{i\in R}\lVert x_1-x\rVert^l & \hdots & \argmin_{i\in R}\lVert x_1-x\rVert^l \end{pmatrix}$.\\
+Create $d=pm^0$, there is improvement. \\
+\While{\text{ There is improvement}}{
+    There isn't improvement. \\
+    \For{$i \in R$}{
+    Make a copy of I in index.\\
+    Make a copy of $m^0$ in m. \\
+        \For{$k\in I$}{
+            \If{index$\left[k\right]=i$}{
+                Change $\left[m\right]_k$ by $\min_{i\in R\setminus\{i\}}\lVert x_k-x_i\rVert^l$ and $index\left[k\right]$ aswell.
+            }
+        }
+        \For{$j\in I\setminus R$}{
+            Compute $\left(m_{ij}\right) = \min \left\{ m, D^j \}\right\}$ where $\min$ is the minimum component-wise.\\ Compute $D_l(\mathbb{P}, R \cup \{x_i\}) = p m_{ij}$.\\
+            \If{$pm_{ij} < d$}{
+                $d=pm_{ij}$ and there is improvement ! \\
+                You can exit the \textbf{for} $i\in I$ loop if you want first-fit with , or you can keep going the for loop until you find the best-fit as $d$ is now worth $pm_{ij}$.
+            }
+        }
+        Store the best $m_{ij}$ so far, named $m_{\text{best}}$.\\
+    }
+    \If{There is improvement}{
+    Update $m^0 = m_{\text{best}}$. \\
+    Update $R = R \cup \{x_j\} \setminus \{x_i\}$.}
+}
+\end{algorithm}
+There is still a lot of computation here in order to compute the $\min$ inside the closed formula (we go through a vector : index, $m-1$ columns of a matrix in order to find $\min_{i\in R\setminus x_j}\lVert x_k-x_i\rVert^l$ with a complexity $\mathcal{O}\left(mn\right)$). 
+%\section{Entropic regularization}
+%We often need to compute $d_l\left(\mathbb{P},\mathbb{Q}\right)$ with $\mathbb{P}$ the initial distribution to be reduced and $\mathbb{Q}$ the reduced distribution in construction and solving these linear programs can be very costly as $n,m,d$ grow. 
+%\begin{corollary}[Number of linear programs solved]
+%    Dupačová et al's algorithm solves $$\sum_{i=0}^{m-1}n-i=m(n+\frac{1}{2})-\frac{1}{2}m^2$$ linear programs. 
+%\end{corollary}
+%\begin{corollary}[Number of linear programs solved]
+%    The local search algorithm solves at most $$\lceil \frac{\binom{n}{m}}{\left(n-m\right)\left(m-1\right)}\rceil m\left(n-m\right)$$ linear programs when using best-first strategy.  \rp{the factor in front is in fact not true, need to think more}
+%\end{corollary}
+%\begin{proof}
+%    Each iteration computes $m\left(n-m\right)$ linear programs so the number of linear programs solved can be written as $km\left(n-m\right)$. We have to find the largest $k$. Let $X^i$ be the vector of selected atoms at iteration $i$, what happens now is that we check the distance to $\mathbb{P}$ with all $X^i$ where you change only one atom of $X^i$ with one atom of $\text{supp}\left(\mathbb{P}\right)\setminus X^i$. If there's a closer distribution then you change the atom with the one that makes the distance smaller. So you've checked $m\left(n-m\right)$ combinations (amongst the $\binom{n}{m}$ possible, you select $m$ atoms amongst $n$ atoms without order)\rp{the factor in front is in fact not true, need to think more}
+%\end{proof}
+%Solving these optimal transport problems to get the value $d_l$ can be very demanding itself and it is often required. \cite[Chapter 4]{peyre_computational_2019} presents entropic regularization in the context of optimal transport. The objective function considered in the OT problem will be slightly modified by adding a convex term. Solving this new problem will be faster and it is granted that this new distance is close to the real distance of Wasserstein. 
+%The regularized problem is defined as : 
+%$$
+%R_l^\epsilon\left(\mathbb{P},\mathbb{Q}\right)=\min_{\pi}\left\{\sum_{i\in I}\sum_{j\in J}\pi_{ij}\lVert x_i-y_j\rVert+\epsilon\sum_{i\in I}\sum_{j\in J}\pi_{ij}\left(\log{\left(\pi_{ij}\right)}-1\right)\right\}
+%$$
+
+
 \clearpage
 \appendix
 \section{Wasserstein distance is a distance}\label{distance}
