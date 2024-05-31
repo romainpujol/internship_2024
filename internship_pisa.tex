@@ -408,7 +408,15 @@ $$
 \frac{\bar{D}_l\left(\mathbb{P},m\right)}{C_l\left(\mathbb{P},m\right)}\leq \frac{2\bar{D}_l\left(\mathbb{P},m\right)}{D_l\left(\mathbb{P},m\right)}\leq 2\max_{n,m,\mathbb{P}\in\mathcal{P}_E(\RR^d,n)}\frac{\bar{D}_l\left(\mathbb{P},m\right)}{D_l\left(\mathbb{P},m\right)}=2\times5=10.
 $$
 We can now maximize the left hand side on $n,m,\mathbb{P}$ as the right hand side doesn't depend on the three.
+\newline
 
+So this algorithm gives an approximation of $D_l$, we know also that :
+$$D_l\left(\mathbb{P},R\right)=\sum_{i\in I}p_i\min_{j\in R}\lVert x_i-x_j\Vert^l=\sum_{j\in R}\left[\sum_{i\in I_j}p_i\lVert x_i-x_j\rVert^l\right].$$
+So we could improve the value of the Wasserstein distance by finding for each $I_j$ : 
+$$
+y\in \argmin_{y\in\RR^d}\sum_{i\in I_j}p_i\lVert x_i-y\rVert^l.
+$$
+We could thus modify each $x_j$ by the $y$ we found for $I_j$. The approximation ratio is still bounded as we're improving the Wasserstein distance but it becomes an approximation of $C_l$ and no longer $D_l$. \rp{idea to improve }. See \Cref{L_p optim}
 \subsection{MILP reformulation of the discrete scenario reduction problem}
 We first review a well-known mixed-integer linear programming (MILP) reformulation of the discrete scenario reduction problem $D_l\left(\mathbb{P},m\right)$.
 \begin{theorem}
@@ -481,14 +489,14 @@ Create $d=pm^0$, there is improvement. \\
     Make a copy of $m^0$ in m. \\
         \For{$k\in I$}{
             \If{index$\left[k\right]=i$}{
-                Change $\left[m\right]_k$ by $\min_{i\in R\setminus\{i\}}\lVert x_k-x_i\rVert^l$ and $index\left[k\right]$ aswell.
+                Change $\left[m\right]_k$ by $\min_{\alpha\in R\setminus\{i\}}\lVert x_k-x_\alpha\rVert^l$ and $index\left[k\right]$ aswell.
             }
         }
         \For{$j\in I\setminus R$}{
             Compute $\left(m_{ij}\right) = \min \left\{ m, D^j \}\right\}$ where $\min$ is the minimum component-wise.\\ Compute $D_l(\mathbb{P}, R \cup \{x_i\}) = p m_{ij}$.\\
             \If{$pm_{ij} < d$}{
                 $d=pm_{ij}$ and there is improvement ! \\
-                You can exit the \textbf{for} $i\in I$ loop if you want first-fit with , or you can keep going the for loop until you find the best-fit as $d$ is now worth $pm_{ij}$.
+                You can exit the \textbf{for} $i\in R$ loop if you want first-fit with , or you can keep going the for loop until you find the best-fit as $d$ is now worth $pm_{ij}$.
             }
         }
         Store the best $m_{ij}$ so far, named $m_{\text{best}}$.\\
@@ -694,7 +702,16 @@ But we haven't found the optimal $\mu$, thus the problem becomes :
 $$
 \min_{\mu\in\RR^d}r^*\left(\mu\right)=\min_{\mu\in\RR^d}\max_{i\in I}\lVert x_i-\mu\rVert^2=\min_{\mu\in\RR^d}\left\{\mu^T\mu+\max_{i\in I}\left[x_i^Tx_i-2\mu^Tx_i\right]\right\}.
 $$
-
+\section{Upgrading local search}\label{L_p optim}
+In order to improve the Wasserstein distance given by local search algorithm, one must solve $m$ times: 
+$$
+\min_{y\in\RR^d}\sum_{i\in I}p_i\lVert x_i-y\rVert^\ell=\min_{y\in\RR^d}\sum_{i\in I}p_i\left(\lVert x_i-y\rVert^2\right)^{\ell/2}.
+$$
+With $p_i>0$, $I$ a particular set and for an arbitrary norm, in most cases we'll use $\text{L}2$-norm. For this particular norm, the case $\ell=1$ gives the geometric median and $\ell=2$ gives the mean. With L$2$-norm, the function $f$ to minimize is differentiable and we can write : 
+$$
+\nabla f\left(y\right)=-\ell\sum_{i\in I}p_i\lVert x_i-y\rVert^{\ell-2}\left(x_i-y\right).
+$$
+Any gradient-based method would be efficient to solve this problem. \rp{can be interesting to study more but hard to find references}
 \bibliography{biblio}
 \bibliographystyle{alpha}
 \end{document}
