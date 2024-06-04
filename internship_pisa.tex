@@ -481,7 +481,13 @@ The crosses represent atoms that are selected in the reduced set and its sizes, 
     \label{comparison dup}
 \end{figure}
 
-The "x" axis of \Cref{comparison dup} represents the number of atoms in the reduced set. \Cref{dist for bac} shows that the efficiency in term of Wasserstein distance is similar and comparable for a reduced set obtained via forward or backward algorithm. The main difference lies in calculation time, the efficient way to compute the forward algorithm shows its advantages in \Cref{time for bac}, always below 0.05s whereas the backward algorithm can take up to one second. Without a more efficient way than the one I proposed to compute the backward algorithm, the forward algorithm has to be preferred when you're free to choose. This data-set of 50 atoms is little compared to what you could see in real problems, the calculation will grow with $n^2$ that's why I make this remark.
+The "x" axis of \Cref{comparison dup} represents the number of atoms in the reduced set. \Cref{dist for bac} shows that the efficiency in term of Wasserstein distance is similar and comparable for a reduced set obtained via forward or backward algorithm. The main difference lies in calculation time, the efficient way to compute the forward algorithm shows its advantages in \Cref{time for bac}, always below 0.05s whereas the backward algorithm can take up to one second. Without a more efficient way than the one I proposed to compute the backward algorithm, the forward algorithm has to be preferred when you're free to choose. This data-set of 50 atoms is little compared to what you could see in real problems, the calculation time will grow as $n$ grows, that's why I make this remark. The complexity of the forward algorithm is : $\mathcal{O}\left(mn^2\right)$ whereas the backward is $\mathcal{O}\left(\left(n-m\right)^3n\right)$ with no gains of the distance. To give you an idea on what happens with a larger data-set, a 300 atoms data-set generated on the same behaviour that has to be reduced to 100 atoms: takes 4.4 seconds for the forward algorithm and 1286 for the backward. This aligns with the complexity we gave, if we define $f$ the calculation time of one operation, the order of magnitude of $f$ \rp{ordre de grandeur }is: 
+\begin{align*}
+mn^2f=4.4 \implies f= 4.4\times 10^{-7} \\
+\left(n-m\right)^3nf=1286 \implies f=5.35\times 10^{-7}.
+\end{align*}
+Both $f$ have the same magnitude, it is satisfying.
+
 
 \clearpage
 \section{Efficient implementation}
