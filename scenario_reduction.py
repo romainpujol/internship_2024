@@ -3,8 +3,9 @@ import math
 import random
 from scipy.optimize import linprog
 import matplotlib.pyplot as plt
+import time
 
-random.seed(11)
+random.seed(111102)
 
 def norm_sq(x,y):
     value=0.
@@ -80,7 +81,7 @@ def d_wasserstein(distribution_1_x,distribution_1_p,distribution_2_x,distributio
 
     return (value,pi)
 
-def dupacova(distribution_x,distribution_p,m):
+def dupacova_ez(distribution_x,distribution_p,m):
     #m is the reduced number of atoms
     n = len(distribution_p)
     eps=0.0001
@@ -106,7 +107,59 @@ def dupacova(distribution_x,distribution_p,m):
                 distribution_dupacova_x=atoms_chosen.copy() #reinitialize each iteration
                 distribution_dupacova_x.append(atoms_to_chose[j])
                 #define probabilities of this dupacova distribution
+                matrice__= matrice_distance(distribution_x,distribution_dupacova_x)
+                dist_w=0
+                for k in range(n):
+                    closest=np.argmin(matrice__[k])
+                    dist_w+=distribution_p[k]*matrice__[k][closest]
+                distance_w[j]=dist_w
+            atoms_chosen.append(atoms_to_chose[np.argmin(distance_w)])
+            atoms_to_chose.remove(atoms_to_chose[np.argmin(distance_w)])
+
+        #now that we've selected atoms
+        distribution_dupacova_final_x=atoms_chosen
+        distribution_dupacova_final_p=np.zeros(m)
+        matrice_distance_final=matrice_distance(distribution_x,distribution_dupacova_final_x)
+
+        for k in range(n):
+            closest=np.argmin(matrice_distance_final[k])
+            distribution_dupacova_final_p[closest]+=1
+        for k in range(m):
+            distribution_dupacova_final_p[k]/=n
+
+        return (distribution_dupacova_final_x,distribution_dupacova_final_p.tolist())
+
+
+def dupacova(distribution_x,distribution_p,m):
+
+    #m is the reduced number of atoms
+    n = len(distribution_p)
+    eps=0.0001
+
+    if (m>n-1):
+        print("choose a different m such that m<n")
+        return 0
+
+    elif (abs(1-sum(distribution_p))>eps):
+        print("have a look on probabilities, sum(proba)=1")
+        return 0
+
+    else:
+
+        atoms_chosen=[]
+        atoms_to_chose=distribution_x.copy()
+
+
+        for i in range(m):
+
+            distance_w=np.zeros(n-i)
+
+            for j in range(n-i): #n-i is equal to len(atoms_to_chose)
+                distribution_dupacova_x=atoms_chosen.copy() #reinitialize each iteration
+                distribution_dupacova_x.append(atoms_to_chose[j])
                 distribution_dupacova_p=[0]*len(distribution_dupacova_x)
+
+                #we only need this distance matrix for the easy computation
                 matrice__= matrice_distance(distribution_x,distribution_dupacova_x)
                 for k in range(n):
                     closest=np.argmin(matrice__[k])
@@ -133,6 +186,9 @@ def dupacova(distribution_x,distribution_p,m):
             distribution_dupacova_final_p[k]/=n
 
         return (distribution_dupacova_final_x,distribution_dupacova_final_p.tolist())
+
+
+
 
 def kmeans(distribution_x,k):
 
@@ -222,24 +278,29 @@ def local_search(distribution_x,distribution_p,m):
         return (reduced_set_1,get_p(distribution_x,reduced_set_1))
 
 
-m= 15
+def minimum_vector(vec1,vec2):
+    n = len(vec1)
+    vec3=[0]*n
+    for i in range(n):
+        vec3[i]=min(vec1[i],vec2[i])
+    return vec3
+
+m= 8
 n= 30
 
-distribution = [[random.uniform(0, 10) for _ in range(5)] for _ in range(n)]
+distribution = [[random.uniform(0, 3),random.uniform(5,1)] for _ in range(n)]
 
-distribution_p=[1/30 for _ in range(n)]
+distribution_p=[1/n for _ in range(n)]
+tp2=time.time()
+aa=dupacova_ez(distribution,distribution_p,m)
+tp3=time.time()
+print("pour dupacova simplifié", tp3-tp2)
 
-aa=dupacova(distribution,distribution_p,m)
+#a=kmeans(distribution,m)
 
-print("avec dupacova on obtient une distance de ")
+#print("avec kmeans, on obtient")
+#print(d_wasserstein(distribution,distribution_p,a,get_p(distribution,a))[0])
 
-print(d_wasserstein(distribution,distribution_p,aa[0],aa[1])[0])
-#kmeans(distribution_1_x_,2)
-
-a=kmeans(distribution_2,m)
-print("avec kmeans, on obtient")
-print(d_wasserstein(distribution,distribution_p,a,get_p(distribution_2,a))[0])
-
-aaa=local_search(distribution,distribution_p,m)
-print("avec local search on obtient une distance de ")
-print(d_wasserstein(distribution,distribution_p,aaa[0],aaa[1])[0])
+#aaa=local_search(distribution,distribution_p,m)
+#print("avec local search on obtient une distance de ")
+#print(d_wasserstein(distribution,distribution_p,aaa[0],aaa[1])[0])
