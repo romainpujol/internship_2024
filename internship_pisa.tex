@@ -429,7 +429,61 @@ The discrete scenario reduction problem can be formulated as the MILP :
 \rp{first constraint means $\sum_{j=1}^n\pi_{ij}=1$ for all $i$ (what seems weird), second forces $\lambda_i$ to be 1 if you choose $x_j$ and the third one counts the number of atoms you choose. So basically I didn't understand the formulation}
 
 \section{Results}
+In this section, the goal is to compare different methods based on two criterion: time, value of $d_l$. 
+\subsection{Dupačová forward and backward}
+\subsubsection{Outputs}
+The first comparison to make is between the forward and backward methods of Dupačová et al' algorithm. The efficient methods proposed for the forward algorithm looks way more interesting at first sight as computing $\min_{k\in R}\lVert x_i-x_k\rVert^l$ is very cheap compared to the method of the backward algorithm. For this simulation, I created a random two-dimensional data-set, each point is a sample of : $$
+\begin{pmatrix}
+    \mathcal{N}\left(10,2\right) \\ \Gamma\left(2,2\right)
+\end{pmatrix}
+$$
+The probability of each sample $x_i$ is defined by : $$
+\mathbb{P}\left(x_i\right)=\frac{\mathcal{U}\left(0,1\right)}{S}$$
+Where $S$ is a normalization parameter, that is equal to the sum of all uniform distribution sample we had. We take 50 samples and try to reduce it.
+First let's have a look at the output we obtain by these two methods when we reduce the initial set to 10 atoms : 
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{dupacova backward.jpeg}
+        \caption{Output obtained with the backward algorithm}
+        \label{result back}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{dupacova forward.jpeg}
+        \caption{Output obtained with the forward algorithm}
+        \label{result forw}
+    \end{subfigure}
+    \caption{Output visualization: forward and backward Dupačová et al' algorithm}
+\end{figure}
 
+The crosses represent atoms that are selected in the reduced set and its sizes, the amount of probability given to that point in the reduced set. As a remark, we can highlight the fact that lonely atoms are often part of the reduced set as they would impact too much the Wasserstein distance.
+\subsubsection{Comparison}
+
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{comparison forward backward distance.jpeg}
+        \caption{Efficiency comparison between both algorithms}
+        \label{dist for bac}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{comparison forward backward time.jpeg}
+        \caption{Calculation time comparison between both algorithms}
+        \label{time for bac}
+    \end{subfigure}
+    \caption{Efficiency and calculation time comparison: forward and backward Dupačová et al' algorithm}
+    \label{comparison dup}
+\end{figure}
+
+The "x" axis of \Cref{comparison dup} represents the number of atoms in the reduced set. \Cref{dist for bac} shows that the efficiency in term of Wasserstein distance is similar and comparable for a reduced set obtained via forward or backward algorithm. The main difference lies in calculation time, the efficient way to compute the forward algorithm shows its advantages in \Cref{time for bac}, always below 0.05s whereas the backward algorithm can take up to one second. Without a more efficient way than the one I proposed to compute the backward algorithm, the forward algorithm has to be preferred when you're free to choose. This data-set of 50 atoms is little compared to what you could see in real problems, the calculation will grow with $n^2$ that's why I make this remark.
+
+\clearpage
 \section{Efficient implementation}
 The main goal of the internship was first to study the scenario reduction problem and algorithms related to this problem and then to implement it within the SMS++ ecosystem. SMS++ aims to deliver an efficient interface for a wide range of optimization problems through the concept of block which represents a type of problem namely "BinaryKnapsackBlock", "MCFBlock" (for Min-Cost flow) and many others. Developped in C++, it is to be able to manage memory, calculation what can be somewhat difficult in interpreted languages such as Python or Julia. In SMS++ it is easy and almost free to turn ON/OFF variables (decision variables, constraints...). In this part, we'll try to find ways to implement proficiently Dupačová et al's algorithm \Cref{dupacova} and local search algorithm \Cref{Local search}.
 
