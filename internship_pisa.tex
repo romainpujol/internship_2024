@@ -408,31 +408,40 @@ $$
 \frac{\bar{D}_l\left(\mathbb{P},m\right)}{C_l\left(\mathbb{P},m\right)}\leq \frac{2\bar{D}_l\left(\mathbb{P},m\right)}{D_l\left(\mathbb{P},m\right)}\leq 2\max_{n,m,\mathbb{P}\in\mathcal{P}_E(\RR^d,n)}\frac{\bar{D}_l\left(\mathbb{P},m\right)}{D_l\left(\mathbb{P},m\right)}=2\times5=10.
 $$
 We can now maximize the left hand side on $n,m,\mathbb{P}$ as the right hand side doesn't depend on the three.
-\newline
-
-So this algorithm gives an approximation of $D_l$, we know also that :
+\subsection{A new algorithm ?}
+Dupačová and local search gives an approximation of $D_l$, we know also the distance can be written as :
 $$D_l\left(\mathbb{P},R\right)=\sum_{i\in I}p_i\min_{j\in R}\lVert x_i-x_j\Vert^l=\sum_{j\in R}\left[\sum_{i\in I_j}p_i\lVert x_i-x_j\rVert^l\right].$$
-So we could improve the value of the Wasserstein distance by finding for each $I_j$ : 
+So we could improve the value of the Wasserstein distance by finding an optimal $x_j$ for each $I_j$. The idea is to decompose each sum on $I_j$ as we've done above in order to find for $I_j$: 
 $$
-y\in \argmin_{y\in\RR^d}\sum_{i\in I_j}p_i\lVert x_i-y\rVert^l.
+y_j\in \argmin_{y\in\RR^d}\sum_{i\in I_j}p_i\lVert x_i-y\rVert^l.
 $$
-We could thus modify each $x_j$ by the $y$ we found for $I_j$. The approximation ratio is still bounded as we're improving the Wasserstein distance but it becomes an approximation of $C_l$ and no longer $D_l$. \rp{idea to improve }. See \Cref{L_p optim}
+We could thus modify each $x_j$ by the $y$ we found for $I_j$. The approximation ratio is still bounded as we're improving the Wasserstein distance but it becomes an approximation of $C_l$ and no longer $D_l$. \rp{idea to improve }. See \Cref{L_p optim}.
+
+\begin{algorithm}\caption{Improved algorithm for $C_l$}[h]
+    \label{improved ls}
+    Run local search or Dupačová algorithm and extract $I_j$ for all $j$. \\
+    With a method that you decided, find for each $I_j$: $$y_j\in\argmin_{y\in\RR^d}\sum_{i\in I_j}p_i\lVert x_i-y\rVert^l$$
+    \\ Let $\{I_j\}\in\mathfrak{P}\left(I,m\right)$ be any partition whose sets $I_j, j\in J$, contain all atoms of supp$\left(P\right)$ that are closest to $y_j$ (ties may be broken arbitrarily). \\
+    Repeat Step 2 and 3 until there's no changes.
+\end{algorithm}
+
+So basically this algorithm is a  modified k-means clustering with weights (what differs from what's proposed in \cite{rujeerapaiboon_scenario_2022}) and an intelligent first guess.
 \subsection{MILP reformulation of the discrete scenario reduction problem}
-We first review a well-known mixed-integer linear programming (MILP) reformulation of the discrete scenario reduction problem $D_l\left(\mathbb{P},m\right)$.
-\begin{theorem}
-The discrete scenario reduction problem can be formulated as the MILP : 
-\begin{align*}
-    D_l^l\left(\mathbb{P},m\right)=&\min_{\Pi,\lambda}\:\frac{1}{n}<\pi,D> \\ &\text{s.t. } \;\pi e=e, \; \pi \leq e\lambda^T,\; \lambda^Te=m\\&\quad\quad \pi\in\RR^{n\times m}_+, \; \lambda\in\{0,1\}^n
-    \end{align*}
-    with $D\in \mathbb{S}^n$ and $D_{ij}=\lVert x_i-x_j\rVert^l$
-\end{theorem}
-\rp{first constraint means $\sum_{j=1}^n\pi_{ij}=1$ for all $i$ (what seems weird), second forces $\lambda_i$ to be 1 if you choose $x_j$ and the third one counts the number of atoms you choose. So basically I didn't understand the formulation}
+We first review a well-known mixed-integer linear programming (MILP) reformulation of the discrete scenario reduction problem $D_l\left(\mathbb{P},m\right)$.\rp{find a reference}
+%\begin{theorem}
+%The discrete scenario reduction problem can be formulated as the MILP : 
+%\begin{align*}
+%    D_l^l\left(\mathbb{P},m\right)=&\min_{\Pi,\lambda}\:\frac{1}{n}<\pi,D> \\ &\text{s.t. } \;\pi e=e, \; \pi \leq e\lambda^T,\; \lambda^Te=m\\&\quad\quad \pi\in\RR^{n\times m}_+, \; \lambda\in\{0,1\}^n
+%    \end{align*}
+%    with $D\in \mathbb{S}^n$ and $D_{ij}=\lVert x_i-x_j\rVert^l$
+%\end{theorem}
+%\rp{first constraint means $\sum_{j=1}^n\pi_{ij}=1$ for all $i$ (what seems weird), second forces $\lambda_i$ to be 1 if you choose $x_j$ and the third one counts the number of atoms you choose. So basically I didn't understand the formulation}
 
 \section{Results}
 In this section, the goal is to compare different methods based on two criterion: time, value of $d_l$. 
 \subsection{Dupačová forward and backward}
 \subsubsection{Outputs}
-The first comparison to make is between the forward and backward methods of Dupačová et al' algorithm. The efficient methods proposed for the forward algorithm looks way more interesting at first sight as computing $\min_{k\in R}\lVert x_i-x_k\rVert^l$ is very cheap compared to the method of the backward algorithm. For this simulation, I created a random two-dimensional data-set, each point is a sample of : $$
+The first comparison to make is between the forward and backward methods of Dupačová et al' algorithm. We'll use $L2$-norm and $\ell=2$. The efficient methods proposed for the forward algorithm looks way more interesting at first sight as computing $\min_{k\in R}\lVert x_i-x_k\rVert^l$ is very cheap compared to the method of the backward algorithm. For this simulation, I created a random two-dimensional data-set, each point is a sample of : $$
 \begin{pmatrix}
     \mathcal{N}\left(10,2\right) \\ \Gamma\left(2,2\right)
 \end{pmatrix}
@@ -467,7 +476,7 @@ The crosses represent atoms that are selected in the reduced set and its sizes, 
     \begin{subfigure}[b]{0.45\textwidth}
         \centering
         \includegraphics[width=\textwidth]{comparison forward backward distance.jpeg}
-        \caption{Efficiency comparison between both algorithms}
+        \caption{$d\left(\mathbb{P},R\right)^2$ comparison between both algorithms}
         \label{dist for bac}
     \end{subfigure}
     \hfill
@@ -488,7 +497,65 @@ mn^2f=4.4 \implies f= 4.4\times 10^{-7} \\
 \end{align*}
 Both $f$ have the same magnitude, it is satisfying.
 
+\section{Local search}
+We have many things to test here in order to know how to use local search algorithm. Local search can be somehow long to compute with a random first guest of size $m$. Three manners came naturally in order to tackle this issue. As a very first guess, we decide to use the reduced set of size $m$ that we get with the forward algorithm, the backward algorithm and the last set of starter would be atoms that are closest to the centroïds computed with a k-means method. The idea of this section is to compare efficiency and computation time between these methods and a random first guess. We will still compute the data-set as samples of:
+$$
+\begin{pmatrix}
+    \mathcal{N}\left(10,2\right) \\ \Gamma\left(2,2\right)
+\end{pmatrix}.
+$$
+Now we consider the distribution uniform for simplicity. 
+\subsection{Best-fit, first-fit and forward Dupačová}
+The local search algorithm gives an approximation of $D_l$ and the reduced set providing the approximation similarly to the greedy algorithm of Dupačová. First, we want to understand how the local search algorithm (and its 2 variants : best-fit, first-fit) behaves in comparison to the greedy algorithm (the forward version as we've seen that it was way more efficient). In this part, the first guess $R$ of size $m$ is selected randomly (the $m$ first elements of the data-set which is already randomly chosen).
 
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{comparison local search value.jpeg}
+        \caption{Efficiency comparison, local search and forward Dupačová}
+        \label{value loc s}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{comparison local search time.jpeg}
+        \caption{Calculation time comparison, local search methods and forward Dupačová}
+        \label{time loc s}
+    \end{subfigure}
+    \caption{Efficiency and calculation time comparison: forward Dupačová and local search methods}
+    \label{comparison loc}
+\end{figure}
+
+When the computation time grows linearly with $m$ with $n$ fixed for forward Dupačová, we don't know how much time we will enter the while loop for both local search methods, computation time looks messier for them. Even messier for first-fit method whereas best-fit looks more curvy and less variable from $m$ to $m+1$. It aligns with the fact that best-fit is more stable as it compares all swap and chooses the best while first-fit swaps as soon as it finds an improvement even though it may be slight. In terms of efficiency (value of $D_2^2$), both methods give a better approximation than the one provided by forward Dupačová. Let's not forget that computation time grows really fast with $n$ and that my computer isn't really powerful. As a mean, running a local search algorithm is 10 times longer than forward Dupačová (which is very efficient).
+\newline
+
+In the following figure, we represent the improvement ratio for $n=100$ and $m\in [\![10;90]\!]$. The improvement ratio $r_m$ for a certain $m$ is defined as : 
+$$
+r_m = \frac{D_l\left(\mathbb{P},R_{\text{algorithm 1}}\right)}{D_l\left(\mathbb{P},R_{\text{algorithm 2}}\right)}.
+$$
+Where $R_{\text{algorithm}}$ represents the reduced set obtained with "algorithm". Here algorithm 1 stands for forward Dupačová and algorithm 2 for both best-fit and first-fit method of local search.
+
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{improvement ratio.jpeg}
+        \caption{Improvement ratio for $n=100$}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{improvement ratio 250.jpeg}
+        \caption{Improvement ratio for $n=250$}
+    \end{subfigure}
+    \caption{Different approximation ratio for $n\in\{100,250\}$ and $m$ variable}
+    \label{improvement ratio }
+\end{figure}
+
+\subsection{Local search, best-fit method, comparison of starters}
+
+\subsection{Local search, first-fit method, comparison of starters}
 \clearpage
 \section{Efficient implementation}
 The main goal of the internship was first to study the scenario reduction problem and algorithms related to this problem and then to implement it within the SMS++ ecosystem. SMS++ aims to deliver an efficient interface for a wide range of optimization problems through the concept of block which represents a type of problem namely "BinaryKnapsackBlock", "MCFBlock" (for Min-Cost flow) and many others. Developped in C++, it is to be able to manage memory, calculation what can be somewhat difficult in interpreted languages such as Python or Julia. In SMS++ it is easy and almost free to turn ON/OFF variables (decision variables, constraints...). In this part, we'll try to find ways to implement proficiently Dupačová et al's algorithm \Cref{dupacova} and local search algorithm \Cref{Local search}.
