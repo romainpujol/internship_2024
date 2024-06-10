@@ -417,7 +417,7 @@ y_j\in \argmin_{y\in\RR^d}\sum_{i\in I_j}p_i\lVert x_i-y\rVert^l.
 $$
 We could thus modify each $x_j$ by the $y$ we found for $I_j$. The approximation ratio is still bounded as we're improving the Wasserstein distance but it becomes an approximation of $C_l$ and no longer $D_l$. \rp{idea to improve }. See \Cref{L_p optim}.
 
-\begin{algorithm}\caption{Improved algorithm for $C_l$}[h]
+\begin{algorithm}[h]\caption{Improved algorithm for $C_l$}
     \label{improved ls}
     Run local search or Dupačová algorithm and extract $I_j$ for all $j$. \\
     With a method that you decided, find for each $I_j$: $$y_j\in\argmin_{y\in\RR^d}\sum_{i\in I_j}p_i\lVert x_i-y\rVert^l$$
@@ -436,9 +436,86 @@ We first review a well-known mixed-integer linear programming (MILP) reformulati
 %    with $D\in \mathbb{S}^n$ and $D_{ij}=\lVert x_i-x_j\rVert^l$
 %\end{theorem}
 %\rp{first constraint means $\sum_{j=1}^n\pi_{ij}=1$ for all $i$ (what seems weird), second forces $\lambda_i$ to be 1 if you choose $x_j$ and the third one counts the number of atoms you choose. So basically I didn't understand the formulation}
+\section{Efficient implementation}
+The main goal of the internship was first to study the scenario reduction problem and algorithms related to this problem and then to implement it within the SMS++ ecosystem. SMS++ aims to deliver an efficient interface for a wide range of optimization problems through the concept of block which represents a type of problem namely "BinaryKnapsackBlock", "MCFBlock" (for Min-Cost flow) and many others. Developped in C++, it is to be able to manage memory, calculation what can be somewhat difficult in interpreted languages such as Python or Julia. In SMS++ it is easy and almost free to turn ON/OFF variables (decision variables, constraints...). In this part, we'll try to find ways to implement proficiently Dupačová et al's algorithm \Cref{dupacova} and local search algorithm \Cref{Local search}.
+
+\subsection{Dupačová et al's algorithm}
+In this part we try to reduce computational time of Dupačová et al's algorithm, meaning we want to reuse what we've already computed. 
+\newline
+
+Knowing the closed formula of \Cref{closed formula}, it isn't hard to find an efficient way to compute $D_l$ of step 2 : 
+$$
+D_l\left(\mathbb{P},R\cup \{y_j\}\right)=\sum_{i\in I}p_i\min_{z\in R\cup\{y\}}\lVert x_i-z \rVert^l.
+$$
+An efficient idea would be to store at iteration $0$, one big matrix of distance, which is : 
+$$
+D = \left(\lVert x_i-x_j\rVert ^l \right)_{i,j}.
+$$
+Then you can choose the first atom $x$ to add to R as :
+$$
+i_1 \in \argmin_{i\in I} pD^i.
+$$
+With $D^i$ being the $i^{th}$ column of $D$ and $p=\begin{pmatrix}
+    p_1 & \hdots & p_n
+\end{pmatrix}$.
+We create $m^1=D^{i_1}$. For the second iteration, we can only select the indexes $[\![1;n]\!]\setminus \{i_1\}$. For each $x_i\in [\![1;n]\!]\setminus \{i_1\}$, let's create a vector $m_i$ such that : $\left(m_i\right)_j=\min\left\{\left(m^1\right)_j,\left(D^i\right)_j\right\}$, now we can write $D_l$ as : $$
+D_l\left(\mathbb{P},\{x_{i_1}\}\cup \{x_i\}\right)=pm_i.
+$$
+Then follows the efficient algorithm :
+\begin{algorithm}
+\caption{Efficient Dupačová et al}
+Initialize the set of atoms in the reduced set as $R \gets \emptyset$.\\
+Compute the matrix $D = \left(\| x_i - x_j \|^l \right)_{i,j \in I^2}$ once and for all.\\
+Create $m^0 = \begin{bmatrix} a & \hdots & a \end{bmatrix}$ with $a$ arbitrarily large (choose $a \geq \max_{i,j} \| x_i - x_j \|^l$).\\
+\While{$|R| < m$}{
+    Select the next atom to be added from $I \setminus R$ by following this procedure.\\
+    \For{$i \in I \setminus R$}{
+        Compute $\left(m_i\right)_j = \min \left\{ \left(m^0\right)_j, \left(D^i\right)_j \right\}$.\\
+        Compute $D_l(\mathbb{P}, R \cup \{x_i\}) = p m_i$.\\
+        Store the best $m_i$ so far, named $m_{\text{best}}$.\\
+    }
+    Update $m^0 = m_{\text{best}}$. \\
+    Update $R = R \cup \{x_{\text{best}}\}$.\\
+}
+\Return $R$\\
+\end{algorithm}
+
+\subsection{Local search algorithm}
+The same approach doesn't work for the local search as you swap atoms. An idea would have been to store an index vector, a vector that tells you with atom reaches $\min_{x\in R}\lVert x_i-x\rVert^l$ so that you know when you have to compute again the minimum on $R$ (whenever the swap removes the atom reaching the minimum). That doesn't look very efficient, but it would have looked that way : 
+\begin{algorithm}
+\caption{Maybe efficient local search}
+Initialize the set of atoms in the reduced set $R, \lvert R\rvert=m$.\\
+Compute the matrix $D = \left(\| x_i - x_j \|^l \right)_{i,j \in I^2}$ once and for all.\\
+Create $m^0 = \begin{pmatrix}\min_{i\in R}\lVert x_1-x_i\rVert^l & \hdots & \min_{i\in R}\lVert x_1-x_i\rVert^l \end{pmatrix}$ and $I=\begin{pmatrix}\argmin_{i\in R}\lVert x_1-x\rVert^l & \hdots & \argmin_{i\in R}\lVert x_1-x\rVert^l \end{pmatrix}$.\\
+Create $d=pm^0$, there is improvement. \\
+\While{\text{ There is improvement}}{
+    There isn't improvement. \\
+    \For{$i \in R$}{
+    Make a copy of I in index.\\
+    Make a copy of $m^0$ in m. \\
+        \For{$k\in I$}{
+            \If{index$\left[k\right]=i$}{
+                Change $\left[m\right]_k$ by $\min_{\alpha\in R\setminus\{i\}}\lVert x_k-x_\alpha\rVert^l$ and $index\left[k\right]$ aswell.
+            }
+        }
+        \For{$j\in I\setminus R$}{
+            Compute $\left(m_{ij}\right) = \min \left\{ m, D^j \}\right\}$ where $\min$ is the minimum component-wise.\\ Compute $D_l(\mathbb{P}, R \cup \{x_i\}) = p m_{ij}$.\\
+            \If{$pm_{ij} < d$}{
+                $d=pm_{ij}$ and there is improvement ! \\
+                You can exit the \textbf{for} $i\in R$ loop if you want first-fit with , or you can keep going the for loop until you find the best-fit as $d$ is now worth $pm_{ij}$.
+            }
+        }
+        Store the best $m_{ij}$ so far, named $m_{\text{best}}$.\\
+    }
+    \If{There is improvement}{
+    Update $m^0 = m_{\text{best}}$. \\
+    Update $R = R \cup \{x_j\} \setminus \{x_i\}$.}
+}
+\end{algorithm}
+There is still a lot of computation here in order to compute the $\min$ inside the closed formula (we go through a vector : index, $m-1$ columns of a matrix in order to find $\min_{i\in R\setminus x_j}\lVert x_k-x_i\rVert^l$ with a complexity $\mathcal{O}\left(mn\right)$). 
 
 \section{Results}
-In this section, the goal is to compare different methods based on two criterion: time, value of $d_l$. 
+In this section, the goal is to compare different methods based on two criterion: time, value of $d_l$. The aim of this section is to determine which method is the most effective if a user does not provide specific instructions, as SMS++ aims for effectiveness.
 \subsection{Dupačová forward and backward}
 \subsubsection{Outputs}
 The first comparison to make is between the forward and backward methods of Dupačová et al' algorithm. We'll use $L2$-norm and $\ell=2$. The efficient methods proposed for the forward algorithm looks way more interesting at first sight as computing $\min_{k\in R}\lVert x_i-x_k\rVert^l$ is very cheap compared to the method of the backward algorithm. For this simulation, I created a random two-dimensional data-set, each point is a sample of : $$
@@ -549,91 +626,36 @@ Where $R_{\text{algorithm}}$ represents the reduced set obtained with "algorithm
         \includegraphics[width=\textwidth]{improvement ratio 250.jpeg}
         \caption{Improvement ratio for $n=250$}
     \end{subfigure}
-    \caption{Different approximation ratio for $n\in\{100,250\}$ and $m$ variable}
+    \caption{Different approximation ratio for $n\in\{100,250\}$ and variable $m$}
     \label{improvement ratio }
 \end{figure}
 
-\subsection{Local search, best-fit method, comparison of starters}
-
-\subsection{Local search, first-fit method, comparison of starters}
-\clearpage
-\section{Efficient implementation}
-The main goal of the internship was first to study the scenario reduction problem and algorithms related to this problem and then to implement it within the SMS++ ecosystem. SMS++ aims to deliver an efficient interface for a wide range of optimization problems through the concept of block which represents a type of problem namely "BinaryKnapsackBlock", "MCFBlock" (for Min-Cost flow) and many others. Developped in C++, it is to be able to manage memory, calculation what can be somewhat difficult in interpreted languages such as Python or Julia. In SMS++ it is easy and almost free to turn ON/OFF variables (decision variables, constraints...). In this part, we'll try to find ways to implement proficiently Dupačová et al's algorithm \Cref{dupacova} and local search algorithm \Cref{Local search}.
-
-\subsection{Dupačová et al's algorithm}
-In this part we try to reduce computational time of Dupačová et al's algorithm, meaning we want to reuse what we've already computed. 
+As first-fit and best-fit methods give approximately the same output, we can analyze both at the same time compared to forward Dupačová. The payout can be considered as interesting: $15\%, 20\%$ of gain for local-search algorithms when you want to reduce by a factor greater than or equal $\geq2$ (i.e. $\frac{n}{m}\geq2$) to the detriment of calculation time. Still, when $\frac{n}{m}\leq2$, the payout gets thinner and thinner. 
+\subsection{Clever starters to reduce local-search calculation time}
+As mentionned above, the payout is significant for local-search methods when $\frac{n}{m}\geq2$ but calculation time can increase by a factor 30. However, we can expect to reduce calculation time with an interesting starter $R$ of cardinal $m$. This should lead to fewer changes in the local-search hence fewer computation time. Different starters can be considered. First, a random set. Second and third, two outputs of forward Dupačová (in my opinion, using the output of backward Dupačová et al' algorithm to compute a starter wouldn't be interesting as it takes way much time to be computed), in the order given by the algorithm and in reverse order. Fourth, we'll consider the nearest neighbours from a run of $m$-means. 
 \newline
+NB: using the reversed sequence of Dupačová output can be weird as the first atom of the reversed sequence won't be changed but second, third, fourth are more likely to be changed as they weren't chosen at first, it's an idea we must consider. Inversely, the first atom chosen was the most centered so it gave a real direction to the choice that came later so changing this one would change a lot of things. Both ideas have their arguments that's why we must investigate !
 
-Knowing the closed formula of \Cref{closed formula}, it isn't hard to find an efficient way to compute $D_l$ of step 2 : 
-$$
-D_l\left(\mathbb{P},R\cup \{y_j\}\right)=\sum_{i\in I}p_i\min_{z\in R\cup\{y\}}\lVert x_i-z \rVert^l.
-$$
-An efficient idea would be to store at iteration $0$, one big matrix of distance, which is : 
-$$
-D = \left(\lVert x_i-x_j\rVert ^l \right)_{i,j}.
-$$
-Then you can choose the first atom $x$ to add to R as :
-$$
-i_1 \in \argmin_{i\in I} pD^i.
-$$
-With $D^i$ being the $i^{th}$ column of $D$ and $p=\begin{pmatrix}
-    p_1 & \hdots & p_n
-\end{pmatrix}$.
-We create $m^1=D^{i_1}$. For the second iteration, we can only select the indexes $[\![1;n]\!]\setminus \{i_1\}$. For each $x_i\in [\![1;n]\!]\setminus \{i_1\}$, let's create a vector $m_i$ such that : $\left(m_i\right)_j=\min\left\{\left(m^1\right)_j,\left(D^i\right)_j\right\}$, now we can write $D_l$ as : $$
-D_l\left(\mathbb{P},\{x_{i_1}\}\cup \{x_i\}\right)=pm_i.
-$$
-Then follows the efficient algorithm :
-\begin{algorithm}
-\caption{Efficient Dupačová et al}
-Initialize the set of atoms in the reduced set as $R \gets \emptyset$.\\
-Compute the matrix $D = \left(\| x_i - x_j \|^l \right)_{i,j \in I^2}$ once and for all.\\
-Create $m^0 = \begin{bmatrix} a & \hdots & a \end{bmatrix}$ with $a$ arbitrarily large (choose $a \geq \max_{i,j} \| x_i - x_j \|^l$).\\
-\While{$|R| < m$}{
-    Select the next atom to be added from $I \setminus R$ by following this procedure.\\
-    \For{$i \in I \setminus R$}{
-        Compute $\left(m_i\right)_j = \min \left\{ \left(m^0\right)_j, \left(D^i\right)_j \right\}$.\\
-        Compute $D_l(\mathbb{P}, R \cup \{x_i\}) = p m_i$.\\
-        Store the best $m_i$ so far, named $m_{\text{best}}$.\\
-    }
-    Update $m^0 = m_{\text{best}}$. \\
-    Update $R = R \cup \{x_{\text{best}}\}$.\\
-}
-\Return $R$\\
-\end{algorithm}
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=1.1\textwidth]{run time methods.pdf}
+        \caption{Run time}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=1.1\textwidth]{value methods.pdf}
+        \caption{Efficiency}
+    \end{subfigure}
+    \caption{Comparison of local-search variants}
+    \label{methods}
+\end{figure}
 
-\subsection{Local search algorithm}
-The same approach doesn't work for the local search as you swap atoms. An idea would have been to store an index vector, a vector that tells you with atom reaches $\min_{x\in R}\lVert x_i-x\rVert^l$ so that you know when you have to compute again the minimum on $R$ (whenever the swap removes the atom reaching the minimum). That doesn't look very efficient, but it would have looked that way : 
-\begin{algorithm}
-\caption{Maybe efficient local search}
-Initialize the set of atoms in the reduced set $R, \lvert R\rvert=m$.\\
-Compute the matrix $D = \left(\| x_i - x_j \|^l \right)_{i,j \in I^2}$ once and for all.\\
-Create $m^0 = \begin{pmatrix}\min_{i\in R}\lVert x_1-x_i\rVert^l & \hdots & \min_{i\in R}\lVert x_1-x_i\rVert^l \end{pmatrix}$ and $I=\begin{pmatrix}\argmin_{i\in R}\lVert x_1-x\rVert^l & \hdots & \argmin_{i\in R}\lVert x_1-x\rVert^l \end{pmatrix}$.\\
-Create $d=pm^0$, there is improvement. \\
-\While{\text{ There is improvement}}{
-    There isn't improvement. \\
-    \For{$i \in R$}{
-    Make a copy of I in index.\\
-    Make a copy of $m^0$ in m. \\
-        \For{$k\in I$}{
-            \If{index$\left[k\right]=i$}{
-                Change $\left[m\right]_k$ by $\min_{\alpha\in R\setminus\{i\}}\lVert x_k-x_\alpha\rVert^l$ and $index\left[k\right]$ aswell.
-            }
-        }
-        \For{$j\in I\setminus R$}{
-            Compute $\left(m_{ij}\right) = \min \left\{ m, D^j \}\right\}$ where $\min$ is the minimum component-wise.\\ Compute $D_l(\mathbb{P}, R \cup \{x_i\}) = p m_{ij}$.\\
-            \If{$pm_{ij} < d$}{
-                $d=pm_{ij}$ and there is improvement ! \\
-                You can exit the \textbf{for} $i\in R$ loop if you want first-fit with , or you can keep going the for loop until you find the best-fit as $d$ is now worth $pm_{ij}$.
-            }
-        }
-        Store the best $m_{ij}$ so far, named $m_{\text{best}}$.\\
-    }
-    \If{There is improvement}{
-    Update $m^0 = m_{\text{best}}$. \\
-    Update $R = R \cup \{x_j\} \setminus \{x_i\}$.}
-}
-\end{algorithm}
-There is still a lot of computation here in order to compute the $\min$ inside the closed formula (we go through a vector : index, $m-1$ columns of a matrix in order to find $\min_{i\in R\setminus x_j}\lVert x_k-x_i\rVert^l$ with a complexity $\mathcal{O}\left(mn\right)$). 
+
+\Cref{methods} highlights 3 efficient methods that divide by 2 or 3 the run time of  best-fit or first-fit methods with random starters. The three methods are : first-fit m-means neighbours, best-fit reverse Dupačová starters, best-fit Dupačová starters. No significant gain or loss with efficiency.
+\clearpage
 %\section{Entropic regularization}
 %We often need to compute $d_l\left(\mathbb{P},\mathbb{Q}\right)$ with $\mathbb{P}$ the initial distribution to be reduced and $\mathbb{Q}$ the reduced distribution in construction and solving these linear programs can be very costly as $n,m,d$ grow. 
 %\begin{corollary}[Number of linear programs solved]
