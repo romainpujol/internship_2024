@@ -27,6 +27,19 @@ def generate_data(n):
         data[i]=[x[i],y[i]]
     return (data,probabilities)
 
+def generate_data_u(n):
+    #uniform proba
+    x = np.random.normal(loc=10, scale=2, size=n)
+
+    y = np.random.gamma(shape=2, scale=2, size=n)
+
+    probabilities = [1/n]*n
+
+    data=[0]*n
+    for i in range(n):
+        data[i]=[x[i],y[i]]
+    return (data,probabilities)
+
 def norm_l(x,y,l):
     value=0.
     n=len(x)
@@ -132,44 +145,54 @@ def dupacova_backward(distribution_x,m,l,distribution_p):
     return (reduced_set,minimum)
 
 
-n = 50
-deb = 5
+n = 100
+#deb = 50
 
-temps_forward=[0]*(n-2*deb)
-temps_backward=[0]*(n-2*deb)
+#temps_forward=[0]*(n-2*deb)
+#temps_backward=[0]*(n-2*deb)
 
-distance_forward=[0]*(n-2*deb)
-distance_backward=[0]*(n-2*deb)
+#distance_forward=[0]*(n-2*deb)
+#distance_backward=[0]*(n-2*deb)
 
-distribution,probabilities = generate_data(n)
-temperatures=[]
-precipitations=[]
-for i in range(n):
-    temperatures.append(distribution[i][0])
-    precipitations.append(distribution[i][1])
+distribution,probabilities = generate_data_u(n)
+#temperatures=[]
+#precipitations=[]
+#for i in range(n):
+#    temperatures.append(distribution[i][0])
+#    precipitations.append(distribution[i][1])
 
 
 
-for k in range(deb,n-deb):
-    if k%10==0:
-        print(k)
-    tp1=time.time()
-    bb=dupacova_forward(distribution,k,2,probabilities)
-    tp2=time.time()
-    bbb=dupacova_backward(distribution,k,2,probabilities)
-    tp3=time.time()
-    temps_forward[k-deb]=tp2-tp1
-    distance_forward[k-deb]=sum(bb[1])/n
-    temps_backward[k-deb]=tp3-tp2
-    distance_backward[k-deb]=sum(bbb[1])/n
+#for k in range(deb,n-deb):
+#    if k%100==0:
+#        print(k)
+#    tp1=time.time()
+#   bb=dupacova_forward(distribution,k,2,probabilities)
+#    tp2=time.time()
+#    bbb=dupacova_backward(distribution,k,2,probabilities)
+#    tp3=time.time()
+#    temps_forward[k-deb]=tp2-tp1
+#    distance_forward[k-deb]=sum(bb[1])/n
+#    temps_backward[k-deb]=tp3-tp2
+#    distance_backward[k-deb]=sum(bbb[1])/n
 
-plt.figure(figsize=(10, 6))
+#plt.figure(figsize=(10, 6))
 
-l = [i for i in range(deb,n-deb)]
-plt.plot(l,distance_forward,label="Calculation time, forward Dupačová")
-plt.plot(l,distance_backward, label = "Calculation time, backward Dupačová")
-plt.legend()
-#plt.title("Calculation time comparison, Dupačová algorithms, n=50")
-plt.title("Efficiency in term of Wasserstein distance, Dupačová algorithms, n=50")
-plt.show()
+#l = [i for i in range(deb,n-deb)]
+#plt.plot(l,temps_forward,label="Calculation time, forward Dupačová")
+#plt.plot(l,temps_backward, label = "Calculation time, backward Dupačová")
+#plt.legend()
+#plt.title("Calculation time comparison, Dupačová algorithms, n=500")
+#plt.title("Efficiency in term of Wasserstein distance, Dupačová algorithms, n=50")
+#plt.show()
 
+m=50
+
+tp1=time.time()
+a = dupacova_forward(distribution,m,2,probabilities)
+tp2=time.time()
+print(tp2-tp1)
+tp3=time.time()
+aa = dupacova_backward(distribution,m,2,probabilities)
+tp4=time.time()
+print(tp4-tp3)
