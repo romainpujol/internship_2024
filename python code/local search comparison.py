@@ -8,6 +8,9 @@ import random
 import matplotlib.pyplot as plt
 import time
 from sklearn.cluster import KMeans
+import os
+
+os.environ["OMP_NUM_THREADS"] = "1"
 
 
 random.seed(11112002)
@@ -330,55 +333,57 @@ for i in range(len(mm)):
     time_ff_dup[i]=t10-t9+t4-t3
     value_ff_dup[i]=ff_dup[1]
 
+    t50=time.time()
+    bf_dup = local_search_bf(distribution[0],index_dup,2)
+    t51=time.time()
+    time_bf_dup[i]=t51-t50+t4-t3
+    value_bf_dup[i]=bf_dup[1]
+
+
     t11=time.time()
     bf_dup_rev = local_search_bf(distribution[0],index_dup_rev,2)
     t12=time.time()
     time_bf_dup_reverse[i]=t12-t11+t4-t3
     value_bf_dup_reverse[i]=bf_dup_rev[1]
 
-    t13=time.time()
-    bf_dup = local_search_ff(distribution[0],index_dup,2)
-    t14=time.time()
-    time_bf_dup[i]=t14-t13+t4-t3
-    value_bf_dup[i]=bf_dup[1]
 
     #run of a k-means
-    #t1_km=time.time()
-    #k=mm[i]
-    #kmeans = KMeans(n_clusters=k)
-    #kmeans.fit(distribution[0])
-    #centroids = kmeans.cluster_centers_
-    #mat_dist = matrice_distance(centroids,distribution[0],2)
-    #centers = []
+    t1_km=time.time()
+    k=mm[i]
+    kmeans = KMeans(n_clusters=k)
+    kmeans.fit(distribution[0])
+    centroids = kmeans.cluster_centers_
+    mat_dist = matrice_distance(centroids,distribution[0],2)
+    centers = []
 
+    for z in range(mm[i]):
+        centers.append(np.argmin(mat_dist[z]))
 
-    #for z in range(mm[i]):
-    #    centers.append(np.argmin(mat_dist[z]))
-
-    #if len(set(centers))== mm[i]:
-    #    t2_km=time.time()
-    #    t15=time.time()
-    #    bf_km=local_search_bf(distribution[0],centers,2)
-    #    t16=time.time()
-    #    value_bf_km[i] = bf_km[1]
-    #    time_bf_km[i] = t16-t15+t2_km-t1_km
-    #    t17=time.time()
-    #    ff_km=local_search_ff(distribution[0],centers,2)
-    #    t18=time.time()
-    #    value_ff_km[i] = ff_km[1]
-    #    time_bf_km[i] = t18-t17+t2_km-t1_km
+    if len(set(centers))== mm[i]:
+        t2_km=time.time()
+        t15=time.time()
+        bf_km=local_search_bf(distribution[0],centers,2)
+        t16=time.time()
+        value_bf_km[i] = bf_km[1]
+        time_bf_km[i] = t16-t15+t2_km-t1_km
+        t17=time.time()
+        ff_km=local_search_ff(distribution[0],centers,2)
+        t18=time.time()
+        value_ff_km[i] = ff_km[1]
+        time_ff_km[i] = t18-t17+t2_km-t1_km
 
 
 plt.figure(figsize=(10, 6))
-plt.plot(mm,time_bf,label="Run time, best-fit")
-plt.plot(mm,time_ff, label = "Run time, first-fit")
-plt.plot(mm,time_bf_dup,label="Run time, best-fit, Dupacova starters")
-plt.plot(mm,time_ff_dup, label = "Run time, first-fit, Dupacova starters")
-plt.plot(mm,time_bf_dup_reverse,label="Run time, best-fit, reverse Dupacova starters")
-plt.plot(mm,time_ff_dup_reverse, label = "Run time, first-fit, reverse Dupacova starters")
-#plt.plot(mm,time_bf_km,label="Run time, best-fit, m-means neighboors starters")
-#plt.plot(mm,time_ff_km, label = "Run time, first-fit, m-means neighboors starters")
+plt.plot(mm,time_bf,label="Best-fit")
+plt.plot(mm,time_ff, label = "First-fit")
+plt.plot(mm,time_bf_dup,label="Best-fit, Dupacova starters")
+plt.plot(mm,time_ff_dup, label = "First-fit, Dupacova starters")
+plt.plot(mm,time_bf_dup_reverse,label="Best-fit, reverse Dupacova starters")
+plt.plot(mm,time_ff_dup_reverse, label = "First-fit, reverse Dupacova starters")
+plt.plot(mm,time_bf_km,label="Best-fit, m-means neighboors starters")
+plt.plot(mm,time_ff_km, label = "First-fit, m-means neighboors starters")
 
+plt.xlabel('m')
 plt.legend()
 plt.title("Run time comparison, n=100")
 plt.show()
