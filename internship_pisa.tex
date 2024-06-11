@@ -375,7 +375,7 @@ The aim of k-means clustering is to reduced $n$ observations to $k$ clusters suc
 
 
 \begin{algorithm}
-    \caption{k-means clustering for $C_l\left(\mathbb{P},m\right)$}
+    \caption{k-means clustering for $C_l\left(\mathbb{P},m\right)$}\label{k m}
     Initialize the reduced set $R=\{y_1,...,y_m\} \subseteq \text{supp}\left(\mathbb{P}\right)$ arbitrarily \\ Let $\{I_j\}\in\mathfrak{P}\left(I,m\right)$ be any partition whose sets $I_j, j\in J$, contain all atoms of supp$\left(P\right)$ that are closest to $y_j$ (ties may be broken arbitrarily). \\ For each $j\in J$, update $y_j$ as : $$y_j \gets \argmin_{y\in\RR^d} \left\{ \sum_{i\in I_j}\lVert x_i-y\rVert^l\right\}$$ \\ Repeat Steps 2 and 3 until the reduced set $R$ no longer changes.
 \end{algorithm}
 The reduced distribution is :
@@ -574,7 +574,7 @@ mn^2f=4.4 \implies f= 4.4\times 10^{-7} \\
 \end{align*}
 Both $f$ have the same magnitude, it is satisfying.
 
-\section{Local search}
+\subsection{Local search}
 We have many things to test here in order to know how to use local search algorithm. Local search can be somehow long to compute with a random first guest of size $m$. Three manners came naturally in order to tackle this issue. As a very first guess, we decide to use the reduced set of size $m$ that we get with the forward algorithm, the backward algorithm and the last set of starter would be atoms that are closest to the centroïds computed with a k-means method. The idea of this section is to compare efficiency and computation time between these methods and a random first guess. We will still compute the data-set as samples of:
 $$
 \begin{pmatrix}
@@ -604,7 +604,7 @@ The local search algorithm gives an approximation of $D_l$ and the reduced set p
     \label{comparison loc}
 \end{figure}
 
-When the computation time grows linearly with $m$ with $n$ fixed for forward Dupačová, we don't know how much time we will enter the while loop for both local search methods, computation time looks messier for them. Even messier for first-fit method whereas best-fit looks more curvy and less variable from $m$ to $m+1$. It aligns with the fact that best-fit is more stable as it compares all swap and chooses the best while first-fit swaps as soon as it finds an improvement even though it may be slight. In terms of efficiency (value of $D_2^2$), both methods give a better approximation than the one provided by forward Dupačová. Let's not forget that computation time grows really fast with $n$ and that my computer isn't really powerful. As a mean, running a local search algorithm is 10 times longer than forward Dupačová (which is very efficient).
+Run time grows linearly with $m$ with $n$ fixed for forward Dupačová, but here we don't know how much time we will enter the while loop for both local search methods, computation time looks messier for them. Even messier for first-fit method whereas best-fit looks more curvy and less variable from $m$ to $m+1$. It aligns with the fact that best-fit is more stable as it compares all swap and chooses the best while first-fit swaps as soon as it finds an improvement even though it may be slight. In terms of efficiency (value of $D_2^2$), both methods give a better approximation than the one provided by forward Dupačová. Let's not forget that computation time grows really fast with $n$ and that my computer isn't really powerful. As a mean, running a local search algorithm is 10 times longer than forward Dupačová (which is very efficient).
 \newline
 
 In the following figure, we represent the improvement ratio for $n=100$ and $m\in [\![10;90]\!]$. The improvement ratio $r_m$ for a certain $m$ is defined as : 
@@ -638,13 +638,13 @@ NB: using the reversed sequence of Dupačová output can be weird as the first a
 
 \begin{figure}[ht]
     \centering
-    \begin{subfigure}[b]{0.45\textwidth}
+    \begin{subfigure}[b]{0.495\textwidth}
         \centering
         \includegraphics[width=1.1\textwidth]{run time methods.pdf}
         \caption{Run time}
     \end{subfigure}
     \hfill
-    \begin{subfigure}[b]{0.45\textwidth}
+    \begin{subfigure}[b]{0.495\textwidth}
         \centering
         \includegraphics[width=1.1\textwidth]{value methods.pdf}
         \caption{Efficiency}
@@ -653,8 +653,29 @@ NB: using the reversed sequence of Dupačová output can be weird as the first a
     \label{methods}
 \end{figure}
 
-
 \Cref{methods} highlights 3 efficient methods that divide by 2 or 3 the run time of  best-fit or first-fit methods with random starters. The three methods are : first-fit m-means neighbours, best-fit reverse Dupačová starters, best-fit Dupačová starters. No significant gain or loss with efficiency.
+
+\subsection{Fusion of local search and k-means}
+In this part we want to compare \Cref{improved ls}  with a generalized k-means for an approximation of $C_l$ as proposed in \Cref{k m} and \Cref{Local search}. For the sake of run time and thanks to the above analysis, we'll use the best-fit method with Dupačová starters whenever we need to run a local-search.
+
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}[b]{0.495\textwidth}
+        \centering
+        \includegraphics[width=1.1\textwidth]{effiency cl.pdf}
+        \caption{Efficiency}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.495\textwidth}
+        \centering
+        \includegraphics[width=1.1\textwidth]{efficiency ratio cl.pdf}
+        \caption{Improvement ratio}
+    \end{subfigure}
+    \caption{Efficiency comparison, $n=150$}
+    \label{cl }
+\end{figure}
+
+The k-means algorithm tends to be a little better than local-search in this simulation (even though its approximation ratio isn't bounded), using this local-search starter and combining it with k-means gives a slightly better value than both k-means and local-search. We gain a little here !
 \clearpage
 %\section{Entropic regularization}
 %We often need to compute $d_l\left(\mathbb{P},\mathbb{Q}\right)$ with $\mathbb{P}$ the initial distribution to be reduced and $\mathbb{Q}$ the reduced distribution in construction and solving these linear programs can be very costly as $n,m,d$ grow. 
