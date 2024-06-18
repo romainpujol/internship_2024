@@ -479,7 +479,14 @@ Create $m^0 = \begin{bmatrix} a & \hdots & a \end{bmatrix}$ with $a$ arbitrarily
 }
 \Return $R$\\
 \end{algorithm}
-
+\begin{proof}\label{complexity}
+The complexity of this algorithm is $\mathcal{O}\left(mn^2\right)$. First computing $D$ requires $\mathcal{O}\left(n^2\right)$ operations, then we'll have $m$ iterations in the while loop. The procedure requires: $n-k$ for the $k^{th}$ iterations, computing $m_i$ requires $2n$ operations, then $2n$ again to compute $p^Tm_i$ ($n$ mutliplications and $n$ sums) and 1 operation to test. Updating requires 1 operation.
+Precisely, we make
+$$
+n^2+\sum_{k=1}^m\left(2+\left(n-k\right)\left(2n+2n+1\right)\right)= n^2+2m+\left(4n+1\right)\left(mn-\frac{m\left(m+1\right)}{2}\right),
+$$
+operations.
+\end{proof}
 \subsection{Local search algorithm}
 The same approach doesn't work for the local search as you swap atoms. An idea would have been to store an index vector, a vector that tells you with atom reaches $\min_{x\in R}\lVert x_i-x\rVert^l$ so that you know when you have to compute again the minimum on $R$ (whenever the swap removes the atom reaching the minimum). That doesn't look very efficient, but it would have looked that way : 
 \begin{algorithm}
@@ -518,70 +525,85 @@ There is still a lot of computation here in order to compute the $\min$ inside t
 In this section, the goal is to compare different methods based on two criterion: time, value of $d_l$. The aim of this section is to determine which method is the most effective if a user does not provide specific instructions, as SMS++ aims for effectiveness.
 \subsection{Dupačová forward and backward}
 \subsubsection{Outputs}
-The first comparison to make is between the forward and backward methods of Dupačová et al' algorithm. We'll use $L2$-norm and $\ell=2$. The efficient methods proposed for the forward algorithm looks way more interesting at first sight as computing $\min_{k\in R}\lVert x_i-x_k\rVert^l$ is very cheap compared to the method of the backward algorithm. For this simulation, I created a random two-dimensional data-set, each point is a sample of : $$
+The first comparison to make is between the forward and backward methods of Dupačová et al' algorithm. We'll use $L2$-norm and $\ell=2$. The efficient methods proposed for the forward algorithm looks way more interesting at first sight as computing $\min_{k\in R}\lVert x_i-x_k\rVert^l$ is very cheap compared to the method of the backward algorithm. For this simulation, I created a random two-dimensional data-set, each point is a sample of: $$
 \begin{pmatrix}
     \mathcal{N}\left(10,2\right) \\ \Gamma\left(2,2\right)
 \end{pmatrix}
 $$
-The probability of each sample $x_i$ is defined by : $$
-\mathbb{P}\left(x_i\right)=\frac{\mathcal{U}\left(0,1\right)}{S}$$
-Where $S$ is a normalization parameter, that is equal to the sum of all uniform distribution sample we had. We take 50 samples and try to reduce it.
-First let's have a look at the output we obtain by these two methods when we reduce the initial set to 10 atoms : 
+The probability of each sample $x_i$ is $\frac{1}{n}$. Let's take a look in 2D at the output we obtain by these two methods when we reduce the initial set to 10 atoms: 
 \begin{figure}[ht]
     \centering
     \begin{subfigure}[b]{0.45\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{dupacova backward.jpeg}
+        \includegraphics[width=\textwidth]{plots/dupacova backward.pdf}
         \caption{Output obtained with the backward algorithm}
         \label{result back}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.45\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{dupacova forward.jpeg}
+        \includegraphics[width=\textwidth]{plots/dupacova forward.pdf}
         \caption{Output obtained with the forward algorithm}
         \label{result forw}
     \end{subfigure}
     \caption{Output visualization: forward and backward Dupačová et al' algorithm}
 \end{figure}
 
-The crosses represent atoms that are selected in the reduced set and its sizes, the amount of probability given to that point in the reduced set. As a remark, we can highlight the fact that lonely atoms are often part of the reduced set as they would impact too much the Wasserstein distance.
+Circles represent atoms and crosses represent atoms that are selected by an algorithm. A color represents a cluster (where will be transported an atom by the transportation plan). For the simulations to come, we'd rather use a 6D data-set in order to be more general. Every dimension should have a comparable data-range so that the distance between atoms isn't led by a single dimension. We'll take samples of 3 normal distribution, 2 gamma and one uniform :
+$$
+\begin{pmatrix}
+    \mathcal{N}\left(0,2\right) & \mathcal{N}\left(5,2\right) & \Gamma\left(0,2\right) & \Gamma\left(1,2\right) &\Gamma\left(2,2\right) & \mathcal{U}\left(0,10\right)
+\end{pmatrix}^T.
+$$
+
 \subsubsection{Comparison}
 
 \begin{figure}[ht]
     \centering
     \begin{subfigure}[b]{0.45\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{comparison forward backward distance.jpeg}
+        \includegraphics[width=\textwidth]{plots/efficiency milp.pdf}
         \caption{$d\left(\mathbb{P},R\right)^2$ comparison between both algorithms}
         \label{dist for bac}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.45\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{comparison forward backward time.jpeg}
-        \caption{Calculation time comparison between both algorithms}
+        \includegraphics[width=\textwidth]{plots/run time milp.pdf}
+        \caption{Run time comparison}
         \label{time for bac}
     \end{subfigure}
     \caption{Efficiency and calculation time comparison: forward and backward Dupačová et al' algorithm}
     \label{comparison dup}
 \end{figure}
 
-The "x" axis of \Cref{comparison dup} represents the number of atoms in the reduced set. \Cref{dist for bac} shows that the efficiency in term of Wasserstein distance is similar and comparable for a reduced set obtained via forward or backward algorithm. The main difference lies in calculation time, the efficient way to compute the forward algorithm shows its advantages in \Cref{time for bac}, always below 0.05s whereas the backward algorithm can take up to one second. Without a more efficient way than the one I proposed to compute the backward algorithm, the forward algorithm has to be preferred when you're free to choose. This data-set of 50 atoms is little compared to what you could see in real problems, the calculation time will grow as $n$ grows, that's why I make this remark. The complexity of the forward algorithm is : $\mathcal{O}\left(mn^2\right)$ whereas the backward is $\mathcal{O}\left(\left(n-m\right)^3n\right)$ with no gains of the distance. To give you an idea on what happens with a larger data-set, a 300 atoms data-set generated on the same behaviour that has to be reduced to 100 atoms: takes 4.4 seconds for the forward algorithm and 1286 for the backward. This aligns with the complexity we gave, if we define $f$ the calculation time of one operation, the order of magnitude of $f$ \rp{ordre de grandeur }is: 
-\begin{align*}
-mn^2f=4.4 \implies f= 4.4\times 10^{-7} \\
-\left(n-m\right)^3nf=1286 \implies f=5.35\times 10^{-7}.
-\end{align*}
-Both $f$ have the same magnitude, it is satisfying.
+The "x" axis of \Cref{comparison dup} represents the number of atoms in the reduced set. \Cref{dist for bac} shows that the efficiency in term of Wasserstein distance is similar and comparable for a reduced set obtained via forward or backward algorithm but still Forward algorithm gets a slight lead. The main difference lies in calculation time, the efficient way to compute the forward algorithm shows its advantages in \Cref{time for bac}, always below 0.05s whereas the backward algorithm can take up to one second and takes more time than the exact method. Forward algorithm has to be preferred when you're free to choose.  This data-set of 100 atoms is small compared to what you could see in real problems, the calculation time will grow as $n$ grows, that's why I make this remark. We use Gurobi to solve the MILP formulation and when there is 100 atoms, heuristics are used to find a solution (that's why the computation time is very low compared to what we could expect). 
 
+\subsection{Comparison with a bigger $n$}
+We've seen that backward algorithm isn't interesting in terms of run time. We'll compare now the run time of the Forward algorithm and the MILP formulation for $n=500$ because \Cref{time for bac} isn't relevant as Gurobi is very efficient for small size. Let's say we want to reduce a $n$ atoms distribution to a $\frac{n}{4}$ atoms distribution, let's compare run time and efficiency for $n\in\left[100,1000\right]$:
+
+\begin{figure}[ht]
+    \centering
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{plots/milp efficiency n4.pdf}
+        \caption{$d\left(\mathbb{P},R\right)^2$ comparison between both algorithms}
+        \label{n4 effi}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{plots/run time comparison n4.pdf}
+        \caption{Run time comparison}
+        \label{n4 time}
+    \end{subfigure}
+    \caption{caption}
+    \label{comparison n4}
+\end{figure}
+
+\Cref{complexity} tells us that forward Dupačová has a complexity of $\mathcal{O}\left(mn^2\right)$ what's meant to be far less than a simplex, Gurobi may use heuristics or other sophisticated method to have this small run time gap. Without Gurobi the gap would be way bigger. But still there exists a gap we can't neglect for run time, the gap in efficiency exists but is relatively small.
 \subsection{Local search}
-We have many things to test here in order to know how to use local search algorithm. Local search can be somehow long to compute with a random first guest of size $m$. Three manners came naturally in order to tackle this issue. As a very first guess, we decide to use the reduced set of size $m$ that we get with the forward algorithm, the backward algorithm and the last set of starter would be atoms that are closest to the centroïds computed with a k-means method. The idea of this section is to compare efficiency and computation time between these methods and a random first guess. We will still compute the data-set as samples of:
-$$
-\begin{pmatrix}
-    \mathcal{N}\left(10,2\right) \\ \Gamma\left(2,2\right)
-\end{pmatrix}.
-$$
-Now we consider the distribution uniform for simplicity. 
+We have many things to test here in order to know how to use local search algorithm. Local search can be somehow long to compute with a random first guest of size $m$. Three manners came naturally in order to tackle this issue. As a very first guess, we decide to use the reduced set of size $m$ that we get with the forward algorithm, the backward algorithm and the last set of starter would be atoms that are closest to the centroïds computed with a k-means method. The idea of this section is to compare efficiency and computation time between these methods and a random first guess. We will still compute the data-set as samples of the 6D data-set (uniform probabilities). The MILP solver by Gurobi will be more efficient than local-search in this case and then using local-search would be useless (because it takes more time and less efficient), in general Gurobi wouldn't solve these problems that easily. Still we'll use Gurobi in order to compare the efficiency (not run time).
 \subsection{Best-fit, first-fit and forward Dupačová}
 The local search algorithm gives an approximation of $D_l$ and the reduced set providing the approximation similarly to the greedy algorithm of Dupačová. First, we want to understand how the local search algorithm (and its 2 variants : best-fit, first-fit) behaves in comparison to the greedy algorithm (the forward version as we've seen that it was way more efficient). In this part, the first guess $R$ of size $m$ is selected randomly (the $m$ first elements of the data-set which is already randomly chosen).
 
@@ -589,14 +611,14 @@ The local search algorithm gives an approximation of $D_l$ and the reduced set p
     \centering
     \begin{subfigure}[b]{0.45\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{comparison local search value.jpeg}
+        \includegraphics[width=\textwidth]{plots/milp local search efficiency.pdf}
         \caption{Efficiency comparison, local search and forward Dupačová}
         \label{value loc s}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.45\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{comparison local search time.jpeg}
+        \includegraphics[width=\textwidth]{plots/run time local search.pdf}
         \caption{Calculation time comparison, local search methods and forward Dupačová}
         \label{time loc s}
     \end{subfigure}
@@ -604,56 +626,63 @@ The local search algorithm gives an approximation of $D_l$ and the reduced set p
     \label{comparison loc}
 \end{figure}
 
-Run time grows linearly with $m$ with $n$ fixed for forward Dupačová, but here we don't know how much time we will enter the while loop for both local search methods, computation time looks messier for them. Even messier for first-fit method whereas best-fit looks more curvy and less variable from $m$ to $m+1$. It aligns with the fact that best-fit is more stable as it compares all swap and chooses the best while first-fit swaps as soon as it finds an improvement even though it may be slight. In terms of efficiency (value of $D_2^2$), both methods give a better approximation than the one provided by forward Dupačová. Let's not forget that computation time grows really fast with $n$ and that my computer isn't really powerful. As a mean, running a local search algorithm is 10 times longer than forward Dupačová (which is very efficient).
-\newline
+Run time grows linearly with $m$ with $n$ fixed for forward Dupačová, but here we don't know how much time we will enter the while loop for both local search methods, computation time looks messier for them. Even messier for first-fit method whereas best-fit looks more curvy and less variable from $m$ to $m+1$. It aligns with the fact that best-fit is more stable as it compares all swap and chooses the best while first-fit swaps as soon as it finds an improvement even though it may be a very small one. In terms of efficiency (value of $d_2^2$), both local-search methods give a better approximation than the one provided by forward Dupačová. As a mean, running a local search algorithm is 10 times longer than forward Dupačová (which is very efficient).
 
-In the following figure, we represent the improvement ratio for $n=100$ and $m\in [\![10;90]\!]$. The improvement ratio $r_m$ for a certain $m$ is defined as : 
+In the following figure, we represent the approximation ratio for $n=100$ and $m\in [\![10;90]\!]$. The approximation ratio $r_m$ for a certain $m$ is defined as : 
 $$
-r_m = \frac{D_l\left(\mathbb{P},R_{\text{algorithm 1}}\right)}{D_l\left(\mathbb{P},R_{\text{algorithm 2}}\right)}.
+r_m = \frac{D_l\left(\mathbb{P},R_{\text{algorithm}}\right)}{D_l\left(\mathbb{P},m\right)}.
 $$
-Where $R_{\text{algorithm}}$ represents the reduced set obtained with "algorithm". Here algorithm 1 stands for forward Dupačová and algorithm 2 for both best-fit and first-fit method of local search.
+Where the denominator is computed thanks to the MILP formulation and the above algorithm is up to a choice (local-search...).
 
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.45\textwidth]{plots/ratio with milp.pdf}
+    \caption{Approximation ratio for $n=100$}
+\end{figure}
+    
 \begin{figure}[ht]
     \centering
     \begin{subfigure}[b]{0.45\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{improvement ratio.jpeg}
-        \caption{Improvement ratio for $n=100$}
+        \includegraphics[width=\textwidth]{plots/run time 200.pdf}
+        \caption{Run time for $n=200$}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.45\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{improvement ratio 250.jpeg}
-        \caption{Improvement ratio for $n=250$}
+        \includegraphics[width=\textwidth]{plots/ratio 200.pdf}
+        \caption{Approximation ratio for $n=200$}
     \end{subfigure}
-    \caption{Different approximation ratio for $n\in\{100,250\}$ and variable $m$}
+    \caption{Comparison for $n=200$ and variable $m$}
     \label{improvement ratio }
 \end{figure}
 
-As first-fit and best-fit methods give approximately the same output, we can analyze both at the same time compared to forward Dupačová. The payout can be considered as interesting: $15\%, 20\%$ of gain for local-search algorithms when you want to reduce by a factor greater than or equal $\geq2$ (i.e. $\frac{n}{m}\geq2$) to the detriment of calculation time. Still, when $\frac{n}{m}\leq2$, the payout gets thinner and thinner. 
+For both $n=100$ and $n=200$, local-search gives a better approximation to $D_l\left(\mathbb{P},m\right)$ to the detriment of calculation time. Both best-fit and first-fit can be used even though the tendency is that first-fit has more run time variation from $m$ to $m+1$ when best-fit tends to be more stable. Best payouts for local-search are seen when you want to reduce $n$ to $m\leq\frac{n}{2}$. When $m\approx n$, there may still be a gain but thin. 
+\clearpage
+
 \subsection{Clever starters to reduce local-search calculation time}
-As mentionned above, the payout is significant for local-search methods when $\frac{n}{m}\geq2$ but calculation time can increase by a factor 30. However, we can expect to reduce calculation time with an interesting starter $R$ of cardinal $m$. This should lead to fewer changes in the local-search hence fewer computation time. Different starters can be considered. First, a random set. Second and third, two outputs of forward Dupačová (in my opinion, using the output of backward Dupačová et al' algorithm to compute a starter wouldn't be interesting as it takes way much time to be computed), in the order given by the algorithm and in reverse order. Fourth, we'll consider the nearest neighbours from a run of $m$-means. 
+As mentionned above, the payout is significant for local-search methods when $\frac{n}{m}\geq2$ but run time can increase by a factor 30. However, we can expect to reduce calculation time with an interesting starter $R$ of cardinal $m$. This should lead to fewer changes in the local-search hence a lower run time. Different starters can be considered. First, a random set. Second and third, two outputs of forward Dupačová (in my opinion, using the output of backward Dupačová et al' algorithm to compute a starter wouldn't be interesting as it takes way much time to be computed), in the order given by the algorithm and in reverse order (only for first-fit as order matters when it doesn't for best-fit). Finally, as starters, we'll consider the nearest neighbours from a run of $m$-means. 
 \newline
-NB: using the reversed sequence of Dupačová output can be weird as the first atom of the reversed sequence won't be changed but second, third, fourth are more likely to be changed as they weren't chosen at first, it's an idea we must consider. Inversely, the first atom chosen was the most centered so it gave a real direction to the choice that came later so changing this one would change a lot of things. Both ideas have their arguments that's why we must investigate !
+NB: using the reversed sequence of Dupačová output can be odd as the first atom of the reversed sequence won't be changed but second, third, fourth are more likely to be changed as they weren't chosen at first, it's an idea we must consider. Inversely, the first atom chosen was the most centered so it gave a real direction to the choice that came later so changing this one would change a lot of things. Both ideas have their arguments that's why we must investigate ! Plus, best-fit for the original sequence or the reversed sequence must give the same output.
 
 \begin{figure}[ht]
     \centering
     \begin{subfigure}[b]{0.495\textwidth}
         \centering
-        \includegraphics[width=1.1\textwidth]{run time methods.pdf}
+        \includegraphics[width=1.1\textwidth]{plots/run time methods.pdf}
         \caption{Run time}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.495\textwidth}
         \centering
-        \includegraphics[width=1.1\textwidth]{value methods.pdf}
+        \includegraphics[width=1.1\textwidth]{plots/value methods.pdf}
         \caption{Efficiency}
     \end{subfigure}
     \caption{Comparison of local-search variants}
     \label{methods}
 \end{figure}
 
-\Cref{methods} highlights 3 efficient methods that divide by 2 or 3 the run time of  best-fit or first-fit methods with random starters. The three methods are : first-fit m-means neighbours, best-fit reverse Dupačová starters, best-fit Dupačová starters. No significant gain or loss with efficiency.
+\Cref{methods} highlights 3 efficient methods that divide the run time by 2 to 3. The three highlighted methods are : best-fit m-means neighbours, best-fit reverse Dupačová starters, best-fit Dupačová starters (both are the same). Efficiency is similar for all methods what is relieving. It's interesting to see that any first-fit method as almost the same curve, using clever starters doesn't work so well for first-fit method while it's kind of efficient for best-fit.
 
 \subsection{Fusion of local search and k-means}
 In this part we want to compare \Cref{improved ls}  with a generalized k-means for an approximation of $C_l$ as proposed in \Cref{k m} and \Cref{Local search}. For the sake of run time and thanks to the above analysis, we'll use the best-fit method with Dupačová starters whenever we need to run a local-search.
@@ -662,13 +691,13 @@ In this part we want to compare \Cref{improved ls}  with a generalized k-means f
     \centering
     \begin{subfigure}[b]{0.495\textwidth}
         \centering
-        \includegraphics[width=1.1\textwidth]{effiency cl.pdf}
+        \includegraphics[width=1.1\textwidth]{plots/effiency cl.pdf}
         \caption{Efficiency}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.495\textwidth}
         \centering
-        \includegraphics[width=1.1\textwidth]{efficiency ratio cl.pdf}
+        \includegraphics[width=1.1\textwidth]{plots/efficiency ratio cl.pdf}
         \caption{Improvement ratio}
     \end{subfigure}
     \caption{Efficiency comparison, $n=150$}
@@ -677,6 +706,8 @@ In this part we want to compare \Cref{improved ls}  with a generalized k-means f
 
 The k-means algorithm tends to be a little better than local-search in this simulation (even though its approximation ratio isn't bounded), using this local-search starter and combining it with k-means gives a slightly better value than both k-means and local-search. We gain a little here !
 \clearpage
+
+\section{Scenario reduction and two-stage stochastic programming for another metric}
 %\section{Entropic regularization}
 %We often need to compute $d_l\left(\mathbb{P},\mathbb{Q}\right)$ with $\mathbb{P}$ the initial distribution to be reduced and $\mathbb{Q}$ the reduced distribution in construction and solving these linear programs can be very costly as $n,m,d$ grow. 
 %\begin{corollary}[Number of linear programs solved]
