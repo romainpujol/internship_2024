@@ -53,18 +53,99 @@
 \maketitle
 In this draft, I'm writting a summary of \cite{rujeerapaiboon_scenario_2022} to gather important elements of finite scenario reduction . Various proofs can get very technical and will be skipped for brevity. I'll also explore new ways of considering this problem.
 
-\section{Introduction}
-\subsection{Why ?}
-From a finite distribution, the aim of scenario reduction is to compute a distribution that is close to the initial one but with a reduced number of atoms. Why would that be useful ? Take a stochastic program that can be written as : 
+\section{Stability in stochastic programming}
+\subsection{Context and notions}
+Many stochastic programming models can be written as:
+\begin{equation}\label{stochastic}
+\min\left\{\int_\Xi F_0\left(x,\xi\right)\text{d}P\left(\xi\right)\:,\: x\in X, \: \int_\Xi F_j\left(x,\xi\right)\text{d}P\left(\xi\right)\leq0, j=1,...,d\right\}.
+\end{equation}
+
+Where $X\subset\RR^m$ is closed, $\Xi\subset\RR^s$ is closed, $F_j$ are random lsc functions for all $j\in\{0,...,d\}$ and $P$ is a Borel measure. The set $X$ does not depend on P and defines constraints on $x$. The goal of this part is to highlight a specific metric on distributions that would ensure that, if two distributions $\mathbb{P}, \mathbb{Q}$ are close, then the optimum of both models are close. To make it, we write:
+\begin{align*}
+    &v\left(P\right)=\inf\left\{\int_\Xi F_0\left(x,\xi\right)\text{d}P\left(\xi\right)\:,\: x\in \mathcal{X}\left(P\right)\right\} \\
+    &X^*\left(P\right)=\argmin\left\{\int_\Xi F_0\left(x,\xi\right)\text{d}P\left(\xi\right)\:,\: x\in X, \: \int_\Xi F_j\left(x,\xi\right)\text{d}P\left(\xi\right)\leq0, j=1,...,d\right\}.
+\end{align*}
+So basicall, $v\left(P\right)$ denotes the optimal value, $X^*\left(P\right)$ the argmin set. Let $\mathcal{F}$ a class of measurable functions from $\Xi$ to $\RR$, a pseudometric quantifying distances between distributions is:
+$$d_\mathcal{F}\left(P,Q\right)=\sup_{f\in\mathcal{F}}\lvert \int_\Xi f\left(\xi\right)\text{d}P\left(\xi\right) - \int_\Xi f\left(\xi\right)\text{d}Q\left(\xi\right)\rvert.$$
+This pseudometric can be a metric if $\mathcal{F}$ preserves the definition: $d_\mathcal{F}\left(P,Q\right)=0\implies P=Q$. An important family that we will use in this part is the family of locally Lipschitz continuous functions defined as: $\mathcal{F}_p\left(\Xi\right)$ for $p\geq1$: 
 $$
-\min_{x\in X}\int_\Xi f\left(x,\xi\right)P\left(d\xi\right)
+\mathcal{F}_p\left(\Xi\right)=\left\{F:\Xi\to \RR: \lvert F\left(\xi\right)-F\left(\tilde{\xi}\right)\rvert \leq c_p\left(\xi,\tilde{\xi}\right)\lVert\xi-\tilde{\xi}\rVert, \forall \xi,\tilde{\xi}\in \Xi^2 \right\},
 $$
-To compute a solution of this program, one uses numerical integral techniques which modify the objective function such as :
+the parameter $p$ defines $c_p\left(\xi,\tilde{\xi}\right)=\max\left\{1,\lVert \xi\rVert, \lVert \tilde{\xi}\rVert\right\}^{p-1}$. We can now write $p$-th order Fortet-Mourier metrics, our first metrics on distributions:
 $$
-\min_{x\in X}\sum_{i\in I} f\left(x,\xi_i\right)p_i
+\zeta_p\left(P,Q\right)=\sup_{F\in\mathcal{F}_p\left(\Xi\right)}\lvert \int_\Xi F\left(\xi\right)\text{d}P\left(\xi\right)-\int_\Xi F\left(\xi\right)\text{d}Q\left(\xi\right)\rvert.
 $$
-with $p_i=P\left(\{\xi_i\}\right)$. The function $f$ can be expensive to compute, then a good idea would be to reduce the number of atoms of $P$ without throwing away its structure.
-\subsection{Context}
+\subsection{Result}
+Let $Q\in\mathcal{P}\left(\Xi\right)$, we write the perturbed model:
+\begin{equation*}
+    \min\left\{\int_\Xi F_0\left(x,\xi\right)\text{d}Q\left(\xi\right)\:,\: x\in X, \: \int_\Xi F_j\left(x,\xi\right)\text{d}P\left(\xi\right)\leq0, j=1,...,d\right\},
+\end{equation*}
+which is basically \ref{stochastic} but with another distribution $P \to Q$. In this part we'll try to compare the notions we've presented in the part above, for instance, we want to bound $\lvert v\left(P\right)-v\left(Q\right)\rvert$ in terms of distribution metrics. \cite[Corollary 14]{romisch_stability_2003} gives:
+\begin{theorem}\label{stability}
+    Let $d=0$ and assume that:
+    \begin{enumerate}
+        \item $X^*\left(P\right)$ is nonempty and $\mathcal{U}$ is an open, bounded neighbourhood of $X^*\left(P\right)$.
+        \item $X$ is convex and $F_0\left(\cdot,\xi\right)$ is convex on $\RR^m$ for each $\xi\in\Xi$.
+        \item there exist constants $L>0, p\geq1$ such that $\frac{1}{L}F_0\left(x,\cdot \right)\in\mathcal{F}_p\left(\Xi\right)$ for each $x\in X\cap cl\mathcal{U}$. 
+    \end{enumerate}
+    Then there exists a constant $\delta>0$ such that:
+    \begin{align*}
+        &\lvert v\left(P\right)-v\left(Q\right)\rvert \leq L\zeta_p\left(P,Q\right) \\
+        & \emptyset \ne X^*\left(Q\right)\subset X^*\left(P\right)+\Psi_P\left(L\zeta_p\left(P,Q\right)\right)\mathbb{B}
+    \end{align*}
+    Where $\Psi_p$ is defined in \cite[2.22-2.23]{romisch_stability_2003}. Whenever $Q\in\mathcal{P}\left(\Xi\right)$ with finite $p$-th order absolute moments and $\zeta_p\left(P,Q\right)<\delta$
+\end{theorem}
+This theorem (which is a corollary in the article) highlights two main aspects. Under the assumptions made and $d=0$, if you slightly perturb $P$ (meaning $Q$ is close to $P$ for the $p$-th order Fortet-Mourier metric), the optimal value is controlled, it can't change a lot. Another thing is that the set of optimal $x$ with $Q$ will remain close to the set of optimal $x$ with $P$. This is a result of stability. 
+
+\subsection{Application to linear two-stage models}
+We consider a linear two-stage model with fixed recourse, this model is generically written as: 
+\begin{equation}\label{lp stoch}
+    \min\left\{c^Tx + \int_\Xi <q\left(\xi\right), y\left(\xi\right)> \text{d}P\left(\xi\right)\: :\: Wy\left(\xi\right)=h\left(\xi\right)-T\left(\xi\right)x\:,\: y\left(\xi\right)\:,\: x\in X \right\}.
+\end{equation}
+Where $x$ is the first stage decision variable, $y$ the second. In order to fit in the definition of  \ref{stochastic}, we define:
+$$
+F_0\left(x,\xi\right)=\begin{cases} 
+  \langle c, x \rangle + \phi(q(\xi), h(\xi) T(\xi)x) & h(\xi) T(\xi)x \in \text{pos}\left(W\right), q(\xi) \in D, \\
+  +\infty & \text{otherwise},
+\end{cases}
+$$
+where $\text{pos}(W)=\left\{Wy, y\in\RR_+^m\right\}$, $D=\left\{u\in\RR^m:\left\{z\in\RR^r:W^Tz \leq u\right\}\ne \emptyset\right\}$ and $\phi\left(u,t\right)=\inf\left\{\langle u,y\rangle: Wy=t, y\geq0\right\}$. \ref{lp stoch} can be rewritten as:
+\begin{equation}
+    \min\left\{\int_\Xi F_0\left(x,\xi\right)\text{d}P\left(\xi\right): x\in X\right\}. 
+\end{equation}
+\rp{i'll write down a proof later as it does not appear on the article}
+One can note that $d=0$ in this formulation. We introduce two assumptions: 
+\begin{enumerate}
+    \item For each $\left(x,\xi\right)\in X\times \Xi$ it holds that $h(\xi) T(\xi)x) h(\xi) T(\xi)x \in \text{pos}\left(W\right), q(\xi) \in D$.
+    \item $P\in\mathcal{P}\left(\Xi\right)$ and has a finite $2$-th moment.
+\end{enumerate}
+
+\begin{corollary}
+    Let both assumptions be satisfied and let $X^*\left(P\right)$ be nonempty and $\mathcal{U}$ be an open, bounded neighbourhood of $X^*\left(P\right).$ Then there exist constants $L>0$ and $\delta >0$ such that:
+    \begin{align*}
+        \lvert v\left(P\right)-v\left(Q\right)\rvert \leq L\zeta_2\left(P,Q\right) \\
+        \emptyset \ne X^*\left(Q\right)\subset X^*\left(P\right)+\Psi_P\left(L\zeta_2\left(P,Q\right)\right)\mathbb{B}
+    \end{align*}
+    whenever $Q\in\mathcal{P}\left(\Xi\right)$ and has a finite $2$-th moment and $\zeta_2\left(P,Q\right)<\delta$.
+\end{corollary}
+\begin{proof}
+    This is an application of \Cref{stability} with $p=2$ where both assumptions are sufficient to ensure that conditions (2), (3) of \Cref{stability} are verified. See \cite[Proposition 22]{romisch_stability_2003}.
+\end{proof}
+If we take a step back and consider a two-stage model with a distribution $P=\sum_{i\in I}\delta_{x_i}p_i$ with $n$ atoms with $n$ large. We may want to find another distribution close to $P$ (in terms of $\zeta_2$) so that $\lvert v\left(P\right)-v\left(Q\right)\rvert$ is controlled but with a reduced number of atoms to reduce run time when solving it on a computer. If you remember the definition of $p$-th order Fortet-Mourier metric:
+$$
+\zeta_2\left(P,Q\right)=\sup_{F\in\mathcal{F}_2\left(\Xi\right)}\lvert \int_\Xi F\left(\xi\right)\text{d}P\left(\xi\right)-\int_\Xi F\left(\xi\right)\text{d}Q\left(\xi\right)\rvert.
+$$
+where $\mathcal{F}_2\left(\Xi\right)=\left\{F:\Xi\to \RR: \lvert F\left(\xi\right)-F\left(\tilde{\xi}\right)\rvert \leq c_2\left(\xi,\tilde{\xi}\right)\lVert\xi-\tilde{\xi}\rVert, \forall \xi,\tilde{\xi}\in \Xi^2 \right\}$. It doesn't look very friendly. The idea is to bound $\zeta_2\left(P,Q\right)$ by another metric  the type-2 Wasserstein distance. We write $D\left(P,Q\right)$ probability measures for which marginals are $P$ and $Q$.
+\begin{align*}
+    \zeta_2\left(P,Q\right)&= \sup_{F\in\mathcal{F}_2\left(\Xi\right)}\lvert \int_\Xi F\left(\xi\right)\text{d}P\left(\xi\right)-\int_\Xi F\left(\xi\right)\text{d}Q\left(\xi\right)\rvert \\
+    &\leq \sup_{F\in\mathcal{F}_2\left(\Xi\right)} \int_{\Xi \times \Xi} \lvert F\left(\xi\right)-F\left(\xi'\right)\rvert \eta\left(\text{d}\xi\times \text{d}\xi'\right), \text{ with } \eta\in D\left(P,Q\right) \\
+    &\leq \int_{\Xi \times \Xi} \max\left\{1,\lVert \xi\rVert, \lVert \xi'\rVert\right\} \lVert \xi -\xi'\rVert \eta\left(\text{d}\xi\times \text{d}\xi'\right), \text{ because } F\in\mathcal{F}_2\left(\Xi\right) \\
+    & \leq \left( \int_{\Xi \times \Xi}\max\left\{1,\lVert \xi\rVert, \lVert \xi'\rVert\right\}^2\eta\left(\text{d}\xi\times \text{d}\xi'\right)\right)^{1/2}\left(\int_{\Xi \times \Xi}\lVert \xi -\xi'\rVert^2\eta\left(\text{d}\xi\times \text{d}\xi'\right)\right)^{1/2} \\
+    &\leq K^2d_2\left(P,Q\right), \text{ where }K=\max_{\xi\in\Xi}{\lVert \xi\rVert}
+\end{align*}
+This new metric $d_2$ is the solution of an optimal transport problem ! Looks better.
+
+\section{Wasserstein distance}
 In this part, we present tools and concepts useful for scenario reduction. We will define distance between two distributions : the Wasserstein distance is a good candidate. In the case of discrete distributions $\mathbb{P}=\sum_{i\in I}p_i\delta_{x_i}$ and $\mathbb{Q}=\sum_{j\in J}q_j\delta_{y_j}$, one can note that $x_i$ and $y_j$ must live in the same normed space ($\lVert\cdot\rVert$ denotes the norm). The type-$l$ Wasserstein distance between $\mathbb{P}$ and $\mathbb{Q}$ is defined as :  
 \[
 d_l(\mathbb{P},\mathbb{Q})=\left(\min_{\pi\in\mathbb{R}_+^{\lvert I\rvert\times\lvert J\rvert}}\left\{ 
@@ -684,10 +765,55 @@ NB: using the reversed sequence of Dupačová output can be odd as the first ato
 
 \Cref{methods} highlights 3 efficient methods that divide the run time by 2 to 3. The three highlighted methods are : best-fit m-means neighbours, best-fit reverse Dupačová starters, best-fit Dupačová starters (both are the same). Efficiency is similar for all methods what is relieving. It's interesting to see that any first-fit method as almost the same curve, using clever starters doesn't work so well for first-fit method while it's kind of efficient for best-fit.
 
+\subsection{2 modified versions of first-fit}
+\subsubsection{With a parameter $p$}
+The first-fit method lacks of efficiency. An idea is to run time by allowing only some changes. I decided to only allow changes that reduce sufficiently the cost function. Meaning that there is a change if: $$
+d\left(\mathbb{P},\mathbb{Q}_1\right) \leq d\left(\mathbb{P},\mathbb{Q}_0\right) - \epsilon.
+$$
+Where $\mathbb{Q}_0$ was the distribution before iteration and $\mathbb{Q}_1$ a distribution we are testing with one swap compared to $\mathbb{Q}_0$. The idea of this part is to find an interesting $\epsilon$ to allow efficiency in a first-fit method. To be general and not to rely on a specific problem, we are testing $\epsilon$ as $\epsilon=pd\left(\mathbb{P},\mathbb{D}\right)$ with $p$ a parameter that has to be defined and $d\left(\mathbb{P},\mathbb{D}\right)$ the distance between the original distribution $\mathbb{P}$ and $\mathbb{D}$ the distribution given by the forward Dupačová et al's algorithm. We'll compare run time and efficiency in terms of $p$:
+
+\begin{figure}[!h]
+    \centering
+    \begin{subfigure}[b]{0.495\textwidth}
+        \centering
+        \includegraphics[width=1.1\textwidth]{plots/efficiency p.pdf}
+        \caption{Efficiency}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.495\textwidth}
+        \centering
+        \includegraphics[width=1.1\textwidth]{plots/run time p.pdf}
+        \caption{Run time}
+    \end{subfigure}
+    \caption{Comparison, $n=200$, $m=50$}
+    \label{p}
+\end{figure}
+
+Both figures are saying that we must study this algorithm in the range $p\in\left[0,0.015\right]$, where it grants a lower run time and a better output than Dupačová.  
+
+\begin{figure}[!h]
+    \centering
+    \begin{subfigure}[b]{0.495\textwidth}
+        \centering
+        \includegraphics[width=1.1\textwidth]{plots/efficiency small scale p.pdf}
+        \caption{Efficiency}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.495\textwidth}
+        \centering
+        \includegraphics[width=1.1\textwidth]{plots/RUN TIME p small scale.pdf}
+        \caption{Run time}
+    \end{subfigure}
+    \caption{Comparison, $n=200$, $m=50$, scale of interest}
+    \label{p small scale}
+\end{figure}
+
+\clearpage
+\subsubsection{Random first-fit}
 \subsection{Fusion of local search and k-means}
 In this part we want to compare \Cref{improved ls}  with a generalized k-means for an approximation of $C_l$ as proposed in \Cref{k m} and \Cref{Local search}. For the sake of run time and thanks to the above analysis, we'll use the best-fit method with Dupačová starters whenever we need to run a local-search.
 
-\begin{figure}[ht]
+\begin{figure}[!h]
     \centering
     \begin{subfigure}[b]{0.495\textwidth}
         \centering
