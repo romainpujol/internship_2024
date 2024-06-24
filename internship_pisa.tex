@@ -823,7 +823,7 @@ For this simulation we use $n=100$ and $m$ as the $x$-axis. Note that we run 25 
     \caption{Random first-fit results}
     \label{random ff}
 \end{figure}
-Using this randomized order helps us to gain stability in run time. Even the worst case of this randomized method is generally better or at least comparable to the deterministic first-fit. There is a clear gain. If the randomization procedure was $\mathcal{O}\left(1\right)$ the gain would have been even better because this procedure adds one more stage in the algorithm. 
+Using this randomized order helps us to gain stability in run time. Even the worst case of this randomized method is generally better or at least comparable to the deterministic first-fit. There is a clear gain. If the randomization procedure was $\mathcal{O}\left(1\right)$ the gain would have been even better because this procedure adds one more stage in the algorithm. The gain in run time seems to be huge for a small $m$, when $m\approx n$, this procedure doesn't seem to be a good idea.
 \subsection{Fusion of local search and k-means}
 In this part we want to compare \Cref{improved ls}  with a generalized k-means for an approximation of $C_l$ as proposed in \Cref{k m} and \Cref{Local search}. For the sake of run time and thanks to the above analysis, we'll use the best-fit method with Dupačová starters whenever we need to run a local-search.
 
