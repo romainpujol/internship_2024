@@ -810,6 +810,20 @@ Both figures are saying that we must study this algorithm in the range $p\in\lef
 
 \clearpage
 \subsubsection{Random first-fit}
+The first-fit method relies on a linear exploration of the current solution until you find an improvement. Exploring the current solution always with the same method can lead to a lot of useless calculation, e.g. if you know that you only have to swap either the last atom or the one before but you explore linearly the current solution. The idea is to change the exploration order by introducing a random shuffle so that the exploration order is never the same. In order to generate these permutations, we use the algorithm of Fisher-Yates, this algorithm generates a permutation of $n$ elements in a linear run time, all permutations being equally probable.
+\begin{algorithm}\caption{Fisher-Yates algorithm}\label{fisher yat}
+    \For{$i$ from $n-1$ down to $1$}{
+    $j\gets k$, $k$ randomly chosen in $ [\![0,i]\!]$  \\
+    Exchange the value in $i^{\text{th}}$ position with the one in $j^{\text{th}}$.}
+\end{algorithm}
+For this simulation we use $n=100$ and $m$ as the $x$-axis. Note that we run 25 times the random first-fit method to get the plot "mean random first-fit"
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{plots/random first fit.pdf}
+    \caption{Random first-fit results}
+    \label{random ff}
+\end{figure}
+Using this randomized order helps us to gain stability in run time. Even the worst case of this randomized method is generally better or at least comparable to the deterministic first-fit. There is a clear gain. If the randomization procedure was $\mathcal{O}\left(1\right)$ the gain would have been even better because this procedure adds one more stage in the algorithm. 
 \subsection{Fusion of local search and k-means}
 In this part we want to compare \Cref{improved ls}  with a generalized k-means for an approximation of $C_l$ as proposed in \Cref{k m} and \Cref{Local search}. For the sake of run time and thanks to the above analysis, we'll use the best-fit method with Dupačová starters whenever we need to run a local-search.
 
