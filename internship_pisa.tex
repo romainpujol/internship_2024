@@ -109,10 +109,10 @@ which is \eqref{stochastic} but with the distribution $Q$ instead of $P$. In thi
 \end{theorem}
 These results shows two main aspects. Under the assumptions made and $d=0$, under slight perturbation of $P$ (in terms of Fortet-Mourier), the optimal value is controlled, it can't change a lot. Another thing is that the set of optimal $x$ with $Q$ will remain close to the set of optimal $x$ with $P$. This is a result of stability. 
 
-\subsection{Application to two-stage linear models}
+\subsection{Application to two-stage linear models}\label{two stage}
 We consider a linear two-stage model with fixed recourse, this model is generically written as: 
 \begin{equation}\label{lp stoch}
-    \min\left\{c^Tx + \mathbb{E}_\xi\left(\inf_y q\left(\xi\right)^Ty \right)\: :\: Wy\left(\xi\right)=h\left(\xi\right)-T\left(\xi\right)x\:,\: y\left(\xi\right)\:,\: x\in X \right\}.
+    \min\left\{c^Tx + \mathbb{E}_\xi\left(\inf_y q\left(\xi\right)^Ty \right)\: :\: Wy\left(\xi\right)=h\left(\xi\right)-T\left(\xi\right)x\:,\: y\left(\xi\right)\geq0\:,\: x\in X \right\}.
 \end{equation}
 Where $x$ is called the first-stage decision variable, $y$ the second. The general idea of this model is a first-stage decision has to be made before observing $\xi$ even though you know the distribution of $\xi$. You must then choose $x$ so that it gives you the general best outcome. Then after observing $\xi$, $y$ is selected. One can note that the only decision you make is $x$ as $y$ is determined by $x$ and $\xi$. The term "fixed recourse" highlights the nature of $W$, $W$ is a fixed matrix that does not depend (in that case) on $\xi$. See \cite{wets_stochastic_1974} for a complete survey on linear two-stage programs with fixed recourse. In order to fit in the definition of  \ref{stochastic}, we define:
 $$
@@ -701,17 +701,17 @@ $$
     \label{comparison dup}
 \end{figure}
 
-The "x" axis of \Cref{comparison dup} represents the number of atoms in the reduced set. \Cref{dist for bac} shows that the efficiency in term of Wasserstein distance is similar and comparable for a reduced set obtained via forward or backward algorithm but still Forward algorithm gets a slight lead. The main difference lies in calculation time, the efficient way to compute the forward algorithm shows its advantages in \Cref{time for bac}, always below 0.05s whereas the backward algorithm can take up to one second and takes more time than the exact method. Forward algorithm has to be preferred when you're free to choose.  This data-set of 100 atoms is small compared to what you could see in real problems, the calculation time will grow as $n$ grows, that's why I make this remark. We use Gurobi to solve the MILP formulation and when there is 100 atoms, heuristics are used to find a solution (that's why the computation time is very low compared to what we could expect). 
+The "x" axis of \Cref{comparison dup} represents the number of atoms in the reduced set. \Cref{dist for bac} shows that the efficiency in term of Wasserstein distance is similar and comparable for a reduced set obtained via forward or backward algorithm but still Forward algorithm gets a slight lead. The main difference lies in calculation time, the efficient way to compute the forward algorithm shows its advantages in \Cref{time for bac}, always below 0.05s whereas the backward algorithm can take up to one second and takes more time than the exact method. Forward algorithm has to be preferred when you're free to choose.  This data-set of 100 atoms is small compared to what you could see in real problems, the calculation time will grow as $n$ grows, that's why I make this remark. We use Gurobi 9.5.0 to solve the MILP formulation and when there is 100 atoms, heuristics are used to find a solution (that's why the computation time is very low compared to what we could expect). 
 
-\subsection{Comparison with a bigger $n$}
-We've seen that backward algorithm isn't interesting in terms of run time. We'll compare now the run time of the Forward algorithm and the MILP formulation for $n=500$ because \Cref{time for bac} isn't relevant as Gurobi is very efficient for small size. Let's say we want to reduce a $n$ atoms distribution to a $\frac{n}{4}$ atoms distribution, let's compare run time and efficiency for $n\in\left[100,1000\right]$:
+\subsection{With a bigger $n$}
+We've seen that backward algorithm isn't interesting in terms of CPU time. We'll compare now the run time of the Forward algorithm and the MILP formulation for $n\in\left[100,1000\right]$ because \Cref{time for bac} isn't relevant as Gurobi is very efficient with small size. Let's say we want to reduce a $n$ atoms distribution to a $\frac{n}{4}$ atoms distribution, let's compare run time and efficiency for:
 
 \begin{figure}[ht]
     \centering
     \begin{subfigure}[b]{0.45\textwidth}
         \centering
         \includegraphics[width=\textwidth]{plots/milp efficiency n4.pdf}
-        \caption{$d\left(\mathbb{P},R\right)^2$ comparison between both algorithms}
+        \caption{$d_2\left(\mathbb{P},R\right)^2$ comparison between both algorithms}
         \label{n4 effi}
     \end{subfigure}
     \hfill
@@ -721,11 +721,11 @@ We've seen that backward algorithm isn't interesting in terms of run time. We'll
         \caption{Run time comparison}
         \label{n4 time}
     \end{subfigure}
-    \caption{caption}
+    \caption{With a bigger $n$}
     \label{comparison n4}
 \end{figure}
 
-\Cref{complexity} tells us that forward Dupačová has a complexity of $\mathcal{O}\left(mn^2\right)$ what's meant to be far less than a simplex, Gurobi may use heuristics or other sophisticated method to have this small run time gap. Without Gurobi the gap would be way bigger. But still there exists a gap we can't neglect for run time, the gap in efficiency exists but is relatively small.
+\Cref{complexity} tells us that forward Dupačová has a complexity of $\mathcal{O}\left(mn^2\right)$ what is meant to be far less than a simplex, Gurobi may use heuristics or other sophisticated method to have this small run time gap. Without Gurobi the gap would be way bigger. Still there exists a gap we can nott neglect for run time especially when $n$ grows, the gap in efficiency exists but is relatively small.
 \subsection{Local search}
 We have many things to test here in order to know how to use local search algorithm. Local search can be somehow long to compute with a random first guest of size $m$. Three manners came naturally in order to tackle this issue. As a very first guess, we decide to use the reduced set of size $m$ that we get with the forward algorithm, the backward algorithm and the last set of starter would be atoms that are closest to the centroïds computed with a k-means method. The idea of this section is to compare efficiency and computation time between these methods and a random first guess. We will still compute the data-set as samples of the 6D data-set (uniform probabilities). The MILP solver by Gurobi will be more efficient than local-search in this case and then using local-search would be useless (because it takes more time and less efficient), in general Gurobi wouldn't solve these problems that easily. Still we'll use Gurobi in order to compare the efficiency (not run time).
 \subsection{Best-fit, first-fit and forward Dupačová}
@@ -870,7 +870,8 @@ Using this randomized order helps us to gain stability in run time. Even the wor
 \subsection{Fusion of local search and k-means}
 In this part we want to compare \Cref{improved ls}  with a generalized k-means for an approximation of $C_l$ as proposed in \Cref{k m} and \Cref{Local search}. For the sake of run time and thanks to the above analysis, we'll use the best-fit method with Dupačová starters whenever we need to run a local-search.
 
-\begin{figure}[!h]
+
+\begin{figure}[ht]
     \centering
     \begin{subfigure}[b]{0.495\textwidth}
         \centering
@@ -887,28 +888,37 @@ In this part we want to compare \Cref{improved ls}  with a generalized k-means f
     \label{cl }
 \end{figure}
 
-The k-means algorithm tends to be a little better than local-search in this simulation (even though its approximation ratio isn't bounded), using this local-search starter and combining it with k-means gives a slightly better value than both k-means and local-search. We gain a little here !
-\clearpage
 
-\section{Scenario reduction and two-stage stochastic programming for another metric}
-%\section{Entropic regularization}
-%We often need to compute $d_l\left(\mathbb{P},\mathbb{Q}\right)$ with $\mathbb{P}$ the initial distribution to be reduced and $\mathbb{Q}$ the reduced distribution in construction and solving these linear programs can be very costly as $n,m,d$ grow. 
-%\begin{corollary}[Number of linear programs solved]
-%    Dupačová et al's algorithm solves $$\sum_{i=0}^{m-1}n-i=m(n+\frac{1}{2})-\frac{1}{2}m^2$$ linear programs. 
-%\end{corollary}
-%\begin{corollary}[Number of linear programs solved]
-%    The local search algorithm solves at most $$\lceil \frac{\binom{n}{m}}{\left(n-m\right)\left(m-1\right)}\rceil m\left(n-m\right)$$ linear programs when using best-first strategy.  \rp{the factor in front is in fact not true, need to think more}
-%\end{corollary}
-%\begin{proof}
-%    Each iteration computes $m\left(n-m\right)$ linear programs so the number of linear programs solved can be written as $km\left(n-m\right)$. We have to find the largest $k$. Let $X^i$ be the vector of selected atoms at iteration $i$, what happens now is that we check the distance to $\mathbb{P}$ with all $X^i$ where you change only one atom of $X^i$ with one atom of $\text{supp}\left(\mathbb{P}\right)\setminus X^i$. If there's a closer distribution then you change the atom with the one that makes the distance smaller. So you've checked $m\left(n-m\right)$ combinations (amongst the $\binom{n}{m}$ possible, you select $m$ atoms amongst $n$ atoms without order)\rp{the factor in front is in fact not true, need to think more}
-%\end{proof}
-%Solving these optimal transport problems to get the value $d_l$ can be very demanding itself and it is often required. \cite[Chapter 4]{peyre_computational_2019} presents entropic regularization in the context of optimal transport. The objective function considered in the OT problem will be slightly modified by adding a convex term. Solving this new problem will be faster and it is granted that this new distance is close to the real distance of Wasserstein. 
-%The regularized problem is defined as : 
-%$$
-%R_l^\epsilon\left(\mathbb{P},\mathbb{Q}\right)=\min_{\pi}\left\{\sum_{i\in I}\sum_{j\in J}\pi_{ij}\lVert x_i-y_j\rVert+\epsilon\sum_{i\in I}\sum_{j\in J}\pi_{ij}\left(\log{\left(\pi_{ij}\right)}-1\right)\right\}
-%$$
+The k-means algorithm tends to be a little better than local-search in this simulation (even though its approximation ratio isn't bounded), using this local-search starter and combining it with k-means gives a slightly better value than both k-means and local-search.
 
 
+\section{The multiproduct assembly problem}
+In this section, we will apply scenario reduction to the multiproduct assembly problem with finitely many demand scenarios. This assumption can be allowed as the manufacturer may use $k$ past demands with a probability $\frac{1}{k}$ to model the future demand.
+\subsection{Problem}
+\cite[Chapter 1.3]{shapiro_lectures_2009} gives a clear presentation of the problem that I am writing, I will be adding notes when necessary. A manufacturer produces $n$ products. Each product is composed by parts. There are $m$ parts. The product $i$ requires $a_{ij}$ units of part $j$, then $a_{ij}\in\mathbb{N}$. Demands are modeled as a random vector $D=\begin{pmatrix} D_1 & \hdots & D_n \end{pmatrix}$ note that the distribution of $D$ is known. Before the demand is known the manufacturer may preorder parts at a unit cost of $c_j$ for a unit of part $j$. After the demand $D$ is observed, the manufacturer has to decide which portion of the demand is to be satisfied with her or his parts inventory. It costs additionally $l_i$ to satisfy a unit of demand for product $i$ and the unit selling price of this product is $q_i$. The unused parts are saved and are given a value $s_j < c_j$, saving a parts is not a loss but the value given to this saving can not exceed the purchase price. Now suppose that the numbers of parts ordered during the first-stage are $x_j, j=1,\hdots,m$. We want to know how to produce. Let $z_i,i=1,\hdots,n$ be the number of units of product $i$ produced and $y_j$ the numbers of part $j$ left in the inventory. After the demand $D$ is known, production is decided in order to minimize losses:
+\begin{align*}
+    \min_{y,z} &\sum_{i=1}^n\left(l_i-q_i\right)z_i-\sum_{j=1}^ms_jy_j \\
+     \text{s.t. } &y_j=x_j-\sum_{i=1}^na_{ij}z_i, \: j=1,\hdots,m \\
+     & 0 \leq z_i\leq d_i, \: i=1,\hdots,n, \: y_j\geq0, \: j=1,\hdots,m.
+\end{align*}
+We can rewrite it:
+\begin{align*}
+    \min_{y,z} & \left(l-q\right)^Tz-s^Ty \\
+     \text{s.t. } &y=x-A^Tz, \\
+     & d \geq z\geq 0, \:y\geq0.
+\end{align*}
+To fit in the definition given in \ref{two stage}, we consider the second-stage decision vector $y'=\begin{pmatrix} y &z&d-z\end{pmatrix}^T$, $c=\begin{pmatrix}-s & l-q & 0_n\end{pmatrix}$, $W=\begin{pmatrix} I_m &  & A^T &0_{mn}\end{pmatrix}$. We now write:
+\begin{align*}
+    \min_{y'} \:&c^Ty' \\
+     \text{s.t. } &Wy'=x, \\
+     & y'\geq0.
+\end{align*}
+One can note that $W$ does not depend on $D$ and that the value of this minimizing problem depends on $x$ and on a demand $d$. We write $Q\left(x,d\right)$ the optimal value of this problem. The two-stage linear problem associated to the multiproduct assembly problem is:
+$$\min_{x\geq0}c^Tx+\mathbb{E}_DQ\left(x,D\right).$$
+In our case, there are finitely many demand scenarios, let's say $K$. We denote by $p_k$ the probability of observing the demand $d_k$. Hence, we will replace $\mathbb{E}_D\left(Q,x,D\right)$ by $\sum_{k=1}^Kp_kQ\left(x,d_k\right)$. We will therefore reduce the number of scenarios in order to reduce the length of the sum, the number of constraints and so run time.
+\subsection{Data-set}
+Data-set on this kind of problems do not exist or if they do, it did not find any. The objective of this section is to build a coherent data-set.
+\subsection{Results}
 \clearpage
 \appendix
 \section{Wasserstein distance is a distance}\label{distance}
