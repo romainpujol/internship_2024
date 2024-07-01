@@ -2,6 +2,7 @@
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage{algorithm2e}
+\usepackage{longtable}
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{enumitem}
@@ -54,7 +55,7 @@
 \maketitle
 In this draft, I am writting a summary of \cite{rujeerapaiboon_scenario_2022} to gather results on finite scenario reduction and motivations. Several proofs can be very technical and will be omitted for brevity. I will also explore new insights on this problem.
 
-\section{Stability in stochastic programming}
+\section{Stability in stochastic programming}\label{stability}
 \subsection{Context and notions}
 Many Stochastic Programming (SP) models can be written as:
 \begin{equation}\label{stochastic}
@@ -93,7 +94,7 @@ Let $Q\in\mathcal{P}\left(\Xi\right)$, we write the perturbed model:
     \min\left\{\int_\Xi F_0\left(x,\xi\right)\text{d}Q\left(\xi\right)\:,\: x\in X, \: \int_\Xi F_j\left(x,\xi\right)\text{d}P\left(\xi\right)\leq0, j=1,...,d\right\},
 \end{equation*}
 which is \eqref{stochastic} but with the distribution $Q$ instead of $P$. In this part we will try to compare the notions we have presented in the above part, for instance, we want to bound $\lvert v\left(P\right)-v\left(Q\right)\rvert$ in terms of distribution metrics. \cite[Corollary 14]{romisch_stability_2003} gives:
-\begin{theorem}\label{stability}
+\begin{theorem}\label{stability_th}
     Let the number of constraints in \eqref{stochastic} be $d=0$ and assume that:
     \begin{enumerate}
         \item The  solution set $X^*\left(P\right)$ is nonempty and $\mathcal{U}$ is an open, bounded neighbourhood of $X^*\left(P\right)$.
@@ -125,7 +126,7 @@ where $\text{pos}(W)=\left\{Wy, y\in\RR_+^m\right\}$, $D=\left\{u\in\RR^m:\left\
 \begin{equation}
     \min\left\{\int_\Xi F_0\left(x,\xi\right)\text{d}P\left(\xi\right): x\in X\right\}. 
 \end{equation}
-\rp{i'll write down a proof later as it does not appear on the article}
+\rp{i will write down a proof later as it does not appear on the article}
 One can note that $d=0$ in this formulation. We introduce two assumptions: 
 \begin{enumerate}[label=(A\arabic*)]
     \item\label{h1} For each $\left(x,\xi\right)\in X\times \Xi$ it holds that $h\left(\xi\right)- T\left(\xi\right)x\in \text{pos}\left(W\right), q\left(\xi\right) \in D$.
@@ -157,7 +158,7 @@ This means that there exists a constant $C>0$ such that $\frac{1}{C}F_0\left(x,\
     whenever $Q\in\mathcal{P}\left(\Xi\right)$ and has a finite $1$-th moment and $\zeta_1\left(P,Q\right)<\delta$.
 \end{corollary}
 \begin{proof}
-    This is an application of \Cref{stability} with $p=1$ where both assumptions are sufficient to ensure that conditions (2), (3) of \Cref{stability} are verified. See \cite[Proposition 22]{romisch_stability_2003}.
+    This is an application of \Cref{stability_th} with $p=1$ where both assumptions are sufficient to ensure that conditions (2), (3) of \Cref{stability_th} are verified. See \cite[Proposition 22]{romisch_stability_2003}.
 \end{proof}
 \begin{remark}
     In \cite{romisch_stability_2003}, they do not assume that $\Xi$ is bounded and then the results hold with $p=2$.
@@ -274,7 +275,7 @@ $$C_l(\mathbb{P},m)=\min_{\{I_j\}\in \mathfrak{P}(I,m)}\left\{ \frac{1}{n}\sum_{
         \max_{\tau\in\RR, \{y_i\}\subseteq\RR^d}\quad\frac{1}{n}\tau \\ &\text{s.t. }\tau\leq\sum_{j\in J}\sum_{i\in I_j}\lVert y_i-\text{mean}\left(I_j\right)\rVert_2^2\; :\; \forall \{I_j\}\in\mathfrak{P}\left(I,m\right) \\
         &\quad\quad y_i^Ty_i\leq1 \quad\quad\quad\quad\quad\quad\quad\quad\quad : \forall i\in I
     \end{align*}
-    The use of $\tau$ is legit as the first constraint means that $\tau\leq\min_{\{I_j\}}\sum_{j\in J}\sum_{i\in I_j}\lVert x_i-\text{mean}(I_j)\rVert_2^2$ but as we want to maximize the function $\tau$ will be the highest he can, so it'll be equal to the minimum, thereafter it gets technical but understandable. To your best understanding of the proof in \cite[Theorem 2]{rujeerapaiboon_scenario_2022} two lemmas are used to prove this inequality. Lemma 1 is kind of technical as the set of solutions of a convex problem is convex, which is necessary to say that : $S=\frac{1}{n!}\sum_{\sigma\in\mathfrak{S}}S^\sigma$ is also a solution. This matrix S is indeed invariant under permutations. Lemma 2 is easy but I give an easier proof in \Cref{eigen}.
+    The use of $\tau$ is legit as the first constraint means that $\tau\leq\min_{\{I_j\}}\sum_{j\in J}\sum_{i\in I_j}\lVert x_i-\text{mean}(I_j)\rVert_2^2$ but as we want to maximize the function $\tau$ will be the highest he can, so it will be equal to the minimum, thereafter it gets technical but understandable. To your best understanding of the proof in \cite[Theorem 2]{rujeerapaiboon_scenario_2022} two lemmas are used to prove this inequality. Lemma 1 is kind of technical as the set of solutions of a convex problem is convex, which is necessary to say that : $S=\frac{1}{n!}\sum_{\sigma\in\mathfrak{S}}S^\sigma$ is also a solution. This matrix S is indeed invariant under permutations. Lemma 2 is easy but I give an easier proof in \Cref{eigen}.
 \end{proof}
 
 Then the article highlights a distribution \textbf{that reaches the upper bound for \boldmath{$d\geq n-1$}(meaning that the upper bound is optimal)} under these assumptions. We now treat the case $l=1$.
@@ -326,7 +327,7 @@ what depends only on $\mathbb{P}$. \rp{maybe that helps a very little the articl
 \newline
 
 \section{What about discrete scenario reduction}
-Naturally, the continuous scenario reduction gives a smaller distance than the one computed by the discrete scenario reduction. We'll try to quantify and compare the gap between the solution of both problems. More precisely, in this part, we find for $l\in\{1,2\}$: 
+Naturally, the continuous scenario reduction gives a smaller distance than the one computed by the discrete scenario reduction. We will try to quantify and compare the gap between the solution of both problems. More precisely, in this part, we find for $l\in\{1,2\}$: 
 $$\underline{\kappa}_l\left(n,m\right)\cdot C_l\left( \mathbb{P},m\right)\leq D_l\left(\mathbb{P},m\right)\leq \bar{\kappa}_l\left(n,m\right)\cdot C_l\left(\mathbb{P},m\right)$$
 The goal is to find the largest $\underline{\kappa}_l\left(n,m\right)$ and smallest $\bar{\kappa}_l\left(n,m\right)$ so the bounds are as tight as possible. Solving the continuous problem will give bounds on the discrete. It's easy to argue that : 
 $$
@@ -345,7 +346,7 @@ Just like we've done in the beginning of \Cref{limit}, it's time to reformulate 
 \end{theorem}
 What follows assumes that $n\geq2, m\in\{1,...,n-1\}$ and $d\geq2.$
 \subsection{Type-2 Wasserstein distance}
-In this part we'll find $\bar{\kappa}_2\left(n,m\right), \underline\kappa_2\left(n,m\right)$.
+In this part we will find $\bar{\kappa}_2\left(n,m\right), \underline\kappa_2\left(n,m\right)$.
 \begin{theorem}
     The upper bound $\bar\kappa_2\left(n,m\right)$ satisfies $\bar\kappa_2\left(n,m\right)\leq \sqrt{2}$ for all n, m.
 \end{theorem}
@@ -361,7 +362,7 @@ The proof is very interesting for one's intuition and easy to understand even th
     $$
     D_2\left(\mathbb{P},1\right)^2=\frac{1}{n}\min_{j\in I}\sum_{i\in I}\lVert x_i-x_j\rVert^2_2.
     $$
-    So the $\left(j, x_j\right)$ minimizing this expression minimizes the sum of squared distances with all atoms of $\mathbb{P}$ (but as the family is centered it'll be easier) ! Let's develop :
+    So the $\left(j, x_j\right)$ minimizing this expression minimizes the sum of squared distances with all atoms of $\mathbb{P}$ (but as the family is centered it will be easier) ! Let's develop :
     \begin{align*}
     D_2\left(\mathbb{P},1\right)^2&=\frac{1}{n}\min_{j\in I}\sum_{i\in I}\left(\rVert x_i\rVert^2_2-2x_i^Tx_j+\rVert x_j\rVert^2_2\right)\\&=\frac{1}{n}\sum_{i\in I}\lVert x_i\rVert_2^2-\frac{2}{n}\min_{j\in I}\left(\sum_{i\in I}x_i^T\right)x_j+\min_{j\in I}\lVert x_j\rVert^2_2 \\&=1+\min_{j\in I}\lVert x_j\rVert^2_2\leq2.
     \end{align*}
@@ -393,14 +394,14 @@ The first inequality stands because $I_j^*\in\{I_j^*\}$ is an optimal partition 
     $\bar\kappa_2\left(n,m\right)=\sqrt{2}$, meaning that there exists $\mathbb{P}\in\mathcal{P}_E\left(\RR^d,n\right)$ such that $D_2\left(\mathbb{P},m\right)=\sqrt{2}C_2\left(\mathbb{P},m\right)$
 \end{proposition}
 \begin{proof}
-    Similarly to the proof right above, we'll do it for $m=1$ first. What we have to is find a distribution where the last inequality is in fact an equality. To this idea, we choose a \textbf{centered} distribution with all $\lVert x_i\rVert_2=1$.
+    Similarly to the proof right above, we will do it for $m=1$ first. What we have to is find a distribution where the last inequality is in fact an equality. To this idea, we choose a \textbf{centered} distribution with all $\lVert x_i\rVert_2=1$.
 \end{proof}
 Lower bounds are given as follows : 
 \begin{proposition}
     The lower bound $\underline\kappa_2\left(n,m\right)=1$ whenever $n\geq3$ and $m\in\{1,...,n-2\}$ while $\underline\kappa_2\left(n,n-1\right)=\sqrt{2}.$
 \end{proposition}
 \subsection{Type-1 Wasserstein distance}
-Similarly to the above subsection, we'll find $\bar{\kappa}_1\left(n,m\right), \underline\kappa_1\left(n,m\right)$. In this part, we'll only stack results. See \cite[Section 3.2]{rujeerapaiboon_scenario_2022} for proofs.
+Similarly to the above subsection, we will find $\bar{\kappa}_1\left(n,m\right), \underline\kappa_1\left(n,m\right)$. In this part, we will only stack results. See \cite[Section 3.2]{rujeerapaiboon_scenario_2022} for proofs.
 \begin{theorem}
     The upper bound $\bar\kappa_1\left(n,m\right)$ satisfies $\bar\kappa_1\left(n,m\right)\leq2$ whenever $m\in\{2,...,n-2\}$ as well as $\bar\kappa_1\left(n,1\right)\leq2\left(1-\frac{1}{n}\right)$ and $\bar\kappa_1\left(n,n-1\right)\leq1$
 \end{theorem}
@@ -439,9 +440,9 @@ In order to add another atom to the distribution, one can now wonder how to comp
     $$
         \min_{q}\:\left\{d_l\left(\mathbb{P},\sum_{j\in J}q_j\delta_{y_j}\right)\text{ such that} \; \forall j\in J, q_j\geq 0 \text{ and } \;\sum_{j\in J}q_j=1 \right\}\\
     $$
-    We'll first find a lower bound of that expression, then we'll prove that the lower bound is attained by the distribution given by the theorem.
+    We will first find a lower bound of that expression, then we will prove that the lower bound is attained by the distribution given by the theorem.
     \newline
-    For obvious reasons of readability, I'll write $U\left(p,q\right)$ the space allowed for $\pi$ by the distance of Wasserstein :\newline
+    For obvious reasons of readability, I will write $U\left(p,q\right)$ the space allowed for $\pi$ by the distance of Wasserstein :\newline
     $\pi\in U\left(p,q\right) \iff \pi\in\RR^{\lvert I\rvert \times\lvert J\vert}_+, \forall j\in J, \sum_{i\in I}\pi_{ij}=q_j \text{ and } \forall i\in I, \sum_{j\in J}\pi_{ij}=p_i$.
     \newline
     Let $q\geq 0$ such that $\sum_{j\in J}q_j=1$. We write $\mathbb{Q}=\sum_{j\in J}q_j\delta_{y_j}$ and $\mathbb{P}=\sum_{i\in I}p_i\delta_{x_i}$.  We have that :
@@ -535,11 +536,11 @@ We can now maximize the left hand side on $n,m,\mathbb{P}$ as the right hand sid
 \subsection{A new algorithm ?}
 Dupačová and local search gives an approximation of $D_l$, we know also the distance can be written as :
 $$D_l\left(\mathbb{P},R\right)=\sum_{i\in I}p_i\min_{j\in R}\lVert x_i-x_j\Vert^l=\sum_{j\in R}\left[\sum_{i\in I_j}p_i\lVert x_i-x_j\rVert^l\right].$$
-So we could improve the value of the Wasserstein distance by finding an optimal $x_j$ for each $I_j$. The idea is to decompose each sum on $I_j$ as we've done above in order to find for $I_j$: 
+So we could improve the value of the Wasserstein distance by finding an optimal $x_j$ for each $I_j$. The idea is to decompose each sum on $I_j$ as we have done above in order to find for $I_j$: 
 $$
 y_j\in \argmin_{y\in\RR^d}\sum_{i\in I_j}p_i\lVert x_i-y\rVert^l.
 $$
-We could thus modify each $x_j$ by the $y$ we found for $I_j$. The approximation ratio is still bounded as we're improving the Wasserstein distance but it becomes an approximation of $C_l$ and no longer $D_l$. \rp{idea to improve }. See \Cref{L_p optim}.
+We could thus modify each $x_j$ by the $y$ we found for $I_j$. The approximation ratio is still bounded as we are improving the Wasserstein distance but it becomes an approximation of $C_l$ and no longer $D_l$. \rp{idea to improve }. See \Cref{L_p optim}.
 
 \begin{algorithm}[h]\caption{Improved algorithm for $C_l$}
     \label{improved ls}
@@ -561,7 +562,7 @@ We first review a well-known mixed-integer linear programming (MILP) reformulati
 %\end{theorem}
 %\rp{first constraint means $\sum_{j=1}^n\pi_{ij}=1$ for all $i$ (what seems weird), second forces $\lambda_i$ to be 1 if you choose $x_j$ and the third one counts the number of atoms you choose. So basically I didn't understand the formulation}
 \section{Efficient implementation}
-The main goal of the internship was first to study the scenario reduction problem and algorithms related to this problem and then to implement it within the SMS++ ecosystem. SMS++ aims to deliver an efficient interface for a wide range of optimization problems through the concept of block which represents a type of problem namely "BinaryKnapsackBlock", "MCFBlock" (for Min-Cost flow) and many others. Developped in C++, it is to be able to manage memory, calculation what can be somewhat difficult in interpreted languages such as Python or Julia. In SMS++ it is easy and almost free to turn ON/OFF variables (decision variables, constraints...). In this part, we'll try to find ways to implement proficiently Dupačová et al's algorithm \Cref{dupacova} and local search algorithm \Cref{Local search}.
+The main goal of the internship was first to study the scenario reduction problem and algorithms related to this problem and then to implement it within the SMS++ ecosystem. SMS++ aims to deliver an efficient interface for a wide range of optimization problems through the concept of block which represents a type of problem namely "BinaryKnapsackBlock", "MCFBlock" (for Min-Cost flow) and many others. Developped in C++, it is to be able to manage memory, calculation what can be somewhat difficult in interpreted languages such as Python or Julia. In SMS++ it is easy and almost free to turn ON/OFF variables (decision variables, constraints...). In this part, we will try to find ways to implement proficiently Dupačová et al's algorithm \Cref{dupacova} and local search algorithm \Cref{Local search}.
 
 \subsection{Dupačová et al's algorithm}
 In this part we try to reduce computational time of Dupačová et al's algorithm, meaning we want to reuse what we've already computed. 
@@ -604,7 +605,7 @@ Create $m^0 = \begin{bmatrix} a & \hdots & a \end{bmatrix}$ with $a$ arbitrarily
 \Return $R$\\
 \end{algorithm}
 \begin{proof}\label{complexity}
-The complexity of this algorithm is $\mathcal{O}\left(mn^2\right)$. First computing $D$ requires $\mathcal{O}\left(n^2\right)$ operations, then we'll have $m$ iterations in the while loop. The procedure requires: $n-k$ for the $k^{th}$ iterations, computing $m_i$ requires $2n$ operations, then $2n$ again to compute $p^Tm_i$ ($n$ mutliplications and $n$ sums) and 1 operation to test. Updating requires 1 operation.
+The complexity of this algorithm is $\mathcal{O}\left(mn^2\right)$. First computing $D$ requires $\mathcal{O}\left(n^2\right)$ operations, then we will have $m$ iterations in the while loop. The procedure requires: $n-k$ for the $k^{th}$ iterations, computing $m_i$ requires $2n$ operations, then $2n$ again to compute $p^Tm_i$ ($n$ mutliplications and $n$ sums) and 1 operation to test. Updating requires 1 operation.
 Precisely, we make
 $$
 n^2+\sum_{k=1}^m\left(2+\left(n-k\right)\left(2n+2n+1\right)\right)= n^2+2m+\left(4n+1\right)\left(mn-\frac{m\left(m+1\right)}{2}\right),
@@ -645,11 +646,11 @@ Create $d=pm^0$, there is improvement. \\
 \end{algorithm}
 There is still a lot of computation here in order to compute the $\min$ inside the closed formula (we go through a vector : index, $m-1$ columns of a matrix in order to find $\min_{i\in R\setminus x_j}\lVert x_k-x_i\rVert^l$ with a complexity $\mathcal{O}\left(mn\right)$). 
 
-\section{Results}
+\section{Fast routines}\label{fast}
 In this section, the goal is to compare different methods based on two criterion: time, value of $d_l$. The aim of this section is to determine which method is the most effective if a user does not provide specific instructions, as SMS++ aims for effectiveness.
 \subsection{Dupačová forward and backward}
 \subsubsection{Outputs}
-The first comparison to make is between the forward and backward methods of Dupačová et al' algorithm. We'll use $L2$-norm and $\ell=2$. The efficient methods proposed for the forward algorithm looks way more interesting at first sight as computing $\min_{k\in R}\lVert x_i-x_k\rVert^l$ is very cheap compared to the method of the backward algorithm. For this simulation, I created a random two-dimensional data-set, each point is a sample of: $$
+The first comparison to make is between the forward and backward methods of Dupačová et al' algorithm. We will use $L2$-norm and $\ell=2$. The efficient methods proposed for the forward algorithm looks way more interesting at first sight as computing $\min_{k\in R}\lVert x_i-x_k\rVert^l$ is very cheap compared to the method of the backward algorithm. For this simulation, I created a random two-dimensional data-set, each point is a sample of: $$
 \begin{pmatrix}
     \mathcal{N}\left(10,2\right) \\ \Gamma\left(2,2\right)
 \end{pmatrix}
@@ -673,7 +674,7 @@ The probability of each sample $x_i$ is $\frac{1}{n}$. Let's take a look in 2D a
     \caption{Output visualization: forward and backward Dupačová et al' algorithm}
 \end{figure}
 
-Circles represent atoms and crosses represent atoms that are selected by an algorithm. A color represents a cluster (where will be transported an atom by the transportation plan). For the simulations to come, we'd rather use a 6D data-set in order to be more general. Every dimension should have a comparable data-range so that the distance between atoms isn't led by a single dimension. We'll take samples of 3 normal distribution, 2 gamma and one uniform :
+Circles represent atoms and crosses represent atoms that are selected by an algorithm. A color represents a cluster (where will be transported an atom by the transportation plan). For the simulations to come, we'd rather use a 6D data-set in order to be more general. Every dimension should have a comparable data-range so that the distance between atoms isn't led by a single dimension. We will take samples of 3 normal distribution, 2 gamma and one uniform :
 $$
 \begin{pmatrix}
     \mathcal{N}\left(0,2\right) & \mathcal{N}\left(5,2\right) & \Gamma\left(0,2\right) & \Gamma\left(1,2\right) &\Gamma\left(2,2\right) & \mathcal{U}\left(0,10\right)
@@ -701,10 +702,10 @@ $$
     \label{comparison dup}
 \end{figure}
 
-The "x" axis of \Cref{comparison dup} represents the number of atoms in the reduced set. \Cref{dist for bac} shows that the efficiency in term of Wasserstein distance is similar and comparable for a reduced set obtained via forward or backward algorithm but still Forward algorithm gets a slight lead. The main difference lies in calculation time, the efficient way to compute the forward algorithm shows its advantages in \Cref{time for bac}, always below 0.05s whereas the backward algorithm can take up to one second and takes more time than the exact method. Forward algorithm has to be preferred when you're free to choose.  This data-set of 100 atoms is small compared to what you could see in real problems, the calculation time will grow as $n$ grows, that's why I make this remark. We use Gurobi 9.5.0 to solve the MILP formulation and when there is 100 atoms, heuristics are used to find a solution (that's why the computation time is very low compared to what we could expect). 
+The "x" axis of \Cref{comparison dup} represents the number of atoms in the reduced set. \Cref{dist for bac} shows that the efficiency in term of Wasserstein distance is similar and comparable for a reduced set obtained via forward or backward algorithm but still Forward algorithm gets a slight lead. The main difference lies in calculation time, the efficient way to compute the forward algorithm shows its advantages in \Cref{time for bac}, always below 0.05s whereas the backward algorithm can take up to one second and takes more time than the exact method. Forward algorithm has to be preferred when you're free to choose.  This data-set of 100 atoms is small compared to what you could see in real problems, the calculation time will grow as $n$ grows, that's why I make this remark. We use Gurobi 9.5.0 to solve the MILP formulation and when there is 100 atoms, heuristics are used to find a solution (that is why the computation time is very low compared to what we could expect). 
 
-\subsection{With a bigger $n$}
-We've seen that backward algorithm isn't interesting in terms of CPU time. We'll compare now the run time of the Forward algorithm and the MILP formulation for $n\in\left[100,1000\right]$ because \Cref{time for bac} isn't relevant as Gurobi is very efficient with small size. Let's say we want to reduce a $n$ atoms distribution to a $\frac{n}{4}$ atoms distribution, let's compare run time and efficiency for:
+\subsection{With a bigger number of scenarios}
+We've seen that backward algorithm isn't interesting in terms of CPU time. We will compare now the run time of the Forward algorithm and the MILP formulation for $n\in\left[100,1000\right]$ because \ref{time for bac} isn't relevant as Gurobi is very efficient with small size. Let's say we want to reduce a $n$ atoms distribution to a $\frac{n}{4}$ atoms distribution, let's compare run time and efficiency for:
 
 \begin{figure}[ht]
     \centering
@@ -727,7 +728,7 @@ We've seen that backward algorithm isn't interesting in terms of CPU time. We'll
 
 \Cref{complexity} tells us that forward Dupačová has a complexity of $\mathcal{O}\left(mn^2\right)$ what is meant to be far less than a simplex, Gurobi may use heuristics or other sophisticated method to have this small run time gap. Without Gurobi the gap would be way bigger. Still there exists a gap we can nott neglect for run time especially when $n$ grows, the gap in efficiency exists but is relatively small.
 \subsection{Local search}
-We have many things to test here in order to know how to use local search algorithm. Local search can be somehow long to compute with a random first guest of size $m$. Three manners came naturally in order to tackle this issue. As a very first guess, we decide to use the reduced set of size $m$ that we get with the forward algorithm, the backward algorithm and the last set of starter would be atoms that are closest to the centroïds computed with a k-means method. The idea of this section is to compare efficiency and computation time between these methods and a random first guess. We will still compute the data-set as samples of the 6D data-set (uniform probabilities). The MILP solver by Gurobi will be more efficient than local-search in this case and then using local-search would be useless (because it takes more time and less efficient), in general Gurobi wouldn't solve these problems that easily. Still we'll use Gurobi in order to compare the efficiency (not run time).
+We have many things to test here in order to know how to use local search algorithm. Local search can be somehow long to compute with a random first guest of size $m$. Three manners came naturally in order to tackle this issue. As a very first guess, we decide to use the reduced set of size $m$ that we get with the forward algorithm, the backward algorithm and the last set of starter would be atoms that are closest to the centroïds computed with a k-means method. The idea of this section is to compare efficiency and computation time between these methods and a random first guess. We will still compute the data-set as samples of the 6D data-set (uniform probabilities). The MILP solver by Gurobi will be more efficient than local-search in this case and then using local-search would be useless (because it takes more time and less efficient), in general Gurobi wouldn't solve these problems that easily. Still we will use Gurobi in order to compare the efficiency (not run time).
 \subsection{Best-fit, first-fit and forward Dupačová}
 The local search algorithm gives an approximation of $D_l$ and the reduced set providing the approximation similarly to the greedy algorithm of Dupačová. First, we want to understand how the local search algorithm (and its 2 variants : best-fit, first-fit) behaves in comparison to the greedy algorithm (the forward version as we've seen that it was way more efficient). In this part, the first guess $R$ of size $m$ is selected randomly (the $m$ first elements of the data-set which is already randomly chosen).
 
@@ -785,7 +786,7 @@ For both $n=100$ and $n=200$, local-search gives a better approximation to $D_l\
 \clearpage
 
 \subsection{Clever starters to reduce local-search calculation time}
-As mentionned above, the payout is significant for local-search methods when $\frac{n}{m}\geq2$ but run time can increase by a factor 30. However, we can expect to reduce calculation time with an interesting starter $R$ of cardinal $m$. This should lead to fewer changes in the local-search hence a lower run time. Different starters can be considered. First, a random set. Second and third, two outputs of forward Dupačová (in my opinion, using the output of backward Dupačová et al' algorithm to compute a starter wouldn't be interesting as it takes way much time to be computed), in the order given by the algorithm and in reverse order (only for first-fit as order matters when it doesn't for best-fit). Finally, as starters, we'll consider the nearest neighbours from a run of $m$-means. 
+As mentionned above, the payout is significant for local-search methods when $\frac{n}{m}\geq2$ but run time can increase by a factor 30. However, we can expect to reduce calculation time with an interesting starter $R$ of cardinal $m$. This should lead to fewer changes in the local-search hence a lower run time. Different starters can be considered. First, a random set. Second and third, two outputs of forward Dupačová (in my opinion, using the output of backward Dupačová et al' algorithm to compute a starter wouldn't be interesting as it takes way much time to be computed), in the order given by the algorithm and in reverse order (only for first-fit as order matters when it doesn't for best-fit). Finally, as starters, we will consider the nearest neighbours from a run of $m$-means. 
 \newline
 NB: using the reversed sequence of Dupačová output can be odd as the first atom of the reversed sequence won't be changed but second, third, fourth are more likely to be changed as they weren't chosen at first, it's an idea we must consider. Inversely, the first atom chosen was the most centered so it gave a real direction to the choice that came later so changing this one would change a lot of things. Both ideas have their arguments that's why we must investigate ! Plus, best-fit for the original sequence or the reversed sequence must give the same output.
 
@@ -813,7 +814,7 @@ NB: using the reversed sequence of Dupačová output can be odd as the first ato
 The first-fit method lacks of efficiency. An idea is to run time by allowing only some changes. I decided to only allow changes that reduce sufficiently the cost function. Meaning that there is a change if: $$
 d\left(\mathbb{P},\mathbb{Q}_1\right) \leq d\left(\mathbb{P},\mathbb{Q}_0\right) - \epsilon.
 $$
-Where $\mathbb{Q}_0$ was the distribution before iteration and $\mathbb{Q}_1$ a distribution we are testing with one swap compared to $\mathbb{Q}_0$. The idea of this part is to find an interesting $\epsilon$ to allow efficiency in a first-fit method. To be general and not to rely on a specific problem, we are testing $\epsilon$ as $\epsilon=pd\left(\mathbb{P},\mathbb{D}\right)$ with $p$ a parameter that has to be defined and $d\left(\mathbb{P},\mathbb{D}\right)$ the distance between the original distribution $\mathbb{P}$ and $\mathbb{D}$ the distribution given by the forward Dupačová et al's algorithm. We'll compare run time and efficiency in terms of $p$:
+Where $\mathbb{Q}_0$ was the distribution before iteration and $\mathbb{Q}_1$ a distribution we are testing with one swap compared to $\mathbb{Q}_0$. The idea of this part is to find an interesting $\epsilon$ to allow efficiency in a first-fit method. To be general and not to rely on a specific problem, we are testing $\epsilon$ as $\epsilon=pd\left(\mathbb{P},\mathbb{D}\right)$ with $p$ a parameter that has to be defined and $d\left(\mathbb{P},\mathbb{D}\right)$ the distance between the original distribution $\mathbb{P}$ and $\mathbb{D}$ the distribution given by the forward Dupačová et al's algorithm. We will compare run time and efficiency in terms of $p$:
 
 \begin{figure}[!h]
     \centering
@@ -868,7 +869,7 @@ For this simulation we use $n=100$, $m$ as the $x$-axis and Dupačová starters.
 \end{figure}
 Using this randomized order helps us to gain stability in run time. Even the worst case of this randomized method is generally better or at least comparable to the deterministic first-fit. There is a clear gain. If the randomization procedure was $\mathcal{O}\left(1\right)$ the gain would have been even better because this procedure adds one more stage in the algorithm. The gain in run time seems to be huge for a small $m$, when $m\approx n$, this procedure doesn't seem to be a good idea.
 \subsection{Fusion of local search and k-means}
-In this part we want to compare \Cref{improved ls}  with a generalized k-means for an approximation of $C_l$ as proposed in \Cref{k m} and \Cref{Local search}. For the sake of run time and thanks to the above analysis, we'll use the best-fit method with Dupačová starters whenever we need to run a local-search.
+In this part we want to compare \Cref{improved ls}  with a generalized k-means for an approximation of $C_l$ as proposed in \Cref{k m} and \Cref{Local search}. For the sake of run time and thanks to the above analysis, we will use the best-fit method with Dupačová starters whenever we need to run a local-search.
 
 
 \begin{figure}[ht]
@@ -907,18 +908,154 @@ We can rewrite it:
      \text{s.t. } &y=x-A^Tz, \\
      & d \geq z\geq 0, \:y\geq0.
 \end{align*}
-To fit in the definition given in \ref{two stage}, we consider the second-stage decision vector $y'=\begin{pmatrix} y &z&d-z\end{pmatrix}^T$, $c=\begin{pmatrix}-s & l-q & 0_n\end{pmatrix}$, $W=\begin{pmatrix} I_m &  & A^T &0_{mn}\end{pmatrix}$. We now write:
+To fit in the definition given in \ref{two stage}, we can consider the second-stage decision vector $y'=\begin{pmatrix} y &z&d-z\end{pmatrix}^T$, $c=\begin{pmatrix}-s & l-q & 0_n\end{pmatrix}$, $W=\begin{pmatrix} I_m &  & A^T &0_{mn}\end{pmatrix}$. We now write:
 \begin{align*}
     \min_{y'} \:&c^Ty' \\
      \text{s.t. } &Wy'=x, \\
      & y'\geq0.
 \end{align*}
-One can note that $W$ does not depend on $D$ and that the value of this minimizing problem depends on $x$ and on a demand $d$. We write $Q\left(x,d\right)$ the optimal value of this problem. The two-stage linear problem associated to the multiproduct assembly problem is:
+One can note that $W$ does not depend on $D$ and that the value of this minimizing problem depends on $x$ and on a demand $d$, the recourse is fixed. We write $Q\left(x,d\right)$ the optimal value of this problem. The two-stage linear problem associated to the multiproduct assembly problem is:
 $$\min_{x\geq0}c^Tx+\mathbb{E}_DQ\left(x,D\right).$$
-In our case, there are finitely many demand scenarios, let's say $K$. We denote by $p_k$ the probability of observing the demand $d_k$. Hence, we will replace $\mathbb{E}_D\left(Q,x,D\right)$ by $\sum_{k=1}^Kp_kQ\left(x,d_k\right)$. We will therefore reduce the number of scenarios in order to reduce the length of the sum, the number of constraints and so run time.
 \subsection{Data-set}
-Data-set on this kind of problems do not exist or if they do, it did not find any. The objective of this section is to build a coherent data-set.
+Data-set on this kind of problems do not exist or if they do, it did not find any. The objective of this section is to build a coherent data-set. Let's put ourselves in carpenter's shoes.
+\subsubsection{Products}
+\begin{enumerate}
+    \item Table
+    \item Chairs
+    \item Lawn table
+    \item Lawn chairs
+    \item Bed
+    \item Desk
+    \item Wardrobe
+    \item Shelf
+    \item Bookcase
+    \item Shoe cabinet
+\end{enumerate}
+\subsubsection{Components}
+\small
+\begin{longtable}{| l | c | c | c | c | c | c | c | c | c | c |}
+\hline
+\textbf{Product} & \textbf{Tabletop} & \textbf{Legs} & \textbf{Screws} & \textbf{Seat} & \textbf{Backrest} & \textbf{Coating} & \textbf{Frame} & \textbf{Headboard} & \textbf{Footboard } & \textbf{Slats } \\ 
+\hline
+Table & 1 & 4 & 16 & - & - & - & - & - & - & - \\ 
+\hline
+Chairs & - & 4 & 8 & 1 & 1 & - & - & - & - & - \\ 
+\hline
+Lawn Table & 1 & 4 & 16 & - & - & 1 & - & - & - & - \\ 
+\hline
+Lawn Chairs & - & 4 & 8 & 1 & 1 & 1 & - & - & - & - \\ 
+\hline
+Bed & - & - & 16 & - & - & - & 1 & 1 & 1 & 1 \\ 
+\hline
+Desk & - & 4 & 16 & - & - & - & - & - & - & - \\ 
+\hline
+Wardrobe & - & - & 32 & - & - & - & 1 & - & - & - \\ 
+\hline
+Shelf & - & - & 16 & - & - & - & - & - & - & - \\ 
+\hline
+Bookcase & - & - & 16 & - & - & - & - & - & - & - \\ 
+\hline
+Shoe Cabinet & - & - & 16 & - & - & - & - & - & - & - \\ 
+\hline
+\end{longtable}
+
+\small
+\begin{longtable}{| l | c | c | c | c | c | c | c | c | c |}
+\hline
+\textbf{Product} & \textbf{Box Spring} & \textbf{Desktop} & \textbf{Pedestals} & \textbf{Drawers} & \textbf{Doors} & \textbf{Shelves} & \textbf{Rod} & \textbf{Side Panels} & \textbf{Back Panel} \\
+\hline
+Table & - & - & - & - & - & - & - & - & - \\
+\hline
+Chairs & - & - & - & - & - & - & - & - & - \\
+\hline
+Lawn Table & - & - & - & - & - & - & - & - & - \\
+\hline
+Lawn Chairs & - & - & - & - & - & - & - & - & - \\
+\hline
+Bed & 1 & - & - & - & - & - & - & - & - \\
+\hline
+Desk & - & 1 & 2 & 1 & - & - & - & - & - \\
+\hline
+Wardrobe & - & - & - & - & 2 & 5 & 1 & 2 & 1 \\
+\hline
+Shelf & - & - & - & - & - & 4 & - & 2 & 1 \\
+\hline
+Bookcase & - & - & - & - & - & 5 & - & 2 & 1 \\
+\hline
+Shoe Cabinet & - & - & - & - & 2 & 4 & - & 2 & 1 \\
+\hline
+\end{longtable}
+It defines the matrix $A$.
+
+\subsubsection{Rewards and costs}
+
+We present costs and rewards fot both products and subsassemblies.
+
+
+\begin{table}[!h]
+    \centering
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+\hline
+    $q$  &  300 & 100 & 350 & 120 & 500 & 200 & 300 & 70 & 50 & 50 \\
+    \hline
+    $l$  & 0 &0&0&0&0&0&0&0&0&0 \\
+    \hline
+\end{tabular}
+\end{table}
+
+
+
+\begin{table}[!h]
+    \centering
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+\hline
+    $s$  &  20 & 1 & 0.1 & 1 & 1 & 2 & 10 & 4 & 4 & 6 &6&2&2&4&6&2&2&4&4\\
+    \hline
+    $c$  & 100 & 5 &0.5& 5 & 5& 10& 50 & 20 & 20 & 30 & 30 &10& 10 & 20&30&10&10&20&20 \\
+    \hline
+\end{tabular}
+\end{table}
+\subsubsection{Demands}
+We will create $K$ past demands, each with a probability of $\frac{1}{K}$. Demands will be derived from a uniform distribution. Each demand will be generated as:
+$$
+D = \begin{pmatrix} \mathcal{N}\left(25,3\right) \\ 4d_1 + \mathcal{N}\left(25,3\right)
+  \\ \mathcal{N}\left(25,3\right) \\ 4d_3 + \mathcal{N}\left(25,3\right)
+  \\ \mathcal{N}\left(50,3\right) \\ \mathcal{N}\left(50,3\right) \\ \mathcal{N}\left(50,3\right) \\ \mathcal{N}\left(50,3\right) \\ \mathcal{N}\left(50,3\right) \\ \mathcal{N}\left(50,3\right) \\ \end{pmatrix}.
+$$
+One can note that a vector of random uniform demands is not appropriate. In a few words, it is not appropriate because when reoptimizing the weights of the reduced set, some are more influent than other even though the demand is uniform. Results obtained without reoptimizing weights (with uniform probabilities) are often closer to the original optimal value. Thanks to \ref{stability}, solving these reduced problems are supposed to give a solution that is close the original optimum.
+
 \subsection{Results}
+We have presented everything we need to solve this multiproduct assembly problem. We must now solve it. In our case, there are finitely many demand scenarios. The probability $p_k$ of observing the demand $d_k$ is $\frac{1}{200}$ for each scenario. Hence, we replace $\mathbb{E}_D\left(Q,x,D\right)$ by $\sum_{k=1}^Kp_kQ\left(x,d_k\right)$. We will therefore reduce the number of scenarios in order to reduce the length of the sum, the number of constraints and so run time. We now have to solve:
+
+\begin{equation}\label{LP}
+\begin{aligned}
+    \min\; &c^Tx + \sum_{k=1}^{K} p_k \left[ (l - q)^T z^k - s^T y^k \right] \\
+    \text{s.t. } & y^k = x - A^T z^k, \quad k = 1, \ldots, K \\
+    & 0 \leq z^k \leq d^k, \quad y^k \geq 0, \quad k = 1, \ldots, K \\
+    & x \geq 0
+\end{aligned}
+\end{equation}
+
+In \ref{fast}, we have presented different ways of considering some scenario reduction algorithms in order to reduce run time. Now we will use these routines when we need them - efficient forward Dupačová, random first-fit, best-fit with Dupačová starters -  in order to reduce the size of this problem by reducing the number of scenarios of $D$ and so reduce run time of this LP. With $n=250$ scenarios, we will reduce the number to $m\in\{25,\hdots,125\}$ scenarios and plot the ratio: $$\lvert\frac{ v(P)-v(Q_m)}{v(P)}\rvert,$$ where $Q_m$ is a reduced distribution with $m$ scenarios generated via either local-search algorithm or forward Dupačová algorithm. For the sake of consistency, we will also plot $d_\ell\left(P,Q_m\right)^\ell$ in order to visualize that a closer distribution will generally lead to closer optimal values. We will also see how scenario reduction impact run time.
+
+\begin{figure}[ht]
+    \centering
+    \subfloat[Optimal value]{
+        \includegraphics[width=0.47\textwidth]{plots/values two stage.pdf} 
+    }
+    \hfill
+    \subfloat[Ratio]{
+        \includegraphics[width=0.47\textwidth]{plots/ratio 250 two stage.pdf} 
+    }
+    \hfill
+    \subfloat[Run time]{
+        \includegraphics[width=0.47\textwidth]{plots/run time two stage.pdf} 
+    }
+    \caption{Figures for two-stage stochastic programming with $n=250$.}
+\end{figure}
+
+These figures show profit expected when reducing scenarios from 250 to 25 has a ratio of 1\% which is above all expectation as run time is reduced by at least 10 (even more with bigger $n$). Both local-search and greedy algorithm give comparable outputs even though local-search tends to give better approximation, it is comforting according to the fact that local-search generally gives a better reduced set of scenarios (in terms of Wasserstein distance). For example, solving the LP \ref{LP}  with $n=2000$ takes about 29 seconds, when the reduced LP with $m=200$ is completed in 2.8 seconds and the ratio is equal to 0.4\%. Reducing the number of scenarios with a factor 10 is clearly not threatening here.
+
 \clearpage
 \appendix
 \section{Wasserstein distance is a distance}\label{distance}
@@ -969,7 +1106,7 @@ $$\begin{bmatrix}
 \end{bmatrix}.$$
 with $m\times(k-1)$ zeros at the beginning, then $m$ ones and then zeros. 
 \newline
-Similarly $A_J$ $k^{th}$ row (out of the $m$ rows) is full of zeros except at position $k+(j-1)\times m, \forall j\in J$ where you'll find ones. This way, it's easy to find a distance between two finite distributions.
+Similarly $A_J$ $k^{th}$ row (out of the $m$ rows) is full of zeros except at position $k+(j-1)\times m, \forall j\in J$ where you will find ones. This way, it's easy to find a distance between two finite distributions.
 \newline
 
 One more thing we can say is that $rk(A)=n+m-1$. The rows of A are linearly dependant : $L_1+...+L_n-L_{n+1}-...-L_{n+m}=0$. Then if we take a linear combination of rows $A_1,...,A_{n+m-1}$ that is equal to zero, we have that $$
@@ -1101,7 +1238,7 @@ In order to improve the Wasserstein distance given by local search algorithm, on
 $$
 \min_{y\in\RR^d}\sum_{i\in I}p_i\lVert x_i-y\rVert^\ell=\min_{y\in\RR^d}\sum_{i\in I}p_i\left(\lVert x_i-y\rVert^2\right)^{\ell/2}.
 $$
-With $p_i>0$, $I$ a particular set and for an arbitrary norm, in most cases we'll use $\text{L}2$-norm. For this particular norm, the case $\ell=1$ gives the geometric median and $\ell=2$ gives the mean. With L$2$-norm, the function $f$ to minimize is differentiable and we can write : 
+With $p_i>0$, $I$ a particular set and for an arbitrary norm, in most cases we will use $\text{L}2$-norm. For this particular norm, the case $\ell=1$ gives the geometric median and $\ell=2$ gives the mean. With L$2$-norm, the function $f$ to minimize is differentiable and we can write : 
 $$
 \nabla f\left(y\right)=-\ell\sum_{i\in I}p_i\lVert x_i-y\rVert^{\ell-2}\left(x_i-y\right).
 $$
