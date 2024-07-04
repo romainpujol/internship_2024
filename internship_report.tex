@@ -249,41 +249,41 @@ where $\text{pos}(W)=\left\{Wy, y\in\RR_+^m\right\}$, $D=\left\{u\in\RR^m:\left\
 \begin{equation}\label{rewrite}
     \min_x\left\{\int_\Xi F_0\left(x,\xi\right)\text{d}P\left(\xi\right): x\in X\right\}. 
 \end{equation}
-\rp{i will write down a proof later as it does not appear on the article}
 One can note that $d=0$ in this formulation. Let us introduce two assumptions: 
 \begin{assumption}\label{h1} For each $\left(x,\xi\right)\in X\times \Xi$ it holds that $h\left(\xi\right)- T\left(\xi\right)x\in \text{pos}\left(W\right), q\left(\xi\right) \in D$.
 \end{assumption}
 \begin{assumption}
 \label{h2} $P\in\mathcal{P}\left(\Xi\right)$ and has a finite $2$-th moment i.e. $\int_\Xi \lVert \xi\rVert^2\text{d}P\left(\xi\right) < \infty$.
 \end{assumption}
-\noindent Under these two assumptions, equivalence between \ref{lp stoch} and \ref{rewrite} is direct:
-\begin{proof}
-    Let $x\in X$. \Cref{h1} states that $F_0$ will always be written $c^Tx + \phi\left(q\left(\xi\right), h\left(\xi\right) -T\left(\xi\right)x\right)$ when we integrate it on $\Xi$ when $x\in X$.
-    \begin{align*}
-        \int_\Xi F_0\left(x,\xi\right)\text{d}P\left(\xi\right)&=\int_\Xi c^Tx + \phi\left(q\left(\xi\right), h\left(\xi\right) -T\left(\xi\right)x\right)\text{d}P\left(\xi\right) \\
-        &= c^Tx + \int_\Xi \inf_y\left\{q\left(\xi\right)^Ty\: :\: Wy=h\left(\xi\right) -T\left(\xi\right)x\right\}\text{d}P\left(\xi\right) \\
-        &= \left\{c^Tx + \int_\Xi \inf_y\left\{q\left(\xi\right)^Ty\right\}\text{d}P\left(\xi\right)\:,\: Wy=h\left(\xi\right) -T\left(\xi\right)x\right\}
-    \end{align*}
-    There is no problem to split the integral in two as $c^Tx$ is finite, does not depend on $\xi$ and the whole integral is finite aswell. We  used obviously $\int_\Xi\text{d}P\left(\xi\right)=1$. The third equality is a matter of notation. 
-\end{proof}
+\noindent Under these two assumptions, equivalence between \ref{lp stoch} and \ref{rewrite} is direct, even though it may look harsh, as both terms inside the integral converge then it is a matter of notation.
+%\begin{proof}
+    %Let $x\in X$. \Cref{h1} states that $F_0$ will always be written $c^Tx + \phi\left(q\left(\xi\right), h\left(\xi\right) -T\left(\xi\right)x\right)$ when we integrate it on $\Xi$ when $x\in X$.
+    %\begin{align*}
+    %    \int_\Xi F_0\left(x,\xi\right)\text{d}P\left(\xi\right)&=\int_\Xi c^Tx + \phi\left(q\left(\xi\right), h\left(\xi\right) -T\left(\xi\right)x\right)\text{d}P\left(\xi\right) \\
+    %    &= c^Tx + \int_\Xi \inf_y\left\{q\left(\xi\right)^Ty\: :\: Wy=h\left(\xi\right) -T\left(\xi\right)x\right\}\text{d}P\left(\xi\right) \\
+    %    &= \left\{c^Tx + \int_\Xi \inf_y\left\{q\left(\xi\right)^Ty\right\}\text{d}P\left(\xi\right)\:,\: Wy=h\left(\xi\right) -T\left(\xi\right)x\right\}
+    %\end{align*}
+    %There is no problem to split the integral in two as $c^Tx$ is finite, does not depend on $\xi$ and the whole integral is finite aswell. We  used obviously $\int_\Xi\text{d}P\left(\xi\right)=1$. The third equality is a matter of notation. 
+%\end{proof}
 
 \begin{proposition}\label{prop 2}
     Let \Cref{h1} be satisfied. Then $F_0$ is a random convex function. Furthermore there exist constants $L>0, \bar{L}>0$, and $K>0$ such that the following holds for all $\xi,\xi'\in\Xi^2$ and $x,x'\in X^2$ with $\max\left\{\lVert x\rVert, \lVert x' \rVert\right\}\leq r$:
     \begin{align}
-        \lvert F_0\left(x,\xi\right)- F_0\left(x,\xi'\right) &\leq Lr\max\left\{1,\lVert \xi\rVert, \lVert \xi'\rVert\right\}\lVert \xi-\xi'\rVert, \label{lips}\\
-        \lvert F_0\left(x,\xi\right)- F_0\left(x',\xi\right) &\leq \bar{L}\max\left\{1,\lVert\xi\rVert^2\right\}\lVert x-x'\rVert, \\
-        \lvert F_0\left(x,\xi\right) &\leq Kr\max\left\{1,\lVert\xi\rVert^2\right\}.
+        \lvert F_0\left(x,\xi\right)- F_0\left(x,\xi'\right)\rvert &\leq Lr\max\left\{1,\lVert \xi\rVert, \lVert \xi'\rVert\right\}\lVert \xi-\xi'\rVert, \label{lips}\\
+        \lvert F_0\left(x,\xi\right)- F_0\left(x',\xi\right)\rvert &\leq \bar{L}\max\left\{1,\lVert\xi\rVert^2\right\}\lVert x-x'\rVert, \\
+        \lvert F_0\left(x,\xi\right) \rvert&\leq Kr\max\left\{1,\lVert\xi\rVert^2\right\}.
     \end{align}
      
 \end{proposition}
 \begin{proof}
     See \cite[Proposition 22]{romisch_stability_2003}.
 \end{proof}
-We will work here with finite distributions, meaning that $\Xi$ will always be bounded. With $\Xi$ be bounded, we can modify a little what is said in \Cref{lips} from \Cref{prop 2} to our best convenience:
+Thereafter we will work with finite distributions, meaning that $\Xi$ will always be bounded. With $\Xi$ be bounded, we can modify a little what is said in \Cref{lips} from \Cref{prop 2} to our best convenience:
 $$
-\lvert F_0\left(x,\xi\right)- F_0\left(x,\xi'\right) \leq L'r \lVert \lVert \xi-\xi'\rVert, \text{ with } L'=L\max_{\xi\in\Xi}\left\{1,\lVert\xi\rVert\right\}.
+\lvert F_0\left(x,\xi\right)- F_0\left(x,\xi'\right) \leq L'r \lVert \lVert \xi-\xi'\rVert, \text{ with } L'=L\max\left\{1,\max_{\xi\in\Xi}\lVert\xi\rVert\right\}.
 $$
-This means that there exists a constant $C>0$ such that $\frac{1}{C}F_0\left(x,\cdot\right)\in\mathcal{F}_1\left(\Xi\right)$ for each $x\in X$ hence if we fix $U$ an open, bounded neighbourhood of $X^*\left(P\right)$ the result hold for each $x\in X\cap \text{cl}U\subset X$. 
+This means that there exists a constant $C>0$ such that $\frac{1}{C}F_0\left(x,\cdot\right)\in\mathcal{F}_1\left(\Xi\right)$ for each $x\in X$ hence if we fix $U$ an open, bounded neighbourhood of $X^*\left(P\right)$ the result hold for each $x\in X\cap \text{cl}U\subset X$. In other words, condition (3) of \Cref{stability_th} is verified with $p=1$.
+
 \begin{corollary}
     Let both assumptions \Cref{h1} and \Cref{h2} be satisfied, $\Xi$ be bounded and let $X^*\left(P\right)$ be nonempty and $\mathcal{U}$ be an open, bounded neighbourhood of $X^*\left(P\right).$ Then there exist constants $L>0$ and $\delta >0$ such that:
     \begin{align*}
@@ -312,18 +312,77 @@ Where $\lVert \cdot \rVert$ denotes the norm on $\Xi$ used to define $\mathcal{F
 \end{align*}
 In order to choose a $\ell$ that will simplify the work, $\ell\in\left\{1,2\right\}$ actually, we will prove that $W_1\left(P,Q\right)\leq W_\ell\left(P,Q\right)$ for any $\ell \geq 1$.  Let $\ell >1$, $q>1$ such that $\frac{1}{\ell}+\frac{1}{q}=1$ and $\pi\in U\left(P,Q\right)$:
 \begin{align*}
-W_1\left(P,Q\right)&\leq \int_{\Xi^2}\lVert \xi-\xi'\rVert \text{d}\pi\left(\xi\times\xi'\right) \\ &\leq \left(\int_{\Xi^2} \lvert 1\rvert^{q}\text{d}\pi\left(\xi\times\xi'\right)\right)^{1/q} \left(\int_{\Xi^2}\lVert \xi-\xi'\rVert^\ell\text{d}\pi\left(\xi\times\xi'\right)\right)^{1/\ell}, \: \text{due to Hölder's inequality} \\
+W_1\left(P,Q\right)&\leq \int_{\Xi^2}\lVert \xi-\xi'\rVert \text{d}\pi\left(\xi\times\xi'\right),\: \pi \text{ may not be optimal,} \\ &\leq \left(\int_{\Xi^2} \lvert 1\rvert^{q}\text{d}\pi\left(\xi\times\xi'\right)\right)^{1/q} \left(\int_{\Xi^2}\lVert \xi-\xi'\rVert^\ell\text{d}\pi\left(\xi\times\xi'\right)\right)^{1/\ell}, \: \text{due to Hölder's inequality} \\
 &=\left(\int_{\Xi^2}\lVert \xi-\xi'\rVert^\ell\text{d}\pi\left(\xi\times\xi'\right)\right)^{1/\ell}.
 \end{align*}
 We can now take the infimum over $\pi$ what gives:
 $$
 W_1\left(P,Q\right)\leq W_\ell\left(P,Q\right).
 $$
-For a two-stage linear model, we have proven that for $\ell\geq1$, there exists a constant $L>0$ such that:
+For a two-stage linear model, we have finally proven that for $\ell\geq1$, there exists a constant $L>0$ such that:
 $$
 \lvert v\left(P\right)-v\left(Q\right)\rvert \leq LW_\ell\left(P,Q\right).
 $$
-Thereafter we will consider a finite distribution $P$ and try to find another distribution $Q$ with less atoms along with the idea of minimizing the type-$\ell$ Wasserstein distance between them. We will work with $\ell\in\left\{1,2\right\}$ for the theoretical part and $\ell=2$ for every simulation.
+Thereafter we will consider a finite distribution $P$ and attempt to find another distribution $Q$ with fewer atoms with the idea of minimizing the type-$\ell$ Wasserstein distance between them. This would control the term: $\lvert v\left(P\right)-v\left(Q\right)\rvert$. We will work with $\ell\in\left\{1,2\right\}$ for the theoretical part and $\ell=2$ for every simulation.
+
+\section{Wasserstein distance with finite distribution}
+
+In this part, we present tools and concepts useful for scenario reduction aswell as their guarantees and limits. Results derive from \cite{rujeerapaiboon_scenario_2022}. 
+
+\subsection{Introduction to Wasserstein distance}
+In the case of discrete distributions $P=\sum_{i\in I}p_i\delta_{x_i}$ and $Q=\sum_{j\in J}q_j\delta_{y_j}$. The type-$l$ Wasserstein distance between $P$ and $Q$ is defined as :  
+\begin{definition}{Type-$\ell$ Wasserstein distance}
+$$
+d_\ell(P,Q)=\left(\min_{\pi\in\mathbb{R}_+^{\lvert I\rvert\times\lvert J\rvert}}\left\{ 
+\sum_{i\in I}\sum_{j\in J}\pi_{ij}\lVert x_i-y_j\rVert^l \: \text{ : } \:  \begin{aligned}
+& \sum_{j\in J}\pi_{ij}=p_i \: \forall i\in I \\
+& \sum_{i\in I}\pi_{ij}=q_j \: \forall j\in J
+\end{aligned}\right\}\right)^{1/\ell}.
+$$
+\end{definition}
+
+\begin{remark}
+    A more general definition can be written by replacing the norm with a specific distance between objects $x_i$ and $y_j$. 
+\end{remark}
+For $l\geq1$, this mathematical expression meets the requirements of a distance. Values are positive, symmetry is direct, definiteness requires more work but the idea is to start by proving that $d_\ell\left(P,Q\right)=0$ implies that $\text{supp}\left(P\right)=\text{supp}\left(Q\right)$, concluding will be easy after that. Triangle inequality derives from the gluing lemma, see e.g. \cite[Chapter 1]{peyre_computational_2019}. For $l\in\mathopen{]}0,1\mathclose{]}, d_\ell^\ell$ is a distance. A pro of this particular distance is to rely on the underlying structure meaning the norm. The philosophy of this distance is to measure the minimum cost of moving weights from $x_i$ to $y_j$ where costs are defined by the norm.
+\newline
+
+Let $\mathcal{P}_U(X,n)$ denote the set of all \emph{uniform} discrete distribution on $X\subset R^d$ with $n$ distinct scenarios (do not mind if I use scenarios instead of scenari) and $\mathcal{P}(X,m)$ denote the set of discrete distributions on $X\subset R^d$ with \emph{at most} m scenarios. 
+\newline
+
+As presented in the conclusion of \ref{stability}, we want to find a distribution that minimizes the Wasserstein distance over a particular set of distribution. Two types of reduction are typically presented. The continous scenario reduction problem :
+$$
+C_\ell(P,m)=\min_Q\left\{d_\ell(P,Q),\: Q\in\mathcal{P}(\mathbb{R}^d,m)\right\}, 
+$$
+and the discrete scenario reduction problem :
+$$
+D_\ell(P,m)=\min_Q\left\{d_\ell(P,Q),\: Q\in\mathcal{P}(\text{supp}(P),m)\right\}.
+$$
+
+Let $P$ be a finite distribution on $\RR^d$. Obviously $\text{supp}(P)\subset \mathbb{R}^d$ what leads to $C_\ell(P,m)\leq D_\ell(P,m)$. Discrete scenario reduction may be sometimes more suitable as continous scenario reduction can generate atoms that may be nonsensical in a particular context.
+
+\subsection{Theoretical fundations of scenario reduction}
+In this part, we provide bounds on the Wasserstein distance between an original distribution of $n$ atoms and its reduced one with $m<n$ atoms. Let $X\subset \RR^d$ and $\lVert \cdot \rVert$ be a norm on $X$. We restrict ourselves to distribution whose atoms lie within the unit ball and $\frac{1}{n}\sum_ix_i=0$. This is a legal assumption because of first repositionning a distribution does not affect $C_\ell$, second the positive homogeneity of $C_\ell$. Let $P=\sum_{i\in I}p_i\delta_{x_i}$, $\text{card}\left(I\right)=n<+\infty$, $1<m<n$, $\lambda\in\RR_+^*$ and $a\in\RR^d$:
+$$
+C_\ell\left(P,m\right)=\frac{1}{\lambda} C_\ell\left(\sum_{i\in I}p_i\delta_{\lambda x_i+a},m\right).
+$$
+We will work with uniform distribution $P\in\mathcal{P}_U\left(\RR^d,n\right)$ with the idea that the distributions derive from sampling and if not you can multiply atoms around a point of high probability. A goal of this part is to quantify and study the worst case of scenario reduction defined by:
+$$    \bar{C}_\ell\left(n,m \right)=\left\{\max_{P\in\mathcal{P}_U(\mathbb{R}^d,n)}C_\ell(P,m)\: :\: \text{supp}(P)\in B(0,1)\right\}.
+$$
+Let us write a first bound that we will tighten thereafter, let $P\in\mathcal{P}_U(\mathbb{R}^d,n)$:
+$$C_\ell\left(P,m\right)\leq C_\ell\left(P,1\right)\leq d_\ell\left(P,\delta_{0_{\RR^d}}\right)\leq 1.$$
+As the right-hand side of the equation does not depend on $P$, one can take the upper bound over $P\in\mathcal{P}_U\left(\RR^d,n\right)$ and write that:
+$$
+\bar{C}_\ell\left(n,m \right)\leq1.
+$$
+Let $\mathfrak{P}(I,m)$ be the family of m-set partitions of $I$. Following \cite{rujeerapaiboon_scenario_2022}, we write $\{I_j\}$ an element of $\mathfrak{P}(I,m)$ and $I_j$ for $j\in\{1,..,m\}$ a set of the partition $\{I_j\}$.
+\begin{theorem}{Reformulation}\label{theorem1}
+$$C_\ell(P,m)=\min_{\{I_j\}\in \mathfrak{P}(I,m)}\left\{ \frac{1}{n}\sum_{j\in J}\min_{y_j\in\mathbb{R}^d}\sum_{i\in I_j}\lVert x_i-y_j\rVert^\ell \right\}^{1/\ell}.$$
+\end{theorem}
+\begin{remark}
+    \rp{faire le lien avec la démo de coût optimaux}
+\end{remark}
+Assume that we use the euclidean norm. In the case $\ell=1$, $y_j^*$ is attained by any geometric median. Now if $\ell=2$, the inner minimum can be found easily, gradient of the inner function is well-defined and minimizing without constraints gives: $$y_j^*=\text{mean}\left(I_j\right)=\frac{1}{\lvert I_j\rvert}{\sum_{i\in I_j}x_i}.$$ 
 \bibliography{biblio}
 \bibliographystyle{alpha}
 \end{document}
