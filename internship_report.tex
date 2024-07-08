@@ -5,6 +5,7 @@
 \usepackage{fancyhdr}
 \usepackage{amsmath}
 \usepackage{amsfonts}
+\usepackage{titletoc}
 \usepackage{enumitem}
 \usepackage{amssymb}
 \usepackage[boxed, linesnumbered]{algorithm2e}
@@ -344,7 +345,7 @@ $$
 \end{definition}
 
 \begin{remark}
-    A more general definition can be written by replacing the norm with a specific distance between objects $x_i$ and $y_j$. 
+    A more general definition can be written by replacing the norm with a particular distance between objects $x_i$ and $y_j$. 
 \end{remark}
 For $l\geq1$, this mathematical expression meets the requirements of a distance. Values are positive, symmetry is direct, definiteness requires more work but the idea is to start by proving that $d_\ell\left(P,Q\right)=0$ implies that $\text{supp}\left(P\right)=\text{supp}\left(Q\right)$, concluding will be easy after that. Triangle inequality derives from the gluing lemma, see e.g. \cite[Chapter 1]{peyre_computational_2019}. For $l\in\mathopen{]}0,1\mathclose{]}, d_\ell^\ell$ is a distance. A pro of this particular distance is to rely on the underlying structure meaning the norm. The philosophy of this distance is to measure the minimum cost of moving weights from $x_i$ to $y_j$ where costs are defined by the norm.
 \newline
@@ -647,7 +648,7 @@ The discrete scenario reduction problem can be formulated as:
 \begin{remark}
     This reformulation takes the most of \Cref{closed formula}.
 \end{remark}
-\subsection{m-means}
+\subsection{$m$-means}
 The aim of $m$-means clustering is to reduced $n$ observations to $k$ clusters such that the intra-cluster sums of squared distances are minimized. It turns out to be a good idea to select $m$ atoms with the $n$ of $\text{supp}\left(P\right)$. The amount of atoms in a cluster will give the probability of observing the cluster for the reduced distribution !
 
 
@@ -680,7 +681,7 @@ We could thus modify each centroïd $x_j$ by the optimal $y^*_j$ we found for $I
 
 This algorithm is $m$-means algorithm but with a clever first guess.
 
-\section{Efficient implementation of these algorithms and results}\label{fast}
+\section{Efficient implementation and results}\label{fast}
 In this section, the goal is to compare different methods based on two criterion: time, value of $d_\ell\left(P,Q\right)$. The aim of this section is to determine which method is the most effective if a user does not provide specific instructions. We will explore many techniques. 
 \subsection{Dupačová et al' algorithm, forward and backward methods}
 \subsubsection{Outputs}
@@ -1084,4 +1085,13 @@ These figures present: Wasserstein distance between the original distribution an
 \clearpage
 \bibliography{biblio}
 \bibliographystyle{alpha}
+\clearpage
+\appendix
+
+\section*{Appendix A}
+\addcontentsline{toc}{section}{Appendix A}
+
+\section*{Appendix B}
+\addcontentsline{toc}{section}{Appendix B}
+
 \end{document}
