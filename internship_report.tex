@@ -1,33 +1,64 @@
 \documentclass{amsart}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
-\usepackage{algorithm2e}
 \usepackage{longtable}
+\usepackage{fancyhdr}
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{enumitem}
 \usepackage{amssymb}
+\usepackage[boxed, linesnumbered]{algorithm2e}
 \usepackage[left=2cm,right=2cm,top=3cm,bottom=3cm]{geometry}
 \usepackage{graphicx}
 \usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{lastpage} 
+\usepackage{setspace}
+\usepackage{titlesec}
 \usepackage{dsfont}
 \usepackage{cleveref}
 \usepackage{bm}
 \usepackage[colorinlistoftodos,bordercolor=orange,backgroundcolor=orange!20,linecolor=orange,textsize=scriptsize]{todonotes}
-\definecolor{red}{cmyk}{0,1,.8,0}
-\definecolor{blue}{rgb}{0,0,1}
-
-\usepackage{xcolor}
-\hypersetup{
-    colorlinks,
-    linkcolor={red!50!black},
-    citecolor={blue!50!black},
-    urlcolor={blue!80!black}
-}
-
 \usepackage{subcaption}
 \SetAlgoNlRelativeSize{-1}
 
+\geometry{
+    top=1in, % Marge supérieure
+    bottom=1.5in, % Marge inférieure
+    left=1in, % Marge gauche
+    right=1in, % Marge droite
+    footskip=1in % Espace entre le bas du texte principal et le pied de page
+}
+
+
+\pagestyle{fancy}
+\fancyhf{} 
+
+\fancypagestyle{plain}{
+    \fancyhf{} 
+}
+
+
+\titleformat{\section}[hang]
+  {\normalfont\Large\bfseries} % Format du texte
+  {\thesection{} - } % Préfixe (ex. 1.1 - )
+  {0pt} % Espace entre le préfixe et le titre
+  {\Large\bfseries} % Format du titre
+
+% Configurer les sous-sections
+\titleformat{\subsection}[hang]
+  {\normalfont\normalsize\bfseries} % Format du texte
+  {\thesubsection{} - } % Préfixe (ex. 1.1.1 - )
+  {0pt} % Espace entre le préfixe et le titre
+  {\normalsize\bfseries} % Format du titre
+
+% Configurer les sous-sous-sections
+\titleformat{\subsubsection}[hang]
+  {\normalfont\small\bfseries} % Format du texte
+  {\thesubsubsection{} - } % Préfixe (ex. 1.1.1.1 - )
+  {0pt} % Espace entre le préfixe et le titre
+  {\small\bfseries} % Format du titre
+  
 \ifdefined\theorem\else \newtheorem{theorem}{Theorem}\fi
 \ifdefined\proposition\else \newtheorem{proposition}[theorem]{Proposition}\fi
 \ifdefined\definition\else \newtheorem{definition}[theorem]{Definition}\fi
@@ -36,6 +67,8 @@
 \ifdefined\remark\else \newtheorem{remark}[theorem]{Remark}\fi
 \ifdefined\assumption\else \newtheorem{assumption}{Assumption}\fi
 \ifdefined\example\else \newtheorem{example}{Example}\fi
+\onehalfspacing
+
 
 \newcommand{\argmin}{\mathop{\arg\min}}
 \crefformat{enumi}{#2#1#3}
@@ -47,14 +80,114 @@
 \newcommand{\bt}[1]{\nb{BT}{orange}{#1}}
 \newcommand{\RR}{\mathbb{R}}
 
-\title{Scenario reduction}
+\renewcommand{\contentsname}{Table of contents}
+
 
 \begin{document}
-\LinesNumbered
-\RestyleAlgo{boxruled}
-\maketitle
-In this draft, I am writting a summary of \cite{rujeerapaiboon_scenario_2022} to gather results on finite scenario reduction and motivations. Several proofs can be very technical and will be omitted for brevity. I will also explore new insights on this problem.
 
+
+\thispagestyle{empty}
+
+\begin{figure}[htbp]
+    \centering
+    \begin{minipage}[b]{0.22\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{logo/logo.jpg}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[b]{0.25\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{logo/universita di pisa.png}
+    \end{minipage}
+\end{figure}
+
+\vspace{1.5cm}	
+
+\begin{center}	
+    {\huge \bf\ Research Internship  \\
+    \vspace{1cm}
+    \huge Scenario reduction techniques for two-stage programming. \\
+    \vspace{1.5cm}
+
+    \normalsize Field of study : Applied Mathematics \\
+    School year : 2023 - 2024 \\
+
+
+
+    \vspace{3.3cm}
+    \textcolor{red}{Confidentiality notice : }\\
+    \color{black}
+    \vspace{0.5cm}
+    }
+\end{center}
+
+\noindent\normalsize \textbf{Author} Romain Pujol  \\
+\textbf{Class} 2025 \\
+
+\noindent\textbf{ENSTA Paris supervisor} Sorin-Mihai Grad \\ 
+\textbf{Università di Pisa supervisor} Antonio Frangioni \\
+
+\noindent Internship carried out from 13/05/2024 to 02/08/2024. 
+\\
+Università di Pisa, Lungarno Antonio Pacinotti, 43.
+
+
+\newpage
+\thispagestyle{empty}
+\mbox{}
+\newpage
+
+
+
+%%% PAGE DE CONFIDENTIALITE
+%%% PAGE DE CONFIDENTIALITE
+%%% PAGE DE CONFIDENTIALITE
+%%% PAGE DE CONFIDENTIALITE
+%%% PAGE DE CONFIDENTIALITE
+%%% PAGE DE CONFIDENTIALITE
+%%% PAGE DE CONFIDENTIALITE
+
+
+
+\begin{titlepage}
+
+    \vspace*{5cm}
+        \Large\textbf{Acknowledgements}
+    \vspace{1cm}
+    
+    \normalsize Thanks.
+\end{titlepage}
+
+\newpage
+
+\begin{titlepage}
+
+    \vspace*{1cm}
+        \Large\textbf{Abstract} \\
+    
+    \normalsize Two-stage stochastic optimization problems become very large when the distributions involved have a large number of atoms. The goal is to solve simplified two-stage problems by reducing the size of the initial distribution in order to decrease CPU time. This scenario reduction is ruled by a certain metric, the Wasserstein distance. It is also necessary to ensure that the optimal values obtained from both problems are similar. In order to integrate scenario reduction techniques into the SMS++ ecosystem at the University of Pisa, a special attention is paid to algorithmic efficiency. \\ 
+    
+    \textbf{Key-words:} Stochastic programming, scenario reduction, Wasserstein distance, greedy algorithm, local-search, stability.
+  \\
+
+        \vspace*{1cm}
+        \Large\textbf{Résumé} \\
+    
+    \normalsize Les problèmes d'optimisation stochastique à deux étapes sont de très grande taille lorsque les distributions mises en jeu ont un grand nombre d'atomes. L'objectif sera de résoudre des problèmes à deux étapes simplifiés en \emph{réduisant} la taille de la distribution initiale pour diminuer le temps de calcul. Cette réduction de scénarios est gouvernée par une certaine métrique, la distance de Wasserstein. Il faut aussi être capable de s'assurer que les valeurs optimales obtenues via les deux problèmes sont similaires. Dans le but d'intégrer les techniques de réduction de scénario dans l'écosystème SMS++ de l'Université de Pise, une attention particulière est portée à l'efficacité algorithmique. \\
+    
+    \textbf{Mots-clés :} Optimisation stochastique, réduction de scénario, distance de Wasserstein, algorithme glouton, recherche locale, stabilité.
+    
+\end{titlepage}
+
+
+% Table des matières
+\tableofcontents
+
+\newpage
+\pagestyle{fancy} % Activer le style fancy
+\fancyfoot[R]{\thepage/\pageref{LastPage}} 
+\fancyfoot[C]{Romain Pujol / Università di Pisa \\ \textcolor{red}{Confidential / Non confidential report}}
+\section{Introduction}
 \section{Stability in stochastic programming}\label{stability}
 \subsection{Context and notions}
 Many Stochastic Programming (SP) models can be written as:
@@ -64,30 +197,21 @@ Many Stochastic Programming (SP) models can be written as:
 
 Here $X\subset\RR^m$ is closed, $\Xi\subset\RR^s$ is closed, $F_j$ are random lower semi-continuous functions for all $j\in\{0,...,d\}$ and $P$ is a Borel probability measure on $\Xi$. The set $X$ does not depend on $P$ and defines constraints on $x$. The goal of this part is to highlight a specific metric on distributions that would ensure that if two distributions $P$ and $Q$ are close, then the value of both SP models are close. We write:
 \begin{align*}
-    &\mathcal{X}\left(P\right)=\left\{x\in X, \int_\Xi F_j\left(x,\xi\right)\text{d}P\left(\xi\right)\leq0, j=1,...,d\right\}\\
-    &v\left(P\right)=\inf\left\{\int_\Xi F_0\left(x,\xi\right)\text{d}P\left(\xi\right)\:,\: x\in \mathcal{X}\left(P\right)\right\} \\
+    &\mathcal{X}\left(P\right)=\left\{x\in X, \int_\Xi F_j\left(x,\xi\right)\text{d}P\left(\xi\right)\leq0, j=1,...,d\right\},\\
+    &v\left(P\right)=\inf\left\{\int_\Xi F_0\left(x,\xi\right)\text{d}P\left(\xi\right)\:,\: x\in \mathcal{X}\left(P\right)\right\}, \\
     &X^*\left(P\right)=\argmin\left\{\int_\Xi F_0\left(x,\xi\right)\text{d}P\left(\xi\right)\:,\: x\in X, \: \int_\Xi F_j\left(x,\xi\right)\text{d}P\left(\xi\right)\leq0, j=1,...,d\right\}.
 \end{align*}
-So $\mathcal{X}\left(P\right)$ denotes the feasible set, $v\left(P\right)$ the optimal value of \eqref{stochastic} and $X^*\left(P\right)$ its set of minimizers. Let $\mathcal{F}$ a class of measurable functions from $\Xi$ to $\RR$, a pseudometric quantifying distances between distributions is:
-$$d_\mathcal{F}\left(P,Q\right)=\sup_{f\in\mathcal{F}}\lvert \int_\Xi f\left(\xi\right)\text{d}P\left(\xi\right) - \int_\Xi f\left(\xi\right)\text{d}Q\left(\xi\right)\rvert.$$
-$d_\mathcal{F}$ is symmetrical, $d_\mathcal{F}\left(P,P\right)=0$ and the triangle inequality is verified. Let $P,Q,R$ be three Borel probability measures and $f\in\mathcal{F}$:
+So $\mathcal{X}\left(P\right)$ denotes the feasible set, $v\left(P\right)$ the optimal value of \eqref{stochastic} and $X^*\left(P\right)$ its set of minimizers. For every integer $p\geq 1$, let us define $\mathcal{F}_p\left(\Xi\right)$ a class of measurable functions from $\Xi$ to $\RR$ named locally Lipschitz continuous functions:
 \begin{align*}
-    \lvert \int_\Xi f\left(\xi\right)\text{d}P\left(\xi\right)- \int_\Xi f\left(\xi\right)\text{d}Q\left(\xi\right)\rvert &= \lvert \int_\Xi f\left(\xi\right)\text{d}P\left(\xi\right)- \int_\Xi f\left(\xi\right)\text{d}R\left(\xi\right)+\int_\Xi f\left(\xi\right)\text{d}R\left(\xi\right)-\int_\Xi f\left(\xi\right)\text{d}Q\left(\xi\right)\rvert \\
-    &\leq \lvert \int_\Xi f\left(\xi\right)\text{d}P\left(\xi\right)- \int_\Xi f\left(\xi\right)\text{d}R\left(\xi\right)\rvert + \lvert \int_\Xi f\left(\xi\right)\text{d}R\left(\xi\right)-\int_\Xi f\left(\xi\right)\text{d}Q\left(\xi\right)\rvert \\
-    &\leq d_\mathcal{F}\left(P,R\right)+d_\mathcal{F}\left(R,Q\right)
+    &\mathcal{F}_p\left(\Xi\right)=\left\{f:\Xi\to \RR: \lvert f\left(\xi\right)-f\left(\xi'\right)\rvert \leq c_p\left(\xi,\xi'\right)\lVert\xi-\xi'\rVert, \forall \xi,\xi'\in \Xi^2 \right\}, \\
+   & c_p\left(\xi,\xi'\right)=\max \left\{1,\lVert\xi \rVert,\lVert\xi'\rVert\right\}^{p-1}.
 \end{align*}
-As the right-hand side of the inequality does not depend on $f$ any longer and this inequality holds for any $f\in\mathcal{F}$, we can easily conclude that for any $P,Q$ and $R$ Borel probability measures:
-$$
-d_\mathcal{F}\left(P,Q\right)\leq d_\mathcal{F}\left(P,R\right)+d_\mathcal{F}\left(R,Q\right)
-$$
-This pseudometric can be a metric if $\mathcal{F}$ preserves definiteness for instance if the functions can approximate pointwise indicator functions of any measurable sets. An important family that we will use in this part is the family of locally Lipschitz continuous functions  $\mathcal{F}_p\left(\Xi\right)$ defined for every $p\geq1$ by: 
-$$
-\mathcal{F}_p\left(\Xi\right)=\left\{f:\Xi\to \RR: \lvert f\left(\xi\right)-f\left(\xi'\right)\rvert \leq c_p\left(\xi,\xi'\right)\lVert\xi-\xi'\rVert, \forall \xi,\xi'\in \Xi^2 \right\},
-$$
-where $p$ defines $c_p\left(\xi,\xi'\right)=\max\left\{1,\lVert \xi\rVert, \lVert \xi'\rVert\right\}^{p-1}$. \rp{phrase d'interprétation p=1: lipschitz, terme supérieur: dépendance à la courbure}We can now write $p$-th order Fortet-Mourier metrics, our first metrics on distributions:
+When $p=1$, we recall 1-Lipschitz functions. When $p\geq 2$, there exists another dependency on the space $\Xi$ allowing functions with higher and higher variations as $p$ increases. One can note that $F_1\left(\Xi\right)\subset F_2\left(\Xi\right)\subset F_3\left(\Xi\right) \hdots$ For $P,Q\in\mathcal{P}_p\left(\Xi\right)^2$ where $\mathcal{P}_p\left(\Xi\right)=\left\{Q\in\mathcal{P}\left(\Xi\right), \int_\Xi \lVert\xi\rVert^pdQ\left(\xi\right)\right\}$, the latest statement allows us to define $p$-th order Fortet-Mourier metric as:
 $$
 \zeta_p\left(P,Q\right)=\sup_{f\in\mathcal{F}_p\left(\Xi\right)}\lvert \int_\Xi f\left(\xi\right)\text{d}P\left(\xi\right)-\int_\Xi f\left(\xi\right)\text{d}Q\left(\xi\right)\rvert.
 $$
+See \href{https://www.imo.universite-paris-saclay.fr/~pierre-loic.meliot/master/exam-2017.pdf}{metric proof}.
+
 \subsection{Result}
 Let $Q\in\mathcal{P}\left(\Xi\right)$, we write the perturbed model:
 \begin{equation*}
@@ -108,48 +232,59 @@ which is \eqref{stochastic} but with the distribution $Q$ instead of $P$. In thi
     \end{align*}
     Where $\Psi_p$ is defined in \cite[2.22-2.23]{romisch_stability_2003}. Whenever $Q\in\mathcal{P}\left(\Xi\right)$ with finite $p$-th order absolute moments and $\zeta_p\left(P,Q\right)<\delta$
 \end{theorem}
-These results shows two main aspects. Under the assumptions made and $d=0$, under slight perturbation of $P$ (in terms of Fortet-Mourier), the optimal value is controlled, it can not change a lot. Another thing is that the set of optimal $x$ with $Q$ will remain close to the set of optimal $x$ with $P$. This is a result of stability. 
+These results has two main points. First, we understand that under a slight perturbation of $P$ (in terms of Fortet-Mourier metric), the optimal value is controlled. The parameter $p$ appears in the third assumption. Second, the set of optimal $x$ of the perturbed model will remain close to the set of optimal $x$ of the original problem. This is a result of stability. 
 
 \subsection{Application to two-stage linear models}\label{two stage}
 We consider a linear two-stage model with fixed recourse, this model is generically written as: 
 \begin{equation}\label{lp stoch}
-    \min\left\{c^Tx + \mathbb{E}_\xi\left(\inf_y q\left(\xi\right)^Ty \right)\: :\: Wy\left(\xi\right)=h\left(\xi\right)-T\left(\xi\right)x\:,\: y\left(\xi\right)\geq0\:,\: x\in X \right\}.
+    \min_x\left\{c^Tx + \mathbb{E}_\xi\left(\inf_y q\left(\xi\right)^Ty \right)\: :\: Wy\left(\xi\right)=h\left(\xi\right)-T\left(\xi\right)x\:,\: y\left(\xi\right)\geq0\:,\: x\in X \right\}.
 \end{equation}
-Where $x$ is called the first-stage decision variable, $y$ the second. The general idea of this model is a first-stage decision has to be made before observing $\xi$ even though you know the distribution of $\xi$. You must then choose $x$ so that it gives you the best average outcome. Then after observing $\xi$, the second-stage variable $y$ is determined. One can note that the only decision you make is $x$ as $y$ is determined by $x$ and $\xi$. The term "fixed recourse" highlights the nature of $W$, a fixed matrix that does not depend (in that case) on $\xi$. See \cite{wets_stochastic_1974} for a complete survey on linear two-stage programs with fixed recourse. In order to fit in the definition  \ref{stochastic}, we define:
+Where $x$ is called the first-stage decision variable, $y$ the second. The general idea of this model is a first-stage decision has to be made before observing $\xi$. The distribution of $\xi$ is known so that $x$ is chosen to ensure the best average outcome. Then after observing $\xi$, the second-stage variable $y$ is determined. One can note that the only decision you make is $x$ as $y$ is determined by $x$ and $\xi$. The term "fixed recourse" highlights the nature of $W$, a fixed matrix that does not depend (in that case) on $\xi$. See \cite{wets_stochastic_1974} for a complete survey on linear two-stage programs with fixed recourse. In order to fit in the definition  \ref{stochastic}, we define:
 $$
 F_0\left(x,\xi\right)=\begin{cases} 
   c^Tx + \phi\left(q\left(\xi\right), h\left(\xi\right) -T\left(\xi\right)x\right) & h\left(\xi\right)-     T\left(\xi\right)x \in \text{pos}\left(W\right), q\left(\xi\right) \in D, \\
   +\infty & \text{otherwise},
 \end{cases}
 $$
-where $\text{pos}(W)=\left\{Wy, y\in\RR_+^m\right\}$, $D=\left\{u\in\RR^m:\left\{z\in\RR^r:W^Tz \leq u\right\}\ne \emptyset\right\}$ and $\phi\left(u,t\right)=\inf\left\{ u^Ty : Wy=t, y\geq0\right\}$. \ref{lp stoch} can be rewritten as:
-\begin{equation}
-    \min\left\{\int_\Xi F_0\left(x,\xi\right)\text{d}P\left(\xi\right): x\in X\right\}. 
+where $\text{pos}(W)=\left\{Wy, y\in\RR_+^m\right\}$, $D=\left\{u\in\RR^m:\left\{z\in\RR^r:W^Tz \leq u\right\}\ne \emptyset\right\}$ and  \\$\phi\left(u,t\right)=\inf\left\{ u^Ty : Wy=t, y\geq0\right\}$. \ref{lp stoch} can be rewritten as:
+\begin{equation}\label{rewrite}
+    \min_x\left\{\int_\Xi F_0\left(x,\xi\right)\text{d}P\left(\xi\right): x\in X\right\}. 
 \end{equation}
-\rp{i will write down a proof later as it does not appear on the article}
-One can note that $d=0$ in this formulation. We introduce two assumptions: 
+One can note that $d=0$ in this formulation. Let us introduce two assumptions: 
 \begin{assumption}\label{h1} For each $\left(x,\xi\right)\in X\times \Xi$ it holds that $h\left(\xi\right)- T\left(\xi\right)x\in \text{pos}\left(W\right), q\left(\xi\right) \in D$.
 \end{assumption}
 \begin{assumption}
 \label{h2} $P\in\mathcal{P}\left(\Xi\right)$ and has a finite $2$-th moment i.e. $\int_\Xi \lVert \xi\rVert^2\text{d}P\left(\xi\right) < \infty$.
 \end{assumption}
+\noindent Under these two assumptions, equivalence between \ref{lp stoch} and \ref{rewrite} is direct, even though it may look harsh, as both terms inside the integral converge then it is a matter of notation.
+%\begin{proof}
+    %Let $x\in X$. \Cref{h1} states that $F_0$ will always be written $c^Tx + \phi\left(q\left(\xi\right), h\left(\xi\right) -T\left(\xi\right)x\right)$ when we integrate it on $\Xi$ when $x\in X$.
+    %\begin{align*}
+    %    \int_\Xi F_0\left(x,\xi\right)\text{d}P\left(\xi\right)&=\int_\Xi c^Tx + \phi\left(q\left(\xi\right), h\left(\xi\right) -T\left(\xi\right)x\right)\text{d}P\left(\xi\right) \\
+    %    &= c^Tx + \int_\Xi \inf_y\left\{q\left(\xi\right)^Ty\: :\: Wy=h\left(\xi\right) -T\left(\xi\right)x\right\}\text{d}P\left(\xi\right) \\
+    %    &= \left\{c^Tx + \int_\Xi \inf_y\left\{q\left(\xi\right)^Ty\right\}\text{d}P\left(\xi\right)\:,\: Wy=h\left(\xi\right) -T\left(\xi\right)x\right\}
+    %\end{align*}
+    %There is no problem to split the integral in two as $c^Tx$ is finite, does not depend on $\xi$ and the whole integral is finite aswell. We  used obviously $\int_\Xi\text{d}P\left(\xi\right)=1$. The third equality is a matter of notation. 
+%\end{proof}
 
-\begin{proposition}
+\begin{proposition}\label{prop 2}
     Let \Cref{h1} be satisfied. Then $F_0$ is a random convex function. Furthermore there exist constants $L>0, \bar{L}>0$, and $K>0$ such that the following holds for all $\xi,\xi'\in\Xi^2$ and $x,x'\in X^2$ with $\max\left\{\lVert x\rVert, \lVert x' \rVert\right\}\leq r$:
     \begin{align}
-        \lvert F_0\left(x,\xi\right)- F_0\left(x,\xi'\right) &\leq Lr\max\left\{1,\lVert \xi\rVert, \lVert \xi'\rVert\right\}\lVert \xi-\xi'\rVert, \label{lips}\\
-        \lvert F_0\left(x,\xi\right)- F_0\left(x',\xi\right) &\leq \bar{L}\max\left\{1,\lVert\xi\rVert^2\right\}\lVert x-x'\rVert, \\
-        \lvert F_0\left(x,\xi\right) &\leq Kr\max\left\{1,\lVert\xi\rVert^2\right\}.
+        \lvert F_0\left(x,\xi\right)- F_0\left(x,\xi'\right)\rvert &\leq Lr\max\left\{1,\lVert \xi\rVert, \lVert \xi'\rVert\right\}\lVert \xi-\xi'\rVert, \label{lips}\\
+        \lvert F_0\left(x,\xi\right)- F_0\left(x',\xi\right)\rvert &\leq \bar{L}\max\left\{1,\lVert\xi\rVert^2\right\}\lVert x-x'\rVert, \\
+        \lvert F_0\left(x,\xi\right) \rvert&\leq Kr\max\left\{1,\lVert\xi\rVert^2\right\}.
     \end{align}
+     
 \end{proposition}
 \begin{proof}
     See \cite[Proposition 22]{romisch_stability_2003}.
 \end{proof}
-In this draft we will work with finite distribution, meaning that $\Xi$ is bounded. Let $\Xi$ be bounded, with \eqref{lips} we write:
+Thereafter we will work with finite distributions, meaning that $\Xi$ will always be bounded. With $\Xi$ be bounded, we can modify a little what is said in \Cref{lips} from \Cref{prop 2} to our best convenience:
 $$
-\lvert F_0\left(x,\xi\right)- F_0\left(x,\xi'\right) \leq L'r \lVert \lVert \xi-\xi'\rVert, \text{ with } L'=L\max_{\xi\in\Xi}\left\{1,\lVert\xi\rVert\right\}.
+\lvert F_0\left(x,\xi\right)- F_0\left(x,\xi'\right) \leq L'r \lVert \lVert \xi-\xi'\rVert, \text{ with } L'=L\max\left\{1,\max_{\xi\in\Xi}\lVert\xi\rVert\right\}.
 $$
-This means that there exists a constant $C>0$ such that $\frac{1}{C}F_0\left(x,\cdot\right)\in\mathcal{F}_1\left(\Xi\right)$ for each $x\in X$ hence if we fix $U$ an open, bounded neighbourhood of $X^*\left(P\right)$ the result hold for each $x\in X\cap \text{cl}U\subset X$. 
+This means that there exists a constant $C>0$ such that $\frac{1}{C}F_0\left(x,\cdot\right)\in\mathcal{F}_1\left(\Xi\right)$ for each $x\in X$ hence if we fix $U$ an open, bounded neighbourhood of $X^*\left(P\right)$ the result hold for each $x\in X\cap \text{cl}U\subset X$. In other words, condition (3) of \Cref{stability_th} is verified with $p=1$.
+
 \begin{corollary}
     Let both assumptions \Cref{h1} and \Cref{h2} be satisfied, $\Xi$ be bounded and let $X^*\left(P\right)$ be nonempty and $\mathcal{U}$ be an open, bounded neighbourhood of $X^*\left(P\right).$ Then there exist constants $L>0$ and $\delta >0$ such that:
     \begin{align*}
@@ -159,7 +294,7 @@ This means that there exists a constant $C>0$ such that $\frac{1}{C}F_0\left(x,\
     whenever $Q\in\mathcal{P}\left(\Xi\right)$ and has a finite $1$-th moment and $\zeta_1\left(P,Q\right)<\delta$.
 \end{corollary}
 \begin{proof}
-    This is an application of \Cref{stability_th} with $p=1$ where both assumptions are sufficient to ensure that conditions (2), (3) of \Cref{stability_th} are verified. See \cite[Proposition 22]{romisch_stability_2003}.
+    This is an application of \Cref{stability_th} with $p=1$ where both assumptions are sufficient to ensure that conditions (2), (3) of \Cref{stability_th} are verified. Condition (1) is verified when the problem is well posed, meaning that there exists a solution. See \cite[Proposition 22]{romisch_stability_2003}.
 \end{proof}
 \begin{remark}
     In \cite{romisch_stability_2003}, they do not assume that $\Xi$ is bounded and then the results hold with $p=2$.
@@ -168,7 +303,7 @@ Consider now a two-stage model with a distribution $P=\sum_{i\in I}\delta_{x_i}p
 $$
 \zeta_1\left(P,Q\right)=\sup_{F\in\mathcal{F}_1\left(\Xi\right)}\lvert \int_\Xi F\left(\xi\right)\text{d}P\left(\xi\right)-\int_\Xi F\left(\xi\right)\text{d}Q\left(\xi\right)\rvert,
 $$
-where $\mathcal{F}_1\left(\Xi\right)=\left\{F:\Xi\to \RR: \lvert F\left(\xi\right)-F\left(\tilde{\xi}\right)\rvert \leq \lVert\xi-\xi'\rVert, \forall \xi,\xi'\in \Xi^2 \right\}$. Computing this $\sup$ over the Lipschitz functions tends to be hard nay impossible. We introduce $U\left(P,Q\right)$ the set of joint distributions whose marginals are $P$ and $Q$ and the type-$\ell$ Wasserstein distance: $$
+where $\mathcal{F}_1\left(\Xi\right)=\left\{F:\Xi\to \RR: \lvert F\left(\xi\right)-F\left(\tilde{\xi}\right)\rvert \leq \lVert\xi-\xi'\rVert, \forall \xi,\xi'\in \Xi^2 \right\}$. Computing this upper bound on the Lipschitz functions tends to be hard nay impossible. We introduce $U\left(P,Q\right)$ the set of joint distributions whose marginals are $P$ and $Q$ and the type-$\ell$ Wasserstein distance: $$
 W_\ell\left(P,Q\right) = \left\{\min_{\pi\in U\left(P,Q\right)}\int_{\Xi^2}\lVert \xi-\xi'\rVert^l \text{d}\pi\left(\xi,\xi'\right)\right\}^{1/l}.$$
 Where $\lVert \cdot \rVert$ denotes the norm on $\Xi$ used to define $\mathcal{F}_1\left(\Xi\right)$. The next idea is to bound $\zeta_1$ by any $W_\ell$ which would be easier to compute.
 \begin{align*}
@@ -178,399 +313,163 @@ Where $\lVert \cdot \rVert$ denotes the norm on $\Xi$ used to define $\mathcal{F
 \end{align*}
 In order to choose a $\ell$ that will simplify the work, $\ell\in\left\{1,2\right\}$ actually, we will prove that $W_1\left(P,Q\right)\leq W_\ell\left(P,Q\right)$ for any $\ell \geq 1$.  Let $\ell >1$, $q>1$ such that $\frac{1}{\ell}+\frac{1}{q}=1$ and $\pi\in U\left(P,Q\right)$:
 \begin{align*}
-W_1\left(P,Q\right)&\leq \int_{\Xi^2}\lVert \xi-\xi'\rVert \text{d}\pi\left(\xi\times\xi'\right) \\ &\leq \left(\int_{\Xi^2} \lvert 1\rvert^{q}\text{d}\pi\left(\xi\times\xi'\right)\right)^{1/q} \left(\int_{\Xi^2}\lVert \xi-\xi'\rVert^\ell\text{d}\pi\left(\xi\times\xi'\right)\right)^{1/\ell}, \: \text{due to Hölder's inequality} \\
-&=\left(\int_{\Xi^2}\lVert \xi-\xi'\rVert^\ell\text{d}\pi\left(\xi\times\xi'\right)\right)^{1/\ell}
+W_1\left(P,Q\right)&\leq \int_{\Xi^2}\lVert \xi-\xi'\rVert \text{d}\pi\left(\xi\times\xi'\right),\: \pi \text{ may not be optimal,} \\ &\leq \left(\int_{\Xi^2} \lvert 1\rvert^{q}\text{d}\pi\left(\xi\times\xi'\right)\right)^{1/q} \left(\int_{\Xi^2}\lVert \xi-\xi'\rVert^\ell\text{d}\pi\left(\xi\times\xi'\right)\right)^{1/\ell}, \: \text{due to Hölder's inequality} \\
+&=\left(\int_{\Xi^2}\lVert \xi-\xi'\rVert^\ell\text{d}\pi\left(\xi\times\xi'\right)\right)^{1/\ell}.
 \end{align*}
 We can now take the infimum over $\pi$ what gives:
 $$
 W_1\left(P,Q\right)\leq W_\ell\left(P,Q\right).
 $$
-For a two-stage linear model, we have proven that for $\ell\geq1$, there exists a constant $L>0$ such that:
+For a two-stage linear model, we have finally proven that for $\ell\geq1$, there exists a constant $L>0$ such that:
 $$
 \lvert v\left(P\right)-v\left(Q\right)\rvert \leq LW_\ell\left(P,Q\right).
 $$
-In what will come next we will consider a finite distribution $P$ and try to find another distribution $Q$ with less atoms in order to minimize the type-$\ell$ Wasserstein distance between them. We will work with $\ell\in\left\{1,2\right\}$ for the theoretical part and $\ell=2$ for every simulation.
-\section{Wasserstein distance}
-In this part, we present tools and concepts useful for scenario reduction. We will define distance between two distributions : the Wasserstein distance is a good candidate. In the case of discrete distributions $\mathbb{P}=\sum_{i\in I}p_i\delta_{x_i}$ and $\mathbb{Q}=\sum_{j\in J}q_j\delta_{y_j}$, one can note that $x_i$ and $y_j$ must live in the same normed space ($\lVert\cdot\rVert$ denotes the norm). The type-$l$ Wasserstein distance between $\mathbb{P}$ and $\mathbb{Q}$ is defined as :  
-\[
-d_l(\mathbb{P},\mathbb{Q})=\left(\min_{\pi\in\mathbb{R}_+^{\lvert I\rvert\times\lvert J\rvert}}\left\{ 
+Thereafter we will consider a finite distribution $P$ and attempt to find another distribution $Q$ with fewer atoms with the idea of minimizing the type-$\ell$ Wasserstein distance between them. This would control the term: $\lvert v\left(P\right)-v\left(Q\right)\rvert$. We will work with $\ell\in\left\{1,2\right\}$ for the theoretical part and $\ell=2$ for every simulation.
+
+\section{Scenario reduction with Wasserstein distance on finite distributions}
+
+In this part, we present tools and concepts useful for scenario reduction aswell as their guarantees and limits. Results derive from \cite{rujeerapaiboon_scenario_2022}. 
+
+\subsection{Introduction to Wasserstein distance}
+In the case of discrete distributions $P=\sum_{i\in I}p_i\delta_{x_i}$ and $Q=\sum_{j\in J}q_j\delta_{y_j}$. The type-$l$ Wasserstein distance between $P$ and $Q$ is defined as :  
+\begin{definition}{Type-$\ell$ Wasserstein distance}
+$$
+d_\ell(P,Q)=\left(\min_{\pi\in\mathbb{R}_+^{\lvert I\rvert\times\lvert J\rvert}}\left\{ 
 \sum_{i\in I}\sum_{j\in J}\pi_{ij}\lVert x_i-y_j\rVert^l \: \text{ : } \:  \begin{aligned}
 & \sum_{j\in J}\pi_{ij}=p_i \: \forall i\in I \\
 & \sum_{i\in I}\pi_{ij}=q_j \: \forall j\in J
-\end{aligned}\right\}\right)^{1/l}.
-\]
-The parameter $l$ has to be greater than or equal to 1 in order to satisfy axioms of distances, see \Cref{distance}. One can \bt{To prove that $d^\ell$ is distance, the difficult part is the triangle inequality. It is a distance for $\ell \geq 1$ and the proof of the triangle inequality is here called the "gluing lemma" (Peyré-Cuturi chapter 1 for our "simple" case). This gluing lemma uses Minkowski's inequality in the case $\ell\geq1$ so that's the reason why. 
-It is still an interesting question for $0 < \ell \leq 1$. We have $d_\ell^\ell$ (and not $d\ell$ itself) is a distance as $(x,y) \mapsto \lVert x - y \rVert^\ell$ is already a distance when $0 < \ell \leq 1$ thanks to Minkowski's inequality in the case $\ell \leq 1$.
-}. See \Cref{compute} in order to have an idea on how to compute the distance of Wasserstein between two distributions and more precision.
-\newline
-
-$\mathcal{P}_E(X,n)$ denotes the set of all \textbf{uniform} discrete distribution on $X\subset R^d$ with \textbf{exactly} $n$ distinct scenarii and $\mathcal{P}(X,m)$ denotes the set of discrete distributions on $X\subset R^d$ with \textbf{at most} m scenarii. In the article, one assume that $\mathbf{P}\in\mathcal{P}_E(X,n)$. What is true when you obtain the distribution $\mathbb{P}$ via sampling, every issue has the probability of $\frac{1}{n}$ and if a same value occurs twice or more, they say we can decompose the distribution with two or more close atoms.
-\newline
-
-We want to find a distribution that minimizes the Wasserstein distance over a particular set of distribution just like we can do in $\RR^d$ when we want to project a point over a subspace. Two types of reduction are typically presented. The continous scenario reduction problem :
+\end{aligned}\right\}\right)^{1/\ell}.
 $$
-C_l(\mathbb{P},m)=\min_\mathbb{Q}\left\{d_l(\mathbb{P},\mathbb{Q}),\: \mathbb{Q}\in\mathcal{P}(\mathbb{R}^d,m)\right\}. 
-$$
-The discrete scenario reduction problem :
-$$
-D_l(\mathbb{P},m)=\min_\mathbb{Q}\left\{d_l(\mathbb{P},\mathbb{Q}),\: \mathbb{Q}\in\mathcal{P}(\text{supp}(\mathbb{P}),m)\right\}.
-$$
-Let $\mathbb{P}$ be a finite distribution on $\RR^d$, obviously $\text{supp}(\mathbb{P})\subset \mathbb{R}^d$ leads to $C_l(\mathbb{P},m)\leq D_l(\mathbb{P},m)$. Discrete scenario reduction problem has been more studied as it uses atoms of $\mathbb{P}$ that have a physical reality (if $\mathbb{P}$ represents the distribution of a real event).
-
-\section{Fundamental limits of scenario reduction}\label{limit}
-\subsection{Bounds}
-Here, we try to provide bounds on the value of the Wasserstein distance in order to guarantee closeness between the reduced distribution and the original one. We work with $\lVert\cdot\rVert_2$ and atoms within the unit ball because of the positive homogeneity of the Wasserstein distance $C_l(\mathbb{P}^\lambda,m)=\lambda \cdot C_l(\mathbb{P},m)$ for $\lambda\in\mathbb{R}_+$ and $\mathbb{P}^\lambda=\sum_{i\in I}p_i\delta_{\lambda\cdot x_i}$. See \Cref{scaled} for a proof. \rp{not obvious tbh} Generally, we have that : $$\forall \lambda\in\mathbb{R}, C_l(\mathbb{P}^\lambda,m)=|\lambda|C_l(\mathbb{P},m).$$ 
-The homogeneity allows us to investigate inside the unit ball as we can scale distributions w.l.o.g. Another goal of this part is to quantify and study the worst case of scenario reduction defined by :
-$$
-\bar{C}_l\left(n,m \right)=\left\{\max_{\mathbb{P}\in\mathcal{P}_E(\mathbb{R}^d,n)}C_l(\mathbb{P},m)\: :\: \text{supp}(\mathbb{P})\in B(0,1)\right\}.
-$$
-The goal is to find an upper bound better than 1 for $\bar{C}_l\left(n,m \right)$. First, we prove that : $\bar{C}_l\left(n,m \right)\leq 1$. By definition, for $\mathbb{P}\in\mathcal{P}_E(\mathbb{R}^d,n)$, we have that : 
-$$d_l(\mathbb{P},\delta_0)^l=\left(\min_{\pi\in\mathbb{R_+^n}}\left\{ 
-\sum_{i=1}^n\pi_i\lVert x_i\rVert^l \: \text{ : } \:  \begin{aligned}
-& \pi_{i}=p_i, \: \forall i\in I \\
-& \sum_{i= 1}^n\pi_{i}=1 
-\end{aligned}\right\}\right)\leq\left(\min_{\pi\in\mathbb{R_+^n}}\left\{ 
-\sum_{i=1}^n\pi_i \: \text{ : } \:  \begin{aligned}
-& \pi_{i}=p_i, \: \forall i\in I \\
-& \sum_{i= 1}^n\pi_{i}=1 
-\end{aligned}\right\}\right)=1.$$
-Here we used that $\lVert x_i\rVert\leq 1$ and positivity of $\pi$. Again by definition, we have that
-$$
-C_l(\mathbb{P},m)\leq C_l(\mathbb{P},1)\leq d_l(\mathbb{P},\delta_0)\leq 1.
-$$
-The right hand side which is 1 does not depend on $\mathbb{P}$, so we can go to the upper bound for $\mathbb{P}\in\mathcal{P}_E(\mathbb{R}^d,n), \text{supp}(\mathbb{P})\in B(0,1)$ and we proved that $\bar{C}_l\left(n,m \right)\leq1$ \rp{this bound even works for non uniform discrete distributions and does not matter on the norm we use as long as $\text{supp}(\mathbb{P})\in B(0,1)$ for the norm}
-The aim of what's next is to tighten that bound for $l\in\{0,1\}$ and with $\lVert\cdot\rVert_2$.
-\newline
-
-$\mathfrak{P}(I,m)$ is the family of m-set partitions of $I$. Following \cite{rujeerapaiboon_scenario_2022}, we write $\{I_j\}$ an element of $\mathfrak{P}(I,m)$ and $I_j$ for $j\in\{1,..,m\}$ a set of the partition $\{I_j\}$.
-\begin{theorem}{Reformulation}\label{theorem1}
-$$C_l(\mathbb{P},m)=\min_{\{I_j\}\in \mathfrak{P}(I,m)}\left\{ \frac{1}{n}\sum_{j\in J}\min_{y_j\in\mathbb{R}^d}\sum_{i\in I_j}\lVert x_i-y_j\rVert^l \right\}^{1/l}.$$
-\end{theorem}
+\end{definition}
 
 \begin{remark}
-    For $l=2$, the inner minimum, $y_j^*=\frac{1}{|I_j|}\sum_{i\in I_j}x_i$. For $l=1$, $y_j^*$ is attained by any geometric median (minimizer of the distance - not squared - to a family). Indeed, let $\{I_j\}\in\mathfrak{P}\left(I,m\right)$ and $I_j\in\{I_j\}$ fixed. We want to compute the inner minimum : 
-    $$
-    \min_{y\in\RR^d}f(y)=\min_{y\in\RR^d}\sum_{i\in I_j}\lVert x_i-y\rVert^2.
-    $$
-    We have to minimize an unconstrained function, when we work with $\lVert\cdot\rVert_2$, the gradient of $f$ is : 
-    $$
-    \nabla f(y)=-2\sum_{i\in I_j}\left(x_i-y\right).
-    $$
-    This gradient is worth $0_{\RR^d}$ when :
-    $$
-    y=\frac{1}{n}\sum_{i\in I_j}x_i=\text{mean}\left(I_j\right).
-    $$
-    The Hessian is :    $$\nabla^2f\left(\text{mean}\left(I_j\right)\right)=2Id_d\succcurlyeq 0$$
+    A more general definition can be written by replacing the norm with a specific distance between objects $x_i$ and $y_j$. 
+\end{remark}
+For $l\geq1$, this mathematical expression meets the requirements of a distance. Values are positive, symmetry is direct, definiteness requires more work but the idea is to start by proving that $d_\ell\left(P,Q\right)=0$ implies that $\text{supp}\left(P\right)=\text{supp}\left(Q\right)$, concluding will be easy after that. Triangle inequality derives from the gluing lemma, see e.g. \cite[Chapter 1]{peyre_computational_2019}. For $l\in\mathopen{]}0,1\mathclose{]}, d_\ell^\ell$ is a distance. A pro of this particular distance is to rely on the underlying structure meaning the norm. The philosophy of this distance is to measure the minimum cost of moving weights from $x_i$ to $y_j$ where costs are defined by the norm.
+\newline
+
+Let $\mathcal{P}_U(X,n)$ denote the set of all \emph{uniform} discrete distribution on $X\subset R^d$ with $n$ distinct scenarios (do not mind if I use scenarios instead of scenari) and $\mathcal{P}(X,m)$ denote the set of discrete distributions on $X\subset R^d$ with \emph{at most} m scenarios. 
+\newline
+
+As presented in the conclusion of \ref{stability}, we want to find a distribution that minimizes the Wasserstein distance over a particular set of distribution. Two types of reduction are typically presented. The continous scenario reduction problem :
+$$
+C_\ell(P,m)=\min_Q\left\{d_\ell(P,Q),\: Q\in\mathcal{P}(\mathbb{R}^d,m)\right\}, 
+$$
+and the discrete scenario reduction problem :
+$$
+D_\ell(P,m)=\min_Q\left\{d_\ell(P,Q),\: Q\in\mathcal{P}(\text{supp}(P),m)\right\}.
+$$
+
+Let $P$ be a finite distribution on $\RR^d$. Obviously $\text{supp}(P)\subset \RR^d$ what leads to $C_\ell(P,m)\leq D_\ell(P,m)$. Discrete scenario reduction may be sometimes more suitable as continous scenario reduction can generate atoms that may be nonsensical in a particular context.
+
+\subsection{Results of scenario reduction}
+In this part, we provide bounds on the Wasserstein distance between an original distribution of $n$ atoms and its reduced one with $m<n$ atoms. Let $X\subset \RR^d$ and $\lVert \cdot \rVert$ be a norm on $X$. We restrict ourselves to distribution whose atoms lie within the unit ball and $\frac{1}{n}\sum_ix_i=0$. This is a legal assumption because of first repositionning a distribution does not affect $C_\ell$, second the positive homogeneity of $C_\ell$. Let $P=\sum_{i\in I}p_i\delta_{x_i}$, $\text{card}\left(I\right)=n<+\infty$, $1<m<n$, $\lambda\in\RR_+^*$ and $a\in\RR^d$:
+$$
+C_\ell\left(P,m\right)=\frac{1}{\lambda} C_\ell\left(\sum_{i\in I}p_i\delta_{\lambda x_i+a},m\right).
+$$
+We will work with uniform distribution $P\in\mathcal{P}_U\left(\RR^d,n\right)$ with the idea that the distributions derive from sampling and if not you can multiply atoms around a point of high probability. A goal of this part is to quantify and study the worst case of scenario reduction defined by:
+$$    \bar{C}_\ell\left(n,m \right)=\left\{\max_{P\in\mathcal{P}_U(\mathbb{R}^d,n)}C_\ell(P,m)\: :\: \text{supp}(P)\in B(0,1)\right\}.
+$$
+Let us write a first bound that we will tighten thereafter, let $P\in\mathcal{P}_U(\mathbb{R}^d,n)$:
+$$C_\ell\left(P,m\right)\leq C_\ell\left(P,1\right)\leq d_\ell\left(P,\delta_{0_{\RR^d}}\right)\leq 1.$$
+As the right-hand side of the equation does not depend on $P$, one can take the upper bound over $P\in\mathcal{P}_U\left(\RR^d,n\right)$ and write that:
+$$
+\bar{C}_\ell\left(n,m \right)\leq1.
+$$
+Let $\mathfrak{P}(I,m)$ be the family of m-set partitions of $I$. Following \cite{rujeerapaiboon_scenario_2022}, we write $\{I_j\}$ an element of $\mathfrak{P}(I,m)$ and $I_j$ for $j\in\{1,..,m\}$ a set of the partition $\{I_j\}$.
+\begin{theorem}{Reformulation}\label{theorem1}
+$$C_\ell(P,m)=\min_{\{I_j\}\in \mathfrak{P}(I,m)}\left\{ \frac{1}{n}\sum_{j\in J}\min_{y_j\in\mathbb{R}^d}\sum_{i\in I_j}\lVert x_i-y_j\rVert^\ell \right\}^{1/\ell}.$$
+\end{theorem}
+\begin{remark}
+    This reformulation takes the most of \Cref{closed formula}.
+\end{remark}
+Assume that we use the euclidean norm. In the case $\ell=1$, $y_j^*$ is attained by any geometric median. Now if $\ell=2$, the inner minimum can be found easily, gradient of the inner function is well-defined and minimizing with  no constraints gives: $$y_j^*=\text{mean}\left(I_j\right)=\frac{1}{\lvert I_j\rvert}{\sum_{i\in I_j}x_i}.$$ 
+\begin{theorem}{Tighter bounds}
+    $$\sqrt{\frac{n-m}{n-1}}\leq\bar{C_1}\left(n,m\right)\leq\bar{C_2}\left(n,m\right)\leq\sqrt{\frac{n-m}{n-1}}.$$
+\end{theorem}
+\subsection{Discrete scenario reduction}
+Reduced scenario sets obtained via continuous scenario reduction are always at least as good as reduced sets obtained via discrete scenario reduction. We will try to quantify the gap between the solution of both problems. More precisely, in this part we find for $\ell\in\{1,2\}$: 
+$$\underline{\kappa_\ell}\left(n,m\right)\cdot C_\ell\left(P,m\right)\leq D_\ell\left(P,m\right)\leq \bar{\kappa_\ell}\left(n,m\right)\cdot C_\ell\left(P,m\right).$$
+The goal is to find the largest $\underline{\kappa_\ell}\left(n,m\right)$ and smallest $\bar{\kappa_\ell}\left(n,m\right)$ so the bounds are as tight as possible. Solving the continuous problem will give bounds on the discrete. It's easy to argue that : 
+$$
+\underline{\kappa_\ell}\left(n,m\right)\geq1.
+$$
+Because we've already proven: 
+$$
+C_\ell\left(P,m\right)\leq D_\ell\left(P,m\right).
+$$
+\rp{a continuer}
+\section{Algorithms for scenario reduction}
+In this section, we present various algorithms and heuristics that are often used for scenario reduction problem. In order to check the accuracy of algorithms, we write the output of an algorithm $\bar{D_\ell}\left(P,m\right)$ which is an upper bound of   $D_\ell\left(P,m\right)$. We then define the \emph{approximation ratio} by: 
+$$
+\max_{n,m,P\in\mathcal{P}_U(\RR^d,n)}\frac{\bar{D}_\ell\left(P,m\right)}{D_\ell\left(P,m\right)}.
+$$
+Naturally this approximation ratio is greater than or equal to 1 as $\bar{D}_\ell\left(P,m\right)\geq D_\ell\left(P,m\right)$. A bounded approximation ratio would ensure a proximity to optimality for the reduced scenario set obtained via this particular algorithm. On the contrary an unbounded ratio means that there exist distributions whose reduced distribution obtained via an algorithm will be arbitrary far from the optimal.
+\subsection{A closed formula}
+In this part, we write and make the proof of a useful result that we will use in most algorithms.
+\begin{theorem}\label{closed formula}
+    Let $P=\sum_{i\in I}p_i\delta_{x_i}$ be a fixed distribution, $Q=\sum_{j\in J}q_j\delta_{y_j}$ have $y_j$ fixed and $q_j$ are free. Then, 
+    $$\sum_{j\in J}\left(\sum_{i\in I_j}p_i\right)\delta_{y_j}\in \argmin_Q D_\ell\left(P,Q\right).$$
+    Where $I_j=\left\{i\in I \mid j=\argmin_{k\in J} \lVert x_i-y_k\rVert^\ell\right\}$ (ties may be broken arbitrarily but must be broken). The probability of observing $y_j$ is the probability of observing atoms of $P$ whose closest atom of $Q$ is $y_j$ according to the chosen norm.
+\end{theorem}
+\begin{proof}
+Let us write carefully the problem, we intend to find:
+$$
+    \min_{q\geq0}\:\left\{d_\ell\left(P,\sum_{j\in J}q_j\delta_{y_j}\right)\text{ such that} \;\sum_{j\in J}q_j=1 \right\}.
+$$
+
+We will first find a lower bound of that expression, then we will prove that the lower bound is attained by the distribution given by the theorem. For the sake of readability, let us write $U\left(p,q\right)=\left\{\pi\in\RR^{\lvert I\rvert\times\lvert J\rvert}_+\:,\: \sum_{i\in I}\pi_{ij}=q_j\:,\:\sum_{j\in J}\pi_{ij}=p_i\right\}$ the constrained set for $\pi$ defined by the distance of Wasserstein.
+\newline
+    
+Let $q\geq 0$ such that $\sum_{j\in J}q_j=1$. We write $Q=\sum_{j\in J}q_j\delta_{y_j}$ and $P=\sum_{i\in I}p_i\delta_{x_i}$.  We have that :
+
+\begin{align*}
+    d_\ell\left(P,Q\right)^\ell&= \min_{\pi\in U\left(p,q\right)}\sum_{i\in I}\left[\sum_{j\in J}\pi_{ij}\lVert x_i-y_j\rVert^\ell\right] \\
+    &\geq \min_{\pi\in U\left(p,q\right)}\sum_{i\in I}\left[\sum_{j\in J}\pi_{ij}\min_{k\in J}\left\{\lVert x_i-y_k\lVert^\ell\right\}\right] \\ &= \min_{\pi\in U\left(p,q\right)}\sum_{i\in I}\min_{k\in J}\left\{\lVert x_i-y_k\lVert^\ell\right\}p_i
+    \\& =\sum_{i\in I}\min_{k\in J}\left\{\lVert x_i-y_k\lVert^\ell\right\}p_i.
+\end{align*}
+    
+First inequality stems from the positivity of $\pi$ and naturally $\forall j\in J, \lVert x_i-y_j\rVert^\ell \geq \min_{k\in J}\lVert x_i-y_j\rVert^\ell$. Before last expression no longer depends on $\pi$ then comes the last expression. The last expression is our lower bound. 
+
+Here we write $\delta^K$ the Kronecker delta, we choose: 
+\begin{align*}
+    q_j&=\sum_{i\in I_j}p_i, \\
+    \pi_{ij}&=p_i\delta^K_{j,\argmin_{k\in J}\lVert x_i-y_k\rVert^\ell}.
+\end{align*}
+First, we will verify that $\pi$ is admissible. $\cup_{j\in J}I_j$ represents a partition of $I$ because ties must be broken. $\pi$ is indeed positive, $\sum_{j\in J}\pi_{ij}=p_i\sum_{j\in J}\delta^K_{j,\argmin_{k\in J}\lVert x_i-y_k\rVert^\ell}=p_i$ as ties musts be broken and $\sum_{i\in I}\pi_{ij}=\sum_{i\in I}p_i\delta^K_{j,\argmin_{k\in J}\lVert x_i-y_k\rVert^\ell}=\sum_{i\in I_j}p_i=q_j$. So $\pi$ is admissible. The objective function is worth: 
+\begin{align*}
+    \sum_{i\in I}\sum_{j\in J}\pi_{ij}\lVert x_i-y_j\rVert^\ell &=\sum_{i\in I}\sum_{j\in J}p_i\delta^K_{j, \argmin_{k\in J}\lVert x_i-y_k\rVert^\ell}\lVert x_i-y_j\rVert^\ell \\ &=\sum_{i\in I}p_i\left[\sum_{j\in J}\delta^K_{j, \argmin_{k\in J}\lVert x_i-y_k\rVert^\ell}\lVert x_i-y_j\rVert^\ell\right] \\ &=\sum_{i\in I}p_i\min_{k\in J}\lVert x_i-y_k\rVert^\ell.
+\end{align*}
+All in all, with the notation $Q_0=\sum_{j\in J}\left(\sum_{i\in I_j}p_i\right)\delta_{y_j}$ we've proven that :
+$$
+\sum_{i\in I}p_i\min_{k\in J}\lVert x_i-y_k\rVert ^\ell\leq \min_{q} D_\ell^\ell\left(P,\sum_{j\in J}\delta_{y_j}q_j\right)\leq d_\ell^\ell\left(P,Q_0\right) \leq \sum_{i\in I}p_i\min_{k\in J}\lVert x_i-y_k\rVert ^\ell.
+$$
+First inequality is due to the lower bound we found earlier. Second comes from the fact that we fixed $q_j$ for $Q_0$. Third stems from the definition of $D_\ell$ and because we chose a $\pi\in U\left(p,q\right)$. Then we have that:
+$$
+\min_{q} D_\ell^\ell\left(P,\sum_{j\in J}\delta_{y_j}q_j\right)= d_\ell^\ell\left(P,Q_0\right)= \sum_{i\in I}p_i\min_{k\in J}\lVert x_i-y_k\rVert ^\ell.
+$$
+What gives us:
+$$\sum_{j\in J}\left(\sum_{i\in I_j}p_i\right)\delta_{y_j}\in \argmin_Q D_\ell\left(P,Q\right).$$
+\end{proof}
+\begin{remark}
+    The proof in the litterature provided by \cite{dupacova_scenario_2003} takes the most of the dual formulation of this linear program. In my opinion, the proof I am giving here uses more intuitive thoughts.
 \end{remark}
 
-\begin{theorem} Type-2 Wasserstein distance upper bound
-    $$\bar{C}_2\left(n,m \right)\leq \sqrt{\frac{n-m}{n-1}}.$$
-\end{theorem}
-\begin{proof}
-    We give a sketch of the proof. From \Cref{theorem1} and its remark, we have that : 
-    \begin{align*}\bar{C}_2\left(n,m\right)=&
-        \max_{\{y_i\}\subseteq\RR^d}\min_{\{I_j\}\in\mathfrak{P}\left(I,m\right)}\left[\frac{1}{n}\sum_{j\in J}\sum_{i\in I_j}\lVert y_i-\text{mean}\left(I_j\right)\rVert_2^2\right]^{1/2} \\ &\lVert y_i\rVert_2\leq1 \:\forall i\in I
-    \end{align*}
-    Now, they reformulate this as : 
-    \begin{align*}\bar{C}_2\left(n,m\right)^2=&
-        \max_{\tau\in\RR, \{y_i\}\subseteq\RR^d}\quad\frac{1}{n}\tau \\ &\text{s.t. }\tau\leq\sum_{j\in J}\sum_{i\in I_j}\lVert y_i-\text{mean}\left(I_j\right)\rVert_2^2\; :\; \forall \{I_j\}\in\mathfrak{P}\left(I,m\right) \\
-        &\quad\quad y_i^Ty_i\leq1 \quad\quad\quad\quad\quad\quad\quad\quad\quad : \forall i\in I
-    \end{align*}
-    The use of $\tau$ is legit as the first constraint means that $\tau\leq\min_{\{I_j\}}\sum_{j\in J}\sum_{i\in I_j}\lVert x_i-\text{mean}(I_j)\rVert_2^2$ but as we want to maximize the function $\tau$ will be the highest he can, so it will be equal to the minimum, thereafter it gets technical but understandable. To your best understanding of the proof in \cite[Theorem 2]{rujeerapaiboon_scenario_2022} two lemmas are used to prove this inequality. Lemma 1 is kind of technical as the set of solutions of a convex problem is convex, which is necessary to say that : $S=\frac{1}{n!}\sum_{\sigma\in\mathfrak{S}}S^\sigma$ is also a solution. This matrix S is indeed invariant under permutations. Lemma 2 is easy but I give an easier proof in \Cref{eigen}.
-\end{proof}
-
-Then the article highlights a distribution \textbf{that reaches the upper bound for \boldmath{$d\geq n-1$}(meaning that the upper bound is optimal)} under these assumptions. We now treat the case $l=1$.
-
-\begin{theorem}
-    $$\bar{C}_1\left(n,m \right)\leq\bar{C}_2\left(n,m \right) \leq\sqrt{\frac{n-m}{n-1}}.$$
-\end{theorem}
-
-\begin{proof}
-    \begin{align*}\bar{C}_1\left(n,m\right)=&
-        \max_{\{y_i\}\subseteq\RR^d}\min_{\{I_j\}\in\mathfrak{P}\left(I,m\right)}\frac{1}{n}\sum_{j\in J}\sum_{i\in I_j}\lVert y_i-\text{gmed}\left(I_j\right)\rVert_2 \\ &\lVert y_i\rVert_2\leq1 \:\forall i\in I
-    \end{align*}
-    By definition of the geometric median we have that : $$\sum_{i\in I_j}\lVert x_i-\text{gmed}(I_j)\rVert_2\leq \sum_{i\in I_j}\lVert x_i-\text{mean}(I_j)\rVert_2, \: \forall j\in J.$$ 
-    Then we have that :
-    \begin{align*}
-        \bar{C}_1\left(n,m\right)&\leq
-        \max_{\{y_i\}\subseteq\RR^d}\left\{\min_{\{I_j\}\in\mathfrak{P}\left(I,m\right)}\frac{1}{n}\sum_{j\in J}\sum_{i\in I_j}\lVert y_i-\text{mean}\left(I_j\right)\rVert_2\quad,\quad \lVert y_i\rVert_2\leq1 \:\forall i\in I  \right\}\\ 
-        &\leq\max_{\{y_i\}\subseteq\RR^d}\left\{\min_{\{I_j\}\in\mathfrak{P}\left(I,m\right)}\left[\frac{1}{n}\sum_{j\in J}\sum_{i\in I_j}\lVert y_i-\text{mean}\left(I_j\right)\rVert_2^2\right]^{1/2}, \quad\lVert y_i\rVert_2\leq1 \:\forall i\in I\right\} \\
-        &=\bar{C}_2\left(n,m\right).
-    \end{align*}
-    Where the last inequality comes from Cauchy-Schwartz inequality. For all $i\in[\![1;n]\!], x_i\in\RR^d$, 
-    $$
-    \frac{1}{n}<x,\mathbf{1}>=\frac{1}{n}\sum_{i=1}^nx_i \leq \frac{\sqrt{n}}{n}\lVert x\rVert=\sqrt{\frac{\sum_{i=1}^nx_i^2}{n}}.
-    $$
-    In that case, $d=1, x_{ij}\gets y_i-\text{mean}\left(I_j\right)$.
-\end{proof}
-Maybe the bound can be tightened because the proof only proves : $$\bar{C}_1\left(n,m \right)\leq\bar{C}_2\left(n,m \right).$$
-Unlike $\bar{C}_2\left(n,m \right)$, we also get a lower bound on $\bar{C}_1\left(n,m \right)$: $$\bar{C}_1\left(n,m \right)\geq\sqrt{\frac{(n-m)(n-m+1)}{n(n-1)}}\geq \frac{n-m}{n-1}.$$
-Now the right hand side equals $\bar{C}_2^2(n,m)$ whenever $d\geq n-1$. Then we can write the following proposition :
-\begin{proposition}Whenever $d\geq n-1$,  
-$$\bar{C}_2^2\left(n,m \right)\leq \bar{C}_1\left(n,m \right)\leq\bar{C}_2\left(n,m \right).$$
-\end{proposition}
-\subsection{Use of bounds}
-One can use the bounds we found above in order to guarantee that the reduced distribution is close enough (to be defined...) to the original one. For $l\in\{1,2\}$ and a large $n$ : $$\bar{C}_l\left(n,m \right)\leq \sqrt{\frac{n-m}{n-1}}=\sqrt{\frac{1-\frac{m}{n}}{1-\frac{1}{n}}}\underset{n \to +\infty}{=}\sqrt{1-\frac{m}{n}}(1+\frac{1}{2n}+O(\frac{1}{n^2}))\approx \sqrt{1-\frac{m}{n}}.$$
-This latest result and the positive homogeneity of $C_l$ provides an upper bound that depends only on the ratio $p=\frac{m}{n}$ for all kind of discrete distribution $\mathbb{P}=\frac{1}{n}\sum_{i\in I}\delta_{x_i}$. Denote by $r\geq 0$ and $\mu\in\mathbb{R}^d$ the radius and the center of any  (ideally the smallest) ball enclosing $\text{supp}(\mathbb{P})$, we have that :
-$$
-C_l(\mathbb{P},m)=r\cdot C_l(\frac{1}{n}\sum_{i\in I}\delta_{\frac{x_i-\mu}{r}},m)\leq r\cdot \bar{C_l\left(n,m \right)}\leq r\cdot \sqrt{1-p}.
-$$
-One can think that $C_l(\mathbb{P},m)$ is much smaller than $r\cdot \sqrt{1-p}$ but in fact it often happens even when $\left\{x_i\right\}$ are sampled from a normal distribution for example, see \textbf{Proposition 3} of \cite{rujeerapaiboon_scenario_2022}.
-As an example, we can choose : $\mu=\frac{1}{n}\sum_{i\in I}x_i$ and $r=\max_i\left\{{\lVert x_i-\mu\rVert}\right\}$. One can easily verify that this couple defines a ball enclosing $\text{supp}\left(\mathbb{P}\right)$. Then it follows that : 
-$$
-C_l(\mathbb{P},m)\leq \max_i\left\{{\lVert x_i-\mu\rVert}\right\}\sqrt{1-p}.
-$$
-what depends only on $\mathbb{P}$. \rp{maybe that helps a very little the article}. A good idea \rp{imo} is to find the smallest bound for a given distribution $\mathbb{P}$ and a given norm $\lVert\cdot\rVert$, so we can have a better upper bound. One must find the Chebyshev center (see \Cref{chebyshev}) :
-\begin{align*}
-    &\min_{r\in\RR^+,\mu\in\RR^d} \quad r\\
-    &\text{s.t.}\quad \lVert\frac{x_i-\mu}{r}\rVert \leq 1, \;\forall i\in I.
-\end{align*}
-\newline
-
-\section{What about discrete scenario reduction}
-Naturally, the continuous scenario reduction gives a smaller distance than the one computed by the discrete scenario reduction. We will try to quantify and compare the gap between the solution of both problems. More precisely, in this part, we find for $l\in\{1,2\}$: 
-$$\underline{\kappa}_l\left(n,m\right)\cdot C_l\left( \mathbb{P},m\right)\leq D_l\left(\mathbb{P},m\right)\leq \bar{\kappa}_l\left(n,m\right)\cdot C_l\left(\mathbb{P},m\right)$$
-The goal is to find the largest $\underline{\kappa}_l\left(n,m\right)$ and smallest $\bar{\kappa}_l\left(n,m\right)$ so the bounds are as tight as possible. Solving the continuous problem will give bounds on the discrete. It's easy to argue that : 
-$$
-\underline\kappa_l\left(n,m\right)\geq1.
-$$
-Because we've already proven : 
-$$
-C_l\left( \mathbb{P},m\right)\leq D_l\left( \mathbb{P},m\right)
-$$
-Just like we've done in the beginning of \Cref{limit}, it's time to reformulate the discrete scenario reduction problem such as :
-\begin{theorem}\label{reformulation 2}
-    For any type-l Wasserstein distance induced by any norm $\lVert\cdot\rVert$, the discrete scenario reduction problem can be reformulated as 
-    $$
-    D_l\left(\mathbb{P},m\right)=\min_{\{I_j\}\in\mathfrak{P}\left(I,m\right)}\left[ \frac{1}{n}\sum_{j\in J}\min_{y_j\in\{x_i : i\in I_j\}}\sum_{i\in I_j}\lVert x_i-y_j\rVert^l\right]^{1/l}.
-    $$
-\end{theorem}
-What follows assumes that $n\geq2, m\in\{1,...,n-1\}$ and $d\geq2.$
-\subsection{Type-2 Wasserstein distance}
-In this part we will find $\bar{\kappa}_2\left(n,m\right), \underline\kappa_2\left(n,m\right)$.
-\begin{theorem}
-    The upper bound $\bar\kappa_2\left(n,m\right)$ satisfies $\bar\kappa_2\left(n,m\right)\leq \sqrt{2}$ for all n, m.
-\end{theorem}
-The proof is very interesting for one's intuition and easy to understand even though it might look long.
-\begin{proof}
-    \textbf{Step 1} proves the result for $m=1$. Let $\mathbb{P}=\frac{1}{n}\sum_{i\in I}\delta_{x_i}\in\mathcal{P}_E\left(\RR^d,n\right)$ (remember that sampling is why we consider $\mathbb{P}$ uniform and if $\mathbb{P}$ does not come from sampling, we could consider an uniform distribution with many atoms close to an atom with "huge" probability). W.l.o.g., we can assume that $\frac{1}{n}\sum_{i\in I}x_i=0$ and $\frac{1}{n}\sum_{i\in I}\lVert x_i\rVert^2=1$ because re-positionning does not affect $C_l$ and $D_l$ and re-scaling affects equally $D_l$ and $C_l$ (see \Cref{scaled}, \Cref{scaled 2}).
-    \newline
-    The first reformulation gives that :
-    $$
-    C_2\left(\mathbb{P},1\right)=\left[\frac{1}{n}\sum_{i\in I}\lVert x_i-\text{mean}(I)\rVert_2^2\right]^{1/2}=1.
-    $$
-    Now we use the latest reformulation to compute $D_2$ :
-    $$
-    D_2\left(\mathbb{P},1\right)^2=\frac{1}{n}\min_{j\in I}\sum_{i\in I}\lVert x_i-x_j\rVert^2_2.
-    $$
-    So the $\left(j, x_j\right)$ minimizing this expression minimizes the sum of squared distances with all atoms of $\mathbb{P}$ (but as the family is centered it will be easier) ! Let us develop :
-    \begin{align*}
-    D_2\left(\mathbb{P},1\right)^2&=\frac{1}{n}\min_{j\in I}\sum_{i\in I}\left(\rVert x_i\rVert^2_2-2x_i^Tx_j+\rVert x_j\rVert^2_2\right)\\&=\frac{1}{n}\sum_{i\in I}\lVert x_i\rVert_2^2-\frac{2}{n}\min_{j\in I}\left(\sum_{i\in I}x_i^T\right)x_j+\min_{j\in I}\lVert x_j\rVert^2_2 \\&=1+\min_{j\in I}\lVert x_j\rVert^2_2\leq2.
-    \end{align*}
-Where the third equality is due to $\text{mean}(I)=0$ and the inequality is due to $\min_{j\in I}\lVert x_j\rVert^2_2=\frac{1}{n}\sum_{i\in I}\min_{j\in I}\lVert x_j\rVert^2_2\leq \frac{1}{n}\sum_{i\in I}\lVert x_j\rVert^2_2=1$. Then $$D_2\left(\mathbb{P},1\right)\leq\sqrt{2}$$
-In order to make it complete for the case $m=1$. Let $\mathbb{P}=\frac{1}{n}\sum_{i\in I}\delta_{x_i}\in\mathcal{P}_E\left(\RR^d,n\right)$. We consider $\mathbb{P}'=\frac{1}{n}\sum_{i\in I}\delta_{\frac{x_i-\text{mean}(I)}{r}}$ with $r=\sqrt{\sum_{i\in I}\rVert x_i-\text{mean}(I)\lVert^2_2}$. $\mathbb{P}'$ verifies the aforementionned conditions. Then we have : 
-$$
-\frac{D_2\left(\mathbb{P},1\right)}{C_2\left(\mathbb{P},1\right)}=\frac{rD_2\left(\mathbb{P}',1\right)}{rC_2\left(\mathbb{P}',1\right)}=\frac{D_2\left(\mathbb{P}',1\right)}{C_2\left(\mathbb{P}',1\right)}\leq \sqrt{2}.
-$$
-Finally, we have : $$\bar\kappa_2\left(n,1\right)\leq\sqrt{2}.$$
-\newline
-
-\textbf{Step 2} extends the result for $n,m\in\{1,...,n-1\}$ using the result above for $m=1$ by decomposing with $m$ scenario reduction problem with 1 atom. Let $\mathbb{P}\in\mathcal{P}_E\left(\RR^d,n\right). $ With \Cref{theorem1}, we can write that :
-$$
-C_2\left(\mathbb{P},m\right)=\min_{\{I_j\}\in \mathfrak{P}(I,m)}\left\{ \frac{1}{n}\sum_{j\in J}\sum_{i\in I_j}\lVert x_i-\text{mean}\left(I_j\right)\rVert^2_2 \right\}^{1/2}
-$$
-For an optimal $\{I_j^*\}\in\mathfrak{P}\left(I,m\right)$, we have that :
-$$
-C_2\left(\mathbb{P},m\right)=\left(\frac{1}{n}\sum_{j\in J}\sum_{i\in I_j^*} \lVert x_i-\text{mean}\left(I_j^*\right)\rVert^2_2\right)^{1/2}=\left(\frac{1}{n}\sum_{j\in J}\lvert I_j^*\rvert C^2_{2,j}\right)^{1/2}.
-$$
-with $C_{2,j}=\left(\frac{1}{\lvert I_j^*\rvert}\sum_{i\in I_j^*}\lVert x_i -\text{mean}\left(I_j\right)\rVert^2_2\right)$. So typically,  $C_{2,j}=C_2\left(\frac{1}{\lvert I_j^*\rvert}\sum_{i\in I_j^*}\delta_{x_i},1\right)$ as reminded for \textbf{step 1}.
-
-With $D_{2,k}=\min_{i\in I_k}\left(\frac{1}{\lvert I_k\rvert}\sum_{j\in I_k}\lVert x_j -x_i\rVert^2_2\right)^{1/2}$ and \Cref{reformulation 2}, we have the analogous expression for an optimal $\{I_k^*\}\in\mathfrak{P}\left(I,m\right)$ : 
-$$
-D_2\left(\mathbb{P},m\right)=\left[ \sum_{k\in K}\frac{\lvert I_k^*\rvert}{n}D_{2,k}^2\right]^{1/2}\leq \left[ \sum_{j\in J}\frac{\lvert I_j^*\rvert}{n}D_{2,j}^2\right]^{1/2}\leq \left[ \sum_{j\in J}\frac{\lvert I_j^*\rvert}{n}2C_{2,j}^2\right]^{1/2}=\sqrt{2}C_2\left(\mathbb{P},m\right).
-$$
-The first inequality stands because $I_j^*\in\{I_j^*\}$ is an optimal partition for $C_2$, thus it is worse than or equal at $I_k^*$ for $D_2$. The second inequality stems from \textbf{step 1}. The statement is thus proven.
-\end{proof}
-\begin{proposition}
-    $\bar\kappa_2\left(n,m\right)=\sqrt{2}$, meaning that there exists $\mathbb{P}\in\mathcal{P}_E\left(\RR^d,n\right)$ such that $D_2\left(\mathbb{P},m\right)=\sqrt{2}C_2\left(\mathbb{P},m\right)$
-\end{proposition}
-\begin{proof}
-    Similarly to the proof right above, we will do it for $m=1$ first. What we have to is find a distribution where the last inequality is in fact an equality. To this idea, we choose a \textbf{centered} distribution with all $\lVert x_i\rVert_2=1$.
-\end{proof}
-Lower bounds are given as follows : 
-\begin{proposition}
-    The lower bound $\underline\kappa_2\left(n,m\right)=1$ whenever $n\geq3$ and $m\in\{1,...,n-2\}$ while $\underline\kappa_2\left(n,n-1\right)=\sqrt{2}.$
-\end{proposition}
-\subsection{Type-1 Wasserstein distance}
-Similarly to the above subsection, we will find $\bar{\kappa}_1\left(n,m\right), \underline\kappa_1\left(n,m\right)$. In this part, we will only stack results. See \cite[Section 3.2]{rujeerapaiboon_scenario_2022} for proofs.
-\begin{theorem}
-    The upper bound $\bar\kappa_1\left(n,m\right)$ satisfies $\bar\kappa_1\left(n,m\right)\leq2$ whenever $m\in\{2,...,n-2\}$ as well as $\bar\kappa_1\left(n,1\right)\leq2\left(1-\frac{1}{n}\right)$ and $\bar\kappa_1\left(n,n-1\right)\leq1$
-\end{theorem}
-\begin{proposition}
-    There is $\mathbb{P}\in\mathcal{P}_E\left(\RR^d,n\right)$ such that $D_1\left(\mathbb{P},m\right)=2\left(1-\frac{1}{n}\right)C_1\left(\mathbb{P},m\right)$ under the 1-norm for all $n$ divisible by $2m$, all $m$ and all $d\geq \frac{n}{2m}$.
-\end{proposition}
-\begin{proposition}
-    The lower bound $\underline{\kappa}_1\left(n,m\right)$ satisfies $\underline{\kappa}_1\left(n,m\right)=1$ for all $n, m$.
-\end{proposition}
-
-\section{Algorithms for scenario reduction}
-In this section, we present various algorithms and heuristics that are often used for scenario reduction problem. In order to check the accuracy of algorithms, when an algorithm gives an upper bound $\bar{D}_l\left(\mathbb{P},m\right)$ on the discrete scenario reduction problem, we define the \textbf{approximation ratio} by 
-$$
-\max_{n,m,\mathbb{P}\in\mathcal{P}_E(\RR^d,n)}\frac{\bar{D}_l\left(\mathbb{P},m\right)}{D_l\left(\mathbb{P},m\right)}.
-$$
-Same thing with $C_l$ if the algorithm is meant to provide a candidate for continuous scenario reduction. If the approximation ratio is unbounded it means that :
-$$\forall A\in\RR^+, \exists n,m,\mathbb{P}\in\mathcal{P}_E\left(\RR^d,n\right) : \frac{\bar{D}_l\left(\mathbb{P},m\right)}{D_l\left(\mathbb{P},m\right)}\geq A.$$
-With words, it means that the upper bound given by the algorithm can become arbitrarily big compared to the real distance of the projection of $\mathbb{P}$ over the considered subspace.
 \subsection{Dupačová et al. algorithm}
-Dupačová et al. \cite{dupacova_scenario_2003} provides a greedy algorithm for $D_l\left(\mathbb{P},m\right)$. Generally, the distribution obtained isn't a solution of the discrete scenario reduction problem.
+Dupačová et al. \cite{dupacova_scenario_2003} provides a greedy algorithm for $D_\ell\left(P,m\right)$. Generally, the distribution obtained is not a solution of the discrete scenario reduction problem. 
+
 \begin{algorithm}
   \caption{Dupačová et al.}\label{dupacova}
-  Initialize the set of atoms in the reduced set as $R\gets \emptyset.$ \\ Select the next atom to be added to the reduced set as $$ y\in\argmin_{y\in \text{supp}\left(\mathbb{P}\right)}D_l\left(\mathbb{P},R\cup\{y\}\right).
-  $$
-  Update $R\gets R\cup \{y\}$.\\ Repeat Step 2 until $\lvert R\rvert=m$.
-\end{algorithm}
-\rp{box is too large, don't know how to deal with that}
-In order to add another atom to the distribution, one can now wonder how to compute $D_l\left(\mathbb{P},R\cup\{y\}\right)$ before finding the minimum of those $D_l$ because we still have the choices of probabilities attached to the atoms (that are fixed). In fact it is easy and quite intuitive if you remember that Wasserstein distance translates the cost of moving one pile (distribution here) to an other knowing that both piles have the same weight.
-\begin{theorem}\label{closed formula}
-    If $\mathbb{P}=\sum_{i\in I}p_i\delta_{x_i}$ fixed, $\mathbb{Q}=\sum_{j\in J}q_j\delta_{y_j}$, with all $y_j$ fixed. Then, 
-    $$\sum_{j\in J}\left(\sum_{i\in I_j}p_i\right)\delta_{y_j}\in \argmin_\mathbb{Q} D_l\left(\mathbb{P},\mathbb{Q}\right)$$
-    with $I_j=\left\{i\in I \mid j=\argmin_{k\in J} \lVert x_i-y_k\rVert^l\right\}$ (ties may be broken arbitrarily but must be broken). Basically, the probability of observing $y_j$ is the probability of observing atoms of $\mathbb{P}$ whose closest atom of $\mathbb{Q}$ is $y_j$ according to the chosen norm.
-\end{theorem}
-\begin{proof}
-    Let us write carefully the problem, we intend to find :
-    $$
-        \min_{q}\:\left\{d_l\left(\mathbb{P},\sum_{j\in J}q_j\delta_{y_j}\right)\text{ such that} \; \forall j\in J, q_j\geq 0 \text{ and } \;\sum_{j\in J}q_j=1 \right\}\\
-    $$
-    We will first find a lower bound of that expression, then we will prove that the lower bound is attained by the distribution given by the theorem.
-    \newline
-    For obvious reasons of readability, I will write $U\left(p,q\right)$ the space allowed for $\pi$ by the distance of Wasserstein :\newline
-    $\pi\in U\left(p,q\right) \iff \pi\in\RR^{\lvert I\rvert \times\lvert J\vert}_+, \forall j\in J, \sum_{i\in I}\pi_{ij}=q_j \text{ and } \forall i\in I, \sum_{j\in J}\pi_{ij}=p_i$.
-    \newline
-    Let $q\geq 0$ such that $\sum_{j\in J}q_j=1$. We write $\mathbb{Q}=\sum_{j\in J}q_j\delta_{y_j}$ and $\mathbb{P}=\sum_{i\in I}p_i\delta_{x_i}$.  We have that :
-    \begin{align*}
-        d_l\left(\mathbb{P},\mathbb{Q}\right)^l&=            \min_{\pi\in U\left(p,q\right)}\sum_{i\in I}\sum_{j\in J}\pi_{ij}\lVert x_i-y_j\rVert^l \\ &= \min_{\pi\in U\left(p,q\right)}\sum_{i\in I}\left[\sum_{j\in J}\pi_{ij}\lVert x_i-y_j\rVert^l\right] \\
-        &\geq \min_{\pi\in U\left(p,q\right)}\sum_{i\in I}\left[\sum_{j\in J}\pi_{ij}\min_{k\in J}\left\{\lVert x_i-y_k\lVert^l\right\}\right] \\ &= \min_{\pi\in U\left(p,q\right)}\sum_{i\in I}\min_{k\in J}\left\{\lVert x_i-y_k\lVert^l\right\}\sum_{j\in J}\pi_{ij} \\
-        &=\min_{\pi\in U\left(p,q\right)}\sum_{i\in I}\min_{k\in J}\left\{\lVert x_i-y_k\lVert^l\right\}p_i \\& =\sum_{i\in I}\min_{k\in J}\left\{\lVert x_i-y_k\lVert^l\right\}p_i.
-    \end{align*}
-First inequality stems from the positivity of $\pi$ and well $\forall j\in J, \lVert x_i-y_j\rVert^l \geq \min_{k\in J}\lVert x_i-y_j\rVert^l$ for obvious reasons. Before last expression no longer depends on $\pi$ then comes the last expression. Then it is a lower bound for all $\pi\in U\left(p,q\right)$. Meaning that :
-$$
-\min_{q} D_l\left(\mathbb{P},\sum_{j\in J}\delta_{y_j}q_j\right) \geq \left(\sum_{i\in I}\min_{k\in J}\left\{\lVert x_i-y_k\lVert^l\right\}p_i\right)^{1/l}
-$$
-\newline
-
-With $\delta$ being the Kronecker delta, we choose : \begin{align*}
-    q_j&=\sum_{i\in I_j}p_i \\
-    \pi_{ij}&=p_i\delta_{j,\argmin_{k\in J}\lVert x_i-y_k\rVert^l}
-\end{align*}
-First of all, as $\cup_{j\in J}I_j$ represents a partition of $I$ (ties \textbf{must} be broken), $\sum_{j\in J}q_j=\sum_{i\in I}p_i=1$.\newline
-$\pi$ is positive, $\sum_{j\in J}\pi_{ij}=p_i\sum_{j\in J}\delta_{j,\argmin_{k\in J}\lVert x_i-y_k\rVert^l}=p_i$ as ties have to be broken and \newline $\sum_{i\in I}\pi_{ij}=\sum_{i\in I}p_i\delta_{j,\argmin_{k\in J}\lVert x_i-y_k\rVert^l}=\sum_{i\in I_j}p_i=q_j$. So $q$ is legit and $\pi\in U\left(p,q\right)$, with $q,\pi$, the objective function (at the $l^{\text{th}}$ power) is worth : 
-\begin{align*}
-    \sum_{i\in I}\sum_{j\in J}\pi_{ij}\lVert x_i-y_j\rVert^l &=\sum_{i\in I}\sum_{j\in J}p_i\delta_{j, \argmin_{k\in J}\lVert x_i-y_k\rVert^l}\lVert x_i-y_j\rVert^l \\ &=\sum_{i\in I}p_i\left[\sum_{j\in J}\delta_{j, \argmin_{k\in J}\lVert x_i-y_k\rVert^l}\lVert x_i-y_j\rVert^l\right] \\ &=\sum_{i\in I}p_i\min_{k\in J}\lVert x_i-y_k\rVert ^l.
-\end{align*}
-All in all, with the notation $\mathbb{Q}_0=\sum_{j\in J}\left(\sum_{i\in I_j}p_i\right)\delta_{y_j}$ we've proven that :
-$$
-\sum_{i\in I}p_i\min_{k\in J}\lVert x_i-y_k\rVert ^l\leq \min_{q} D_l^l\left(\mathbb{P},\sum_{j\in J}\delta_{y_j}q_j\right)\leq d_l^l\left(\mathbb{P},\mathbb{Q}_0\right) \leq \sum_{i\in I}p_i\min_{k\in J}\lVert x_i-y_k\rVert ^l.
-$$
-First inequality is due to the lower bound we found earlier. Second comes from the fact that we fixed $q_j$ for $\mathbb{Q}_0$. Third stems from the definition of $d_l$ and because we chose a $\pi\in U\left(p,q\right)$. Then we have that :
-$$
-\min_{q} D_l^l\left(\mathbb{P},\sum_{j\in J}\delta_{y_j}q_j\right)= d_l^l\left(\mathbb{P},\mathbb{Q}_0\right)= \sum_{i\in I}p_i\min_{k\in J}\lVert x_i-y_k\rVert ^l.
-$$
-What gives us,
-$$\sum_{j\in J}\left(\sum_{i\in I_j}p_i\right)\delta_{y_j}\in \argmin_\mathbb{Q} D_l\left(\mathbb{P},\mathbb{Q}\right).$$
-\end{proof}
-So we can compute the value $D_l$ for each distribution $R\cup\{y\}$ easily as follows : we write $R\cup \{y\}=\{y_1,...,y_j\}$ and $x_i$ the atoms of $\mathbb{P}$.
-\begin{algorithm}
-    \caption{Easy computation of $D_l\left(\mathbb{P},R\cup \{y\}\right)$}\label{easy compute of d_l}
-    Compute $D$ the matrix of distances, $D_{ij}=\lVert x_i-y_j\rVert$. \\
-    Let $Q=\begin{bmatrix}
-        0 & \hdots &0
-    \end{bmatrix}$ representing the probabilities given to $y_1,...,y_j.$ \\
-    For each $i\in I$, find $k=\argmin_{j\in J}d_{ij}$ (ties must be broken, the breaking decision may be arbitrary), $$
-    Q_{k}\gets Q_{k}+p_i$$ \\ Compute $d_l\left(\mathbb{P},\mathbb{Q}\right)$, $\mathbb{Q}$ is now fixed and this value is $D_l\left(\mathbb{P}, R\cup\{y\}\right).$
-\end{algorithm}
-\begin{proposition}
-    For every $d\geq2$ and $l$, $p\geq1$ the approximation ratio of Dupačová et al.'s algorithm is unbounded.
-\end{proposition}
-\begin{proof}
-    The proof lies in the construction of a parametrized distribution that makes the ratio tends to infinity. It is therefore ommited for brevity. See \cite[Theorem 7]{rujeerapaiboon_scenario_2022}.
-\end{proof}
-
-\subsection{k-means clustering algorithm}
-The aim of k-means clustering is to reduced $n$ observations to $k$ clusters such that the intra-cluster sums of squared distances are minimized. It turns out to be a good idea to select $m$ atoms with the $n$ of $\text{supp}\left(\mathbb{P}\right)$. The amount of atoms in a cluster will give the probability of observing the cluster for the reduced distribution !
-
-
-\begin{algorithm}
-    \caption{k-means clustering for $C_l\left(\mathbb{P},m\right)$}\label{k m}
-    Initialize the reduced set $R=\{y_1,...,y_m\} \subseteq \text{supp}\left(\mathbb{P}\right)$ arbitrarily \\ Let $\{I_j\}\in\mathfrak{P}\left(I,m\right)$ be any partition whose sets $I_j, j\in J$, contain all atoms of supp$\left(P\right)$ that are closest to $y_j$ (ties may be broken arbitrarily). \\ For each $j\in J$, update $y_j$ as : $$y_j \gets \argmin_{y\in\RR^d} \left\{ \sum_{i\in I_j}\lVert x_i-y\rVert^l\right\}$$ \\ Repeat Steps 2 and 3 until the reduced set $R$ no longer changes.
-\end{algorithm}
-The reduced distribution is :
-$$
-\mathbb{Q}=\frac{1}{n}\sum_{y\in R}\delta_{y}c\left(y\right)
-$$
-where $ c\left(y\right)$ denotes the amount of atoms of $\mathbb{P}$ in the cluster $y$. Because here we consider $\mathbb{P}$ uniform.
-\begin{theorem}
-    If initialized randomly in Step 1, the approximation ratio of the k-means clustering algorithm is unbounded for every $d,l,p\geq1$ with significant probability.
-\end{theorem}
-\begin{proof}
-    The proof is once again constructive. See \cite[Theorem 8]{rujeerapaiboon_scenario_2022}
-\end{proof}
-\subsection{Algorithm bounding the approximation ratio}
-In the article, they propose a new algorithm with the advantage of bounding the approximation ratio under the type-1 Wasserstein distance for both the continuous and discrete scenario reduction problem. The approximation ratio is bounded by 5 for the discrete scenario reduction problem and 10 for the continuous.
-\begin{algorithm}
-    \caption{Local search algorithm for $D_l\left(\mathbb{P},m\right)$}\label{Local search}
-    Initialize the reduced set $R\subseteq \text{supp}\left(\mathbb{P}\right), \lvert R\rvert = m$, arbitrarily. \\ Select the next change to be applied to the reduced set as 
-    $$
-    \left(y,y'\right)\in\argmin\left\{D_l\left(\mathbb{P},R\cup\{y\}\setminus \{y'\}\right) : \left(y,y'\right)\in\text{supp}\left(\mathbb{P}\setminus R\right)\times R\right\},
-    $$
-    and update $R\gets R\cup \{y\}\setminus \{y'\}$ if $D_l\left(\mathbb{P}, R\cup\{y\}\setminus \{y'\} \right)<D_l\left(\mathbb{P},R\right).$ \\ Repeat Step 2 until no further improvement is possible.
-\end{algorithm}
-If various changes are possible in Step 2, you can either choose to use a "first-fit" (swap whenever you find a couple that reduces the distance) or a "best-fit" (explore all possible exchanges and swap the best one) strategy. The first one reduces the calculation time but both techniques have an approximation ratio of 5 for the discrete scenario reduction problem for all $d$. $D_l$ is computed as for \Cref{dupacova}.
-\begin{remark}
-    To some extent, this algorithm can make you think of the Lin-Kernighan heuristic developped for the TSP.
-\end{remark}
-We now use what we found for $\bar\kappa_1$ to state that this algorithm gives rise to an algorithm with approximation ratio : $2\times 5$. Let $n,m,\mathbb{P}\in\mathcal{P}_E\left(\RR^d,m\right)$, we have that : 
-$$
-\frac{\bar{D}_l\left(\mathbb{P},m\right)}{C_l\left(\mathbb{P},m\right)}\leq \frac{2\bar{D}_l\left(\mathbb{P},m\right)}{D_l\left(\mathbb{P},m\right)}\leq 2\max_{n,m,\mathbb{P}\in\mathcal{P}_E(\RR^d,n)}\frac{\bar{D}_l\left(\mathbb{P},m\right)}{D_l\left(\mathbb{P},m\right)}=2\times5=10.
-$$
-We can now maximize the left hand side on $n,m,\mathbb{P}$ as the right hand side does not depend on the three.
-\subsection{A new algorithm ?}
-Dupačová and local search gives an approximation of $D_l$, we know also the distance can be written as :
-$$D_l\left(\mathbb{P},R\right)=\sum_{i\in I}p_i\min_{j\in R}\lVert x_i-x_j\Vert^l=\sum_{j\in R}\left[\sum_{i\in I_j}p_i\lVert x_i-x_j\rVert^l\right].$$
-So we could improve the value of the Wasserstein distance by finding an optimal $x_j$ for each $I_j$. The idea is to decompose each sum on $I_j$ as we have done above in order to find for $I_j$: 
-$$
-y_j\in \argmin_{y\in\RR^d}\sum_{i\in I_j}p_i\lVert x_i-y\rVert^l.
-$$
-We could thus modify each $x_j$ by the $y$ we found for $I_j$. The approximation ratio is still bounded as we are improving the Wasserstein distance but it becomes an approximation of $C_l$ and no longer $D_l$. \rp{idea to improve }. See \Cref{L_p optim}.
-
-\begin{algorithm}[h]\caption{Improved algorithm for $C_l$}
-    \label{improved ls}
-    Run local search or Dupačová algorithm and extract $I_j$ for all $j$. \\
-    With a method that you decided, find for each $I_j$: $$y_j\in\argmin_{y\in\RR^d}\sum_{i\in I_j}p_i\lVert x_i-y\rVert^l$$
-    \\ Let $\{I_j\}\in\mathfrak{P}\left(I,m\right)$ be any partition whose sets $I_j, j\in J$, contain all atoms of supp$\left(P\right)$ that are closest to $y_j$ (ties may be broken arbitrarily). \\
-    Repeat Step 2 and 3 until there's no changes.
+  Initialize the set of atoms in the reduced set as $R\gets \emptyset.$ \\ Select the next atom to be added to the reduced set as: $$ y\in\argmin_{y\in \text{supp}\left(P\right)}D_\ell\left(P,R\cup\{y\}\right).
+  $$ \\
+  Update $R\gets R\cup \{y\}$.\\ Repeat step 2 and 3 until $\lvert R\rvert=m$.
 \end{algorithm}
 
-So basically this algorithm is a  modified k-means clustering with weights (what differs from what's proposed in \cite{rujeerapaiboon_scenario_2022}) and an intelligent first guess.
-\subsection{MILP reformulation of the discrete scenario reduction problem}
-We first review a well-known mixed-integer linear programming (MILP) reformulation of the discrete scenario reduction problem $D_l\left(\mathbb{P},m\right)$.\rp{find a reference}
-%\begin{theorem}
-%The discrete scenario reduction problem can be formulated as the MILP : 
-%\begin{align*}
-%    D_l^l\left(\mathbb{P},m\right)=&\min_{\Pi,\lambda}\:\frac{1}{n}<\pi,D> \\ &\text{s.t. } \;\pi e=e, \; \pi \leq e\lambda^T,\; \lambda^Te=m\\&\quad\quad \pi\in\RR^{n\times m}_+, \; \lambda\in\{0,1\}^n
-%    \end{align*}
-%    with $D\in \mathbb{S}^n$ and $D_{ij}=\lVert x_i-x_j\rVert^l$
-%\end{theorem}
-%\rp{first constraint means $\sum_{j=1}^n\pi_{ij}=1$ for all $i$ (what seems weird), second forces $\lambda_i$ to be 1 if you choose $x_j$ and the third one counts the number of atoms you choose. So basically I didn't understand the formulation}
-\section{Efficient implementation}
-The main goal of the internship was first to study the scenario reduction problem and algorithms related to this problem and then to implement it within the SMS++ ecosystem. SMS++ aims to deliver an efficient interface for a wide range of optimization problems through the concept of block which represents a type of problem namely "BinaryKnapsackBlock", "MCFBlock" (for Min-Cost flow) and many others. Developped in C++, it is to be able to manage memory, calculation what can be somewhat difficult in interpreted languages such as Python or Julia. In SMS++ it is easy and almost free to turn ON/OFF variables (decision variables, constraints...). In this part, we will try to find ways to implement proficiently Dupačová et al's algorithm \Cref{dupacova} and local search algorithm \Cref{Local search}.
+Step 2 is not so trivial even though it may look easy at first. The main thing is to find the optimal distribution supported on $R\cup\{y\}$. The next result allows us not to rely on solving a linear program what would reduce run time. In fact the result is quite intuitive if you remember that Wasserstein distance translates the cost of moving one pile to another knowing that both piles have the same weight.
 
-\subsection{Dupačová et al's algorithm}
-In this part we try to reduce computational time of Dupačová et al's algorithm, meaning we want to reuse what we've already computed. 
-\newline
-
-Knowing the closed formula of \Cref{closed formula}, it isn't hard to find an efficient way to compute $D_l$ of step 2 : 
+With \Cref{closed formula}, it is easy to find an efficient way to compute $D_\ell$ of step 2 : 
 $$
-D_l\left(\mathbb{P},R\cup \{y_j\}\right)=\sum_{i\in I}p_i\min_{z\in R\cup\{y\}}\lVert x_i-z \rVert^l.
+D_\ell\left(P,R\cup \{y_j\}\right)=\sum_{i\in I}p_i\min_{z\in R\cup\{y\}}\lVert x_i-z \rVert^l.
 $$
 An efficient idea would be to store at iteration $0$, one big matrix of distance, which is : 
 $$
@@ -583,12 +482,12 @@ $$
 With $D^i$ being the $i^{th}$ column of $D$ and $p=\begin{pmatrix}
     p_1 & \hdots & p_n
 \end{pmatrix}$.
-We create $m^1=D^{i_1}$. For the second iteration, we can only select the indexes $[\![1;n]\!]\setminus \{i_1\}$. For each $x_i\in [\![1;n]\!]\setminus \{i_1\}$, let us create a vector $m_i$ such that : $\left(m_i\right)_j=\min\left\{\left(m^1\right)_j,\left(D^i\right)_j\right\}$, now we can write $D_l$ as : $$
-D_l\left(\mathbb{P},\{x_{i_1}\}\cup \{x_i\}\right)=pm_i.
+We create $m^1=D^{i_1}$. For the second iteration, we can only select the indexes $[\![1;n]\!]\setminus \{i_1\}$. For each $x_i\in [\![1;n]\!]\setminus \{i_1\}$, let us create a vector $m_i$ such that : $\left(m_i\right)_j=\min\left\{\left(m^1\right)_j,\left(D^i\right)_j\right\}$, now we can write $D_\ell$ as : $$
+D_\ell\left(P,\{x_{i_1}\}\cup \{x_i\}\right)=pm_i.
 $$
 Then follows the efficient algorithm :
 \begin{algorithm}
-\caption{Efficient Dupačová et al}
+\caption{Dupačová et al. in precision}
 Initialize the set of atoms in the reduced set as $R \gets \emptyset$.\\
 Compute the matrix $D = \left(\| x_i - x_j \|^l \right)_{i,j \in I^2}$ once and for all.\\
 Create $m^0 = \begin{bmatrix} a & \hdots & a \end{bmatrix}$ with $a$ arbitrarily large (choose $a \geq \max_{i,j} \| x_i - x_j \|^l$).\\
@@ -596,7 +495,7 @@ Create $m^0 = \begin{bmatrix} a & \hdots & a \end{bmatrix}$ with $a$ arbitrarily
     Select the next atom to be added from $I \setminus R$ by following this procedure.\\
     \For{$i \in I \setminus R$}{
         Compute $\left(m_i\right)_j = \min \left\{ \left(m^0\right)_j, \left(D^i\right)_j \right\}$.\\
-        Compute $D_l(\mathbb{P}, R \cup \{x_i\}) = p m_i$.\\
+        Compute $D_\ell(P, R \cup \{x_i\}) = p m_i$.\\
         Store the best $m_i$ so far, named $m_{\text{best}}$.\\
     }
     Update $m^0 = m_{\text{best}}$. \\
@@ -612,10 +511,28 @@ n^2+\sum_{k=1}^m\left(2+\left(n-k\right)\left(2n+2n+1\right)\right)= n^2+2m+\lef
 $$
 operations.
 \end{proof}
-\subsection{Local search algorithm}
+There also exist a backward version of this algorithm where the reduced set of atoms is initialized by $R\gets I$ and atoms are removed in order to minimize the Wasserstein distance. Unfortunately, this algorithm can not benefit from the easy computation of $D_\ell\left(P,k\right)$ with $D_\ell\left(P,k-1\right)$. Hence, it may be not as efficient as the forward version. Still, this backward version may be interesting when you do not want to reduce a lot the original distribution.
+\subsection{Local-search algorithm}\label{guarant}
+Adapting local-search to the discrete scenario reduction problem with the advantage of bounding the approximation ratio under the type-1 Wasserstein distance for both the continuous and discrete scenario reduction problem. The approximation ratio is bounded by 5 for the discrete scenario reduction problem and 10 for the continuous.
+\begin{algorithm}
+    \caption{Local search algorithm for $D_l\left(\mathbb{P},m\right)$}\label{Local search}
+    Initialize the reduced set $R\subseteq \text{supp}\left(\mathbb{P}\right), \lvert R\rvert = m$, arbitrarily. \\ Select the next change to be applied to the reduced set as 
+    $$
+    \left(y,y'\right)\in\argmin\left\{D_l\left(\mathbb{P},R\cup\{y\}\setminus \{y'\}\right) : \left(y,y'\right)\in\text{supp}\left(\mathbb{P}\setminus R\right)\times R\right\},
+    $$
+    and update $R\gets R\cup \{y\}\setminus \{y'\}$ if $D_l\left(\mathbb{P}, R\cup\{y\}\setminus \{y'\} \right)<D_l\left(\mathbb{P},R\right).$ \\ Repeat Step 2 until no further improvement is possible.
+\end{algorithm}
+
+If various changes are possible in Step 2, you can either choose to use a "first-fit" (swap whenever you find a couple that reduces the distance) or a "best-fit" (explore all possible exchanges and consider the optimal) strategy.
+
+We now use what we found for $\bar\kappa_1$ to state that this algorithm gives rise to an algorithm with approximation ratio : $2\times 5$. Let $n,m,\mathbb{P}\in\mathcal{P}_E\left(\RR^d,m\right)$, we have that : 
+$$
+\frac{\bar{D}_l\left(\mathbb{P},m\right)}{C_l\left(\mathbb{P},m\right)}\leq \frac{2\bar{D}_l\left(\mathbb{P},m\right)}{D_l\left(\mathbb{P},m\right)}\leq 2\max_{n,m,\mathbb{P}\in\mathcal{P}_E(\RR^d,n)}\frac{\bar{D}_l\left(\mathbb{P},m\right)}{D_l\left(\mathbb{P},m\right)}=2\times5=10.
+$$
+We can now maximize the left hand side on $n,m,\mathbb{P}$ as the right hand side does not depend on the three.
 The same approach does not work for the local search as you swap atoms. An idea would have been to store an index vector, a vector that tells you with atom reaches $\min_{x\in R}\lVert x_i-x\rVert^l$ so that you know when you have to compute again the minimum on $R$ (whenever the swap removes the atom reaching the minimum). That does not look very efficient, but it would have looked that way : 
 \begin{algorithm}
-\caption{Maybe efficient local search}
+\caption{Local-search in precision}
 Initialize the set of atoms in the reduced set $R, \lvert R\rvert=m$.\\
 Compute the matrix $D = \left(\| x_i - x_j \|^l \right)_{i,j \in I^2}$ once and for all.\\
 Create $m^0 = \begin{pmatrix}\min_{i\in R}\lVert x_1-x_i\rVert^l & \hdots & \min_{i\in R}\lVert x_1-x_i\rVert^l \end{pmatrix}$ and $I=\begin{pmatrix}\argmin_{i\in R}\lVert x_1-x\rVert^l & \hdots & \argmin_{i\in R}\lVert x_1-x\rVert^l \end{pmatrix}$.\\
@@ -646,16 +563,61 @@ Create $d=pm^0$, there is improvement. \\
 \end{algorithm}
 There is still a lot of computation here in order to compute the $\min$ inside the closed formula (we go through a vector : index, $m-1$ columns of a matrix in order to find $\min_{i\in R\setminus x_j}\lVert x_k-x_i\rVert^l$ with a complexity $\mathcal{O}\left(mn\right)$). 
 
-\section{Fast routines}\label{fast}
-In this section, the goal is to compare different methods based on two criterion: time, value of $d_l$. The aim of this section is to determine which method is the most effective if a user does not provide specific instructions, as SMS++ aims for effectiveness.
-\subsection{Dupačová forward and backward}
+\subsection{MILP formulation}
+Let us review a mixed-integer linear programming (MILP) reformulation of the discrete scenario reduction problem.
+\begin{theorem}
+The discrete scenario reduction problem can be formulated as: 
+\begin{align*}
+    D_l^l\left(\mathbb{P},m\right)=&\min_{\Pi,\lambda}\:\frac{1}{n}<\pi,D> \\ &\text{s.t. } \;\pi e=e, \; \pi \leq e\lambda^T,\; \lambda^Te=m\\&\quad\quad \pi\in\RR^{n\times m}_+, \; \lambda\in\{0,1\}^n
+    \end{align*}
+    with $D\in \mathbb{S}^n$ and $D_{ij}=\lVert x_i-x_j\rVert^l$
+\end{theorem}
+\begin{remark}
+    This reformulation takes the most of \Cref{closed formula}.
+\end{remark}
+\subsection{m-means}
+The aim of $m$-means clustering is to reduced $n$ observations to $k$ clusters such that the intra-cluster sums of squared distances are minimized. It turns out to be a good idea to select $m$ atoms with the $n$ of $\text{supp}\left(\mathbb{P}\right)$. The amount of atoms in a cluster will give the probability of observing the cluster for the reduced distribution !
+
+
+\begin{algorithm}
+    \caption{$m$-means clustering for $C_l\left(\mathbb{P},m\right)$}\label{k m}
+    Initialize the reduced set $R=\{y_1,...,y_m\} \subseteq \text{supp}\left(\mathbb{P}\right)$ arbitrarily \\ Let $\{I_j\}\in\mathfrak{P}\left(I,m\right)$ be any partition whose sets $I_j, j\in J$, contain all atoms of supp$\left(P\right)$ that are closest to $y_j$ (ties may be broken arbitrarily). \\ For each $j\in J$, update $y_j$ as : $$y_j \gets \argmin_{y\in\RR^d} \left\{ \sum_{i\in I_j}\lVert x_i-y\rVert^l\right\}$$ \\ Repeat Steps 2 and 3 until the reduced set $R$ no longer changes.
+\end{algorithm}
+The reduced distribution is :
+$$
+\mathbb{Q}=\frac{1}{n}\sum_{y\in R}\delta_{y}c\left(y\right)
+$$
+where $ c\left(y\right)$ denotes the amount of atoms of $\mathbb{P}$ in the cluster $y$. Because here we consider $\mathbb{P}$ uniform.
+
+\subsection{A new algorithm for continuous scenario reduction}
+Dupačová et al.'s algorithm and local-search methods gives a great approximation of $D_\ell\left(P,m\right)$, we know also the distance can be written as:
+$$D_l\left(\mathbb{P},R\right)=\sum_{i\in I}p_i\min_{j\in R}\lVert x_i-x_j\Vert^l=\sum_{j\in R}\left[\sum_{i\in I_j}p_i\lVert x_i-x_j\rVert^l\right].$$
+Now we may improve the value of the Wasserstein distance by finding an optimal $x_j$ for each $I_j$. The idea is to decompose each sum on $I_j$ as we have done above in order to find for $I_j$: 
+$$
+y_j\in \argmin_{y\in\RR^d}\sum_{i\in I_j}p_i\lVert x_i-y\rVert^l.
+$$
+We could thus modify each centroïd $x_j$ by the optimal $y^*_j$ we found for $I_j$. Changing centroïds of the reduced set obtained by a local-search method decreases the value of $d_\ell\left(P,Q\right)$ hence the approximation ratio remains bounded. 
+
+\begin{algorithm}[h]\caption{An algorithm for continuous scenario reduction}
+    \label{improved ls}
+    Run a local-search and extract $I_j$ for all $j$. \\
+    With a method of your choice, find for each $I_j$: $$y_j\in\argmin_{y\in\RR^d}\sum_{i\in I_j}p_i\lVert x_i-y\rVert^l$$
+    \\ Let $\{I_j\}\in\mathfrak{P}\left(I,m\right)$ be any partition whose sets $I_j, j\in J$, contain all atoms of supp$\left(P\right)$ that are closest to $y_j$ (ties may be broken arbitrarily). \\
+    Repeat Step 2 and 3 until there is no more change.
+\end{algorithm}
+
+This algorithm is $m$-means algorithm but with a clever first guess.
+
+\section{Efficient implementation of these algorithms and results}\label{fast}
+In this section, the goal is to compare different methods based on two criterion: time, value of $d_\ell\left(P,Q\right)$. The aim of this section is to determine which method is the most effective if a user does not provide specific instructions. We will explore many techniques. 
+\subsection{Dupačová et al' algorithm, forward and backward methods}
 \subsubsection{Outputs}
-The first comparison to make is between the forward and backward methods of Dupačová et al' algorithm. We will use $L2$-norm and $\ell=2$. The efficient methods proposed for the forward algorithm looks way more interesting at first sight as computing $\min_{k\in R}\lVert x_i-x_k\rVert^l$ is very cheap compared to the method of the backward algorithm. For this simulation, I created a random two-dimensional data-set, each point is a sample of: $$
+The first comparison to make is between the forward and backward methods of Dupačová et al' algorithm. We will use the euclidian norm and $\ell=2$. The efficient method proposed for the forward algorithm looks way more interesting at first sight as computing $\min_{k\in R}\lVert x_i-x_k\rVert^l$ is very cheap from one step to another. I created a random two-dimensional data-set where each point is a sample of: $$
 \begin{pmatrix}
     \mathcal{N}\left(10,2\right) \\ \Gamma\left(2,2\right)
 \end{pmatrix}
 $$
-The probability of each sample $x_i$ is $\frac{1}{n}$. Let us take a look in 2D at the output we obtain by these two methods when we reduce the initial set to 10 atoms: 
+The probability of each sample $x_i$ is $\frac{1}{n}$. Let us take a look at the output we obtain when using both methods when we reduce the initial set to 10 atoms: 
 \begin{figure}[ht]
     \centering
     \begin{subfigure}[b]{0.45\textwidth}
@@ -673,8 +635,7 @@ The probability of each sample $x_i$ is $\frac{1}{n}$. Let us take a look in 2D 
     \end{subfigure}
     \caption{Output visualization: forward and backward Dupačová et al' algorithm}
 \end{figure}
-
-Circles represent atoms and crosses represent atoms that are selected by an algorithm. A color represents a cluster (where will be transported an atom by the transportation plan). For the simulations to come, we'd rather use a 6D data-set in order to be more general. Every dimension should have a comparable data-range so that the distance between atoms isn't led by a single dimension. We will take samples of 3 normal distribution, 2 gamma and one uniform :
+Obviously outputs are not the same. Circles represent atoms and crosses represent atoms that are selected by an algorithm. A color represents a cluster. For the simulations to come, we'd rather use a bigger data-set in order to be more general. Every dimension should have a comparable data-range so that the distance between atoms isn't led by a single dimension. We will take samples of 3 normal distribution, 2 gamma and one uniform :
 $$
 \begin{pmatrix}
     \mathcal{N}\left(0,2\right) & \mathcal{N}\left(5,2\right) & \Gamma\left(0,2\right) & \Gamma\left(1,2\right) &\Gamma\left(2,2\right) & \mathcal{U}\left(0,10\right)
@@ -688,7 +649,7 @@ $$
     \begin{subfigure}[b]{0.45\textwidth}
         \centering
         \includegraphics[width=\textwidth]{plots/efficiency milp.pdf}
-        \caption{$d\left(\mathbb{P},R\right)^2$ comparison between both algorithms}
+        \caption{$d\left(P,Q\right)^2$ comparison between both algorithms}
         \label{dist for bac}
     \end{subfigure}
     \hfill
@@ -702,10 +663,8 @@ $$
     \label{comparison dup}
 \end{figure}
 
-The "x" axis of \Cref{comparison dup} represents the number of atoms in the reduced set. \Cref{dist for bac} shows that the efficiency in term of Wasserstein distance is similar and comparable for a reduced set obtained via forward or backward algorithm but still Forward algorithm gets a slight lead. The main difference lies in calculation time, the efficient way to compute the forward algorithm shows its advantages in \Cref{time for bac}, always below 0.05s whereas the backward algorithm can take up to one second and takes more time than the exact method. Forward algorithm has to be preferred when you're free to choose.  This data-set of 100 atoms is small compared to what you could see in real problems, the calculation time will grow as $n$ grows, that's why I make this remark. We use Gurobi 9.5.0 to solve the MILP formulation and when there is 100 atoms, heuristics are used to find a solution (that is why the computation time is very low compared to what we could expect). 
-
-\subsection{With a bigger number of scenarios}
-We've seen that backward algorithm isn't interesting in terms of CPU time. We will compare now the run time of the Forward algorithm and the MILP formulation for $n\in\left[100,1000\right]$ because \ref{time for bac} isn't relevant as Gurobi is very efficient with small size. Let us say we want to reduce a $n$ atoms distribution to a $\frac{n}{4}$ atoms distribution, let us compare run time and efficiency for:
+The horizontal axis of \Cref{comparison dup} represents $m$, the number of atoms in the reduced set. \Cref{dist for bac} shows that the efficiency in term of Wasserstein distance is similar and comparable for a reduced set obtained via forward or backward algorithm but still the forward method gets a slight lead. The main difference lies in CPU time, the efficient manner we found for the forward algorithm shows its advantages in \Cref{time for bac}, always below 0.05s whereas the backward algorithm can take up to one second and takes more time than the exact method. Forward algorithm has to be preferred when you're free to choose even when $m\approx n$. We solve the LP reformulation with Gurobi and it is very efficient, it is comparable to the forward method.\\
+We have seen that backward method is not interesting in terms of CPU time. We will now compare forward method and MILP formulation for bigger distributions, it is $n\in\left[100,1000\right]$. Our goal is to understand the behaviours of both algorithms when $n$ increases. \ref{time for bac} may be irrelevant as Gurobi is very efficient with small-sized problems. Let us say we want to reduce a distribution with $n$ atoms to a distribution with $\frac{n}{4}$ atoms.
 
 \begin{figure}[ht]
     \centering
@@ -726,11 +685,11 @@ We've seen that backward algorithm isn't interesting in terms of CPU time. We wi
     \label{comparison n4}
 \end{figure}
 
-\Cref{complexity} tells us that forward Dupačová has a complexity of $\mathcal{O}\left(mn^2\right)$ what is meant to be far less than a simplex, Gurobi may use heuristics or other sophisticated method to have this small run time gap. Without Gurobi the gap would be way bigger. Still there exists a gap we can nott neglect for run time especially when $n$ grows, the gap in efficiency exists but is relatively small.
+\Cref{complexity} tells us that forward method has a complexity of $\mathcal{O}\left(mn^2\right)$ what is meant to be far less than solving a LP. Gurobi may use heuristics or other sophisticated method to have this small run time gap. Without Gurobi the gap would be way bigger. Still there exists a huge gap in CPU time we can not neglect especially when $n$ grows. Behaviours in efficiency are not affected by this change of scale for $m$ and $n$.
 \subsection{Local search}
-We have many things to test here in order to know how to use local search algorithm. Local search can be somehow long to compute with a random first guest of size $m$. Three manners came naturally in order to tackle this issue. As a very first guess, we decide to use the reduced set of size $m$ that we get with the forward algorithm, the backward algorithm and the last set of starter would be atoms that are closest to the centroïds computed with a k-means method. The idea of this section is to compare efficiency and computation time between these methods and a random first guess. We will still compute the data-set as samples of the 6D data-set (uniform probabilities). The MILP solver by Gurobi will be more efficient than local-search in this case and then using local-search would be useless (because it takes more time and less efficient), in general Gurobi wouldn't solve these problems that easily. Still we will use Gurobi in order to compare the efficiency (not run time).
-\subsection{Best-fit, first-fit and forward Dupačová}
-The local search algorithm gives an approximation of $D_l$ and the reduced set providing the approximation similarly to the greedy algorithm of Dupačová. First, we want to understand how the local search algorithm (and its 2 variants : best-fit, first-fit) behaves in comparison to the greedy algorithm (the forward version as we've seen that it was way more efficient). In this part, the first guess $R$ of size $m$ is selected randomly (the $m$ first elements of the data-set which is already randomly chosen).
+A run of local-search is not assured to end in polynomial time. Thus it can be somehow long to compute with a random first guest of size $m$. The first comparison we have to make is between best-fit and first-fit method.
+\subsubsection{Best-fit or first-fit}
+Like Dupačová et al' algorithm, local-search will give you an approximate of $D_\ell\left(P,m\right)$ but local-search methods are meant to be more satisfying as they provide guarantees, see \ref{guarant}. First, we want to understand how the local search methods behave in comparison to the greedy algorithm and especially the forward method. In this part, the first guess $R$ of size $m$ is the $m$-first elements of the data-set, it is a random guess.
 
 \begin{figure}[ht]
     \centering
@@ -751,13 +710,13 @@ The local search algorithm gives an approximation of $D_l$ and the reduced set p
     \label{comparison loc}
 \end{figure}
 
-Run time grows linearly with $m$ with $n$ fixed for forward Dupačová, but here we don't know how much time we will enter the while loop for both local search methods, computation time looks messier for them. Even messier for first-fit method whereas best-fit looks more curvy and less variable from $m$ to $m+1$. It aligns with the fact that best-fit is more stable as it compares all swap and chooses the best while first-fit swaps as soon as it finds an improvement even though it may be a very small one. In terms of efficiency (value of $d_2^2$), both local-search methods give a better approximation than the one provided by forward Dupačová. As a mean, running a local search algorithm is 10 times longer than forward Dupačová (which is very efficient).
+Run time grows linearly with $m$ with $n$ fixed for forward Dupačová et al' algorithm. For a run of local-search, as we do not know how many time we will enter the while loop for both local search methods, computation time looks messier for both method. Run time of the first-fit method tends to be even messier compared to best-fit method. Variability from $m$ to $m+1$ is bigger for the first-fit method. It aligns with the fact that best-fit is more stable as it compares all swap and chooses the best while first-fit swaps as soon as it finds an improvement \emph{even though it may be a very small one}, see \ref{step}. In terms of efficiency, both local-search methods give a better approximation than the one provided by forward Dupačová. As a mean, running a local search algorithm is 10 times longer than forward Dupačová.
 
-In the following figure, we represent the approximation ratio for $n=100$ and $m\in [\![10;90]\!]$. The approximation ratio $r_m$ for a certain $m$ is defined as : 
+In the following figure, we represent a ratio $r_m$ for $n=100$ and $m\in [\![10;90]\!]$. We define this ratio $r_m$ for a certain $m$ as: 
 $$
-r_m = \frac{D_l\left(\mathbb{P},R_{\text{algorithm}}\right)}{D_l\left(\mathbb{P},m\right)}.
+r_m = \frac{d_\ell\left(P,Q\right)}{D_\ell\left(P,m\right)}.
 $$
-Where the denominator is computed thanks to the MILP formulation and the above algorithm is up to a choice (local-search...).
+Where we know $D_\ell\left(P,m\right)$ thanks to the MILP formulation and $Q$ is generated with local-search or any other algorithm.
 
 \begin{figure}[ht]
     \centering
@@ -783,12 +742,11 @@ Where the denominator is computed thanks to the MILP formulation and the above a
 \end{figure}
 
 For both $n=100$ and $n=200$, local-search gives a better approximation to $D_l\left(\mathbb{P},m\right)$ to the detriment of calculation time. Both best-fit and first-fit can be used even though the tendency is that first-fit has more run time variation from $m$ to $m+1$ when best-fit tends to be more stable. Best payouts for local-search are seen when you want to reduce $n$ to $m\leq\frac{n}{2}$. When $m\approx n$, there may still be a gain but thin. 
-\clearpage
 
-\subsection{Clever starters to reduce local-search calculation time}
-As mentionned above, the payout is significant for local-search methods when $\frac{n}{m}\geq2$ but run time can increase by a factor 30. However, we can expect to reduce calculation time with an interesting starter $R$ of cardinal $m$. This should lead to fewer changes in the local-search hence a lower run time. Different starters can be considered. First, a random set. Second and third, two outputs of forward Dupačová (in my opinion, using the output of backward Dupačová et al' algorithm to compute a starter wouldn't be interesting as it takes way much time to be computed), in the order given by the algorithm and in reverse order (only for first-fit as order matters when it does not for best-fit). Finally, as starters, we will consider the nearest neighbours from a run of $m$-means. 
-\newline
-NB: using the reversed sequence of Dupačová output can be odd as the first atom of the reversed sequence won't be changed but second, third, fourth are more likely to be changed as they weren't chosen at first, it's an idea we must consider. Inversely, the first atom chosen was the most centered so it gave a real direction to the choice that came later so changing this one would change a lot of things. Both ideas have their arguments that's why we must investigate ! Plus, best-fit for the original sequence or the reversed sequence must give the same output.
+\subsubsection{Modified versions of local-search}
+Local-search can be very excruciating but still we can play with different variables. E.g. not allowing small swaps for first-fit, use a clever set of starters. We will now present and compare variations of the local-search method with the aim of reducing run time without damaging efficiency. 
+\paragraph{\textbf{Clever starters as a very first guess.}}
+We decide to use the reduced set of size $m$ that we obtain with the forward Dupačová et al' algorithm, the backward algorithm and the set of of atoms that are the closest to the centroïds computed with a run of $m$-means on the data-set. The idea of this section is to compare efficiency and computation time between these methods and a random first guess. We will still compute the data-set as samples of the 6D data-set we have used so far. We can expect to reduce calculation time with an interesting starter $R$ of cardinal $m$ because it should lead to fewer changes in the local-search hence a lower run time. As order is important in first-fit, we will also use the reversed set obtained via forward Dupačová et al' algorithm. Using the reversed sequence of Dupačová et al' algorithm can be odd as the first atom of the reversed sequence will never be swapped but second, third, fourth are more likely to be changed as they weren't chosen at first, it is an idea we must consider. Inversely, the first atom chosen was the most centered so it gave a real direction to the choice that came later so changing this one would change a lot of things. Both ideas have their arguments that is why we must investigate. Note that best-fit for the original sequence or the reversed sequence must give the same output.
 
 \begin{figure}[ht]
     \centering
@@ -807,16 +765,15 @@ NB: using the reversed sequence of Dupačová output can be odd as the first ato
     \label{methods}
 \end{figure}
 
-\Cref{methods} highlights 3 efficient methods that divide the run time by 2 to 3. The three highlighted methods are : best-fit m-means neighbours, best-fit reverse Dupačová starters, best-fit Dupačová starters (both are the same). Efficiency is similar for all methods what is relieving. It's interesting to see that any first-fit method as almost the same curve, using clever starters does not work so well for first-fit method while it's kind of efficient for best-fit.
+\Cref{methods} is satisfying because all methods we proposed reduce run time in general and sometimes by more than a factor 5. Best methods to consider are best-fit with Dupačová starters (reverse or not it does not matter), first-fit with Dupačová starters and best-fit with $m$-means neighbours starters. Efficiency is similar for all methods what is relieving. 
 
-\subsection{2 modified versions of first-fit}
-\subsubsection{With a parameter $p$}
-The first-fit method lacks of efficiency. An idea is to run time by allowing only some changes. I decided to only allow changes that reduce sufficiently the cost function. Meaning that there is a change if: $$
-d\left(\mathbb{P},\mathbb{Q}_1\right) \leq d\left(\mathbb{P},\mathbb{Q}_0\right) - \epsilon.
+\paragraph{\textbf{First-fit with a minimum step.}}\label{step}
+First-fit method lacks of efficiency. An idea is to reduce run time by allowing only changes that reduce sufficiently the cost function. Meaning that the swap is accepted if and only if: $$
+d_\ell\left(P,Q_{i+1}\right) \leq d_\ell\left(P,Q_i\right) - \epsilon.
 $$
-Where $\mathbb{Q}_0$ was the distribution before iteration and $\mathbb{Q}_1$ a distribution we are testing with one swap compared to $\mathbb{Q}_0$. The idea of this part is to find an interesting $\epsilon$ to allow efficiency in a first-fit method. To be general and not to rely on a specific problem, we are testing $\epsilon$ as $\epsilon=pd\left(\mathbb{P},\mathbb{D}\right)$ with $p$ a parameter that has to be defined and $d\left(\mathbb{P},\mathbb{D}\right)$ the distance between the original distribution $\mathbb{P}$ and $\mathbb{D}$ the distribution given by the forward Dupačová et al's algorithm. We will compare run time and efficiency in terms of $p$:
+Where $Q_i$ was the distribution before iteration and $Q_{i+1}$ a distribution we are testing with one swap compared to $Q_i$. The idea of this part is to find an interesting $\epsilon$ to allow efficiency in a first-fit method. To be general and not to rely on a specific problem, we are testing $\epsilon$ as: $$\epsilon=pd_\ell\left(P,D\right),$$ with $p$ a parameter that has to be defined and $d_\ell\left(P,D\right)$ the distance between the original distribution $P$ and $D$ the distribution given by the forward Dupačová et al' algorithm. We will compare run time and efficiency in terms of $p$:
 
-\begin{figure}[!h]
+\begin{figure}[ht]
     \centering
     \begin{subfigure}[b]{0.495\textwidth}
         \centering
@@ -833,9 +790,9 @@ Where $\mathbb{Q}_0$ was the distribution before iteration and $\mathbb{Q}_1$ a 
     \label{p}
 \end{figure}
 
-Both figures are saying that we must study this algorithm in the range $p\in\left[0,0.015\right]$, where it grants a lower run time and a better output than Dupačová.  
+Both figures are saying that we must study this algorithm in the range $p\in\left]0,0.015\right]$, where it grants a lower run time and a better output than Dupačová.  \rp{là}
 
-\begin{figure}[!h]
+\begin{figure}[ht]
     \centering
     \begin{subfigure}[b]{0.495\textwidth}
         \centering
@@ -852,24 +809,27 @@ Both figures are saying that we must study this algorithm in the range $p\in\lef
     \label{p small scale}
 \end{figure}
 
+An interesting remark would be to say that with $p\approx 0.001$, this method even gives a better approximate to $D_\ell\left(P,m\right)$ than the original first-fit meaning $p=0$. Still this remark exists for a particular distribution here maybe we can not assume that statement in general. When $p$ increases, run time reduces as well as efficiency. Through the existence of the parameter $p$ this method provides a \emph{continuous transformation} of the space between the approximation of $D_\ell$ by Dupačová et al' algorithm and local-search. \rp{mettre en avant cette remarque à mon avis c'est important}
+
 \clearpage
-\subsubsection{Random first-fit}
+\paragraph{\textbf{Using randomization in first-fit.}}
 The first-fit method relies on a linear exploration of the current solution until you find an improvement. Exploring the current solution always with the same method can lead to a lot of useless calculation, e.g. if you know that you only have to swap either the last atom or the one before but you explore linearly the current solution. The idea is to change the exploration order by introducing a random shuffle so that the exploration order is never the same. In order to generate these permutations, we use the algorithm of Fisher-Yates, this algorithm generates a permutation of $n$ elements in a linear run time, all permutations being equally probable.
 \begin{algorithm}\caption{Fisher-Yates algorithm}\label{fisher yat}
     \For{$i$ from $n-1$ down to $1$}{
     $j\gets k$, $k$ randomly chosen in $ [\![0,i]\!]$  \\
     Exchange the value in $i^{\text{th}}$ position with the one in $j^{\text{th}}$.}
 \end{algorithm}
-For this simulation we use $n=100$, $m$ as the $x$-axis and Dupačová starters. Note that we run 25 times the random first-fit method to get the plot "mean random first-fit"
-\begin{figure}[!h]
+For this simulation we use $n=100$, $m$ as the $x$-axis and  starters. Note that we run 25 times the random first-fit method to get the plot "mean random first-fit"
+\begin{figure}[ht]
     \centering
     \includegraphics[width=0.5\textwidth]{plots/random first fit.pdf}
     \caption{Random first-fit results}
     \label{random ff}
 \end{figure}
 Using this randomized order helps us to gain stability in run time. Even the worst case of this randomized method is generally better or at least comparable to the deterministic first-fit. There is a clear gain. If the randomization procedure was $\mathcal{O}\left(1\right)$ the gain would have been even better because this procedure adds one more stage in the algorithm. The gain in run time seems to be huge for a small $m$, when $m\approx n$, this procedure does not seem to be a good idea.
+
 \subsection{Fusion of local search and $m$-means}
-In this part we want to compare \Cref{improved ls}  with a generalized $m$-means for an approximation of $C_l$ as proposed in \Cref{k m} and \Cref{Local search}. For the sake of run time and thanks to the above analysis, we will use the best-fit method with Dupačová starters whenever we need to run a local-search.
+In this part we want to compare \Cref{improved ls}  with a generalized $m$-means for an approximation of $C_l$ as proposed in \Cref{k m} and \Cref{Local search}. For the sake of run time and thanks to the above analysis, we will use the best-fit method with Dupačová starters whenever we need to run a local-search. We will only optimize on the centroïds once meaning that we compute the reduced set with a run of local-search and then we reoptimize on the centers, $y_j^*=\text{mean}\left(I_j\right)$ because we work with the euclidian distance and $\ell=2$.
 
 
 \begin{figure}[ht]
@@ -890,8 +850,7 @@ In this part we want to compare \Cref{improved ls}  with a generalized $m$-means
 \end{figure}
 
 
-The $m$-means algorithm tends to be a little better than local-search in this simulation even though its approximation ratio is not bounded, using this local-search starter and combining it with k-means gives a slightly better value than both k-means and local-search and adds more stability in the output.
-
+The $m$-means algorithm tends to be a little better than local-search in this simulation even though its approximation ratio is not bounded. Nevertheless, it remains understandable to have a closer distribution with $m$-means because it can decide to use atoms that are not included in $\text{supp}\left(P\right)$. Combining the idea of $m$-means with local-search gives in general a slightly better value and most important it presents more stability and by stability I mean that the efficiency curve is smoother.
 
 \section{The multiproduct assembly problem}
 In this section, we will apply scenario reduction to the \emph{multiproduct assembly problem} with finitely many demand scenarios. This assumption can be allowed as the manufacturer may use $k$ past demands with a probability $\frac{1}{k}$ to model the future demand.
@@ -908,13 +867,7 @@ We can rewrite it:
      \text{s.t. } &y=x-A^Tz, \\
      & d \geq z\geq 0, \:y\geq0.
 \end{align*}
-To fit in the definition given in \ref{two stage}, we can consider the second-stage decision vector $y'=\begin{pmatrix} y &z&d-z\end{pmatrix}^T$, $c=\begin{pmatrix}-s & l-q & 0_n\end{pmatrix}$, $W=\begin{pmatrix} I_m &  & A^T &0_{mn}\end{pmatrix}$. We now write:
-\begin{align*}
-    \min_{y'} \:&c^Ty' \\
-     \text{s.t. } &Wy'=x, \\
-     & y'\geq0.
-\end{align*}
-One can note that $W$ does not depend on $D$ and that the value of this minimizing problem depends on $x$ and on a demand $d$, the recourse is fixed. We write $Q\left(x,d\right)$ the optimal value of this problem. The two-stage linear problem associated to the multiproduct assembly problem is:
+One can convince itself that the recourse is fixed. The value of this optimization problem depends on $x$ and on a demand $d$. We write $Q\left(x,d\right)$ the optimal value of this problem. The two-stage linear problem associated to the multiproduct assembly problem is:
 $$\min_{x\geq0}c^Tx+\mathbb{E}_DQ\left(x,D\right).$$
 \subsection{Data-set}
 Data-set on this kind of problems do not exist or if they do, it did not find any. The objective of this section is to build a coherent data-set. Let us put ourselves in carpenter's shoes.
@@ -992,7 +945,7 @@ It defines the matrix $A$.
 We present costs and rewards fot both products and subsassemblies.
 
 
-\begin{table}[!h]
+\begin{table}[ht]
     \centering
 \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|}
 \hline
@@ -1005,7 +958,7 @@ We present costs and rewards fot both products and subsassemblies.
 
 
 
-\begin{table}[!h]
+\begin{table}[ht]
     \centering
 \begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
 \hline
@@ -1025,7 +978,7 @@ $$
 One can note that a vector of random uniform demands is not appropriate. In a few words, it is not appropriate because when reoptimizing the weights of the reduced set, some are more influent than other even though the demand is uniform. Results obtained without reoptimizing weights (with uniform probabilities) are often closer to the original optimal value. Thanks to \ref{stability}, solving these reduced problems are supposed to give a solution that is close the original optimum.
 
 \subsection{Results}
-We have presented everything we need to solve this multiproduct assembly problem. We must now solve it. In our case, there are finitely many demand scenarios. The probability $p_k$ of observing the demand $d_k$ is $\frac{1}{200}$ for each scenario. Hence, we replace $\mathbb{E}_D\left(Q,x,D\right)$ by $\sum_{k=1}^Kp_kQ\left(x,d_k\right)$. We will therefore reduce the number of scenarios in order to reduce the length of the sum, the number of constraints and so run time. We now have to solve:
+We have presented everything we need to solve this multiproduct assembly problem. We must now solve it. In our case, there are finitely many demand scenarios. The probability $p_k$ of observing the demand $d_k$ is $\frac{1}{K}$ for each scenario. Hence, we replace $\mathbb{E}_D\left(Q,x,D\right)$ by $\sum_{k=1}^Kp_kQ\left(x,d_k\right)$. We will therefore reduce the number of scenarios in order to reduce the length of the sum, the number of constraints and so run time. We now have to solve:
 
 \begin{equation}\label{LP}
 \begin{aligned}
@@ -1054,195 +1007,9 @@ In \ref{fast}, we have presented different ways of considering some scenario red
     \caption{Figures for two-stage stochastic programming with $n=250$.}
 \end{figure}
 
-These figures present: Wasserstein distance between the original distribution and reduced ones (either via local-search or greedy algorithm), the optimal value ratio and run time. Both local-search and greedy algorithm give comparable ratios (less than 2\% when reducing the number of scenarios by a factor 10) even though local-search tends to give better approximation as it gives a distribution that is generally closer to the original one. Obviously when $m$ grows, distribution generated are closer to the original one, hence, it gives a smaller ratio in general. This observation is comforting with the Lipschitz nature of the problem: $\lvert v\left(P\right)-v\left(Q\right)\rvert \leq C d_\ell\left(P,Q\right)^\ell$. A closer distribution will lead to a closer optimal value. There can be a gap sometimes. Run time grows linearly with $m$ because Gurobi is very efficient for small scales LP. Solving the LP \ref{LP} with $n=2000$ takes about 29 seconds, when the reduced LP with $m=200$ is completed in 2.8 seconds. Cutting the number of scenarios by a factor 10 is clearly not threatening here and reduces run time. Generating this new scenario set can be excruciating but still it can be very interesting in some cases. If you want to test a great number of cost vector in a multiproduct assembly problem with a certain distribution of demands. You can reduce once demands and then use the reduced distribution to save run time when solving again and again the LP.
-
+These figures present: Wasserstein distance between the original distribution and reduced ones (either via local-search or greedy algorithm), the optimal value ratio and run time. Both local-search and greedy algorithm give comparable ratios (less than 2\% when reducing the number of scenarios by a factor 10) even though local-search tends to give better approximation as it gives a distribution that is generally closer to the original one. Obviously when $m$ grows, distribution generated are closer to the original one, hence, it gives a smaller ratio in general. This observation is comforting with the Lipschitz nature of the problem: $$\lvert v\left(P\right)-v\left(Q\right)\rvert \leq C d_\ell\left(P,Q\right)^\ell.$$ A distribution that is closer to the original one will generally lead to a closer optimal value. There can be a gap sometimes. Run time grows linearly with $m$ because Gurobi is very efficient for small scales LP. Solving the LP \ref{LP} with $n=2000$ takes about 29 seconds, when the reduced LP with $m=200$ is completed in about 2 seconds. Cutting the number of scenarios by a factor 10 is clearly not threatening here and reduces run time. Generating this new scenario set can be excruciating but still it can be very interesting in some cases e.g. if you dare optimizing on cost vector in a multiproduct assembly problem with a certain distribution of demands. You can reduce once demands and then use the reduced distribution to save run time when solving again and again the LP.
+\section{Conclusion}
 \clearpage
-\appendix
-\section{Wasserstein distance is a distance}\label{distance}
-In this appendix, we prove that Wasserstein distance is indeed a distance whenever $l\geq1$. 
-\begin{enumerate}
-    \item $d_l$ has values in $\RR_+$.
-    \item Symmetry is easy.
-    \item Definiteness requires a little more work. First, we prove that $d_l\left(\mathbb{P},\mathbb{Q}\right)=0\implies \text{supp}\left(\mathbb{P}\right)=\text{supp}\left(\mathbb{Q}\right)$. Alright, let $\mathbb{P}=\sum_{i\in I}\delta_{x_i}p_i,\mathbb{Q}=\sum_{j\in J}\delta_{y_j}q_j$ such that $d_l\left(\mathbb{P},\mathbb{Q}\right)=0$, let us assume that $\text{supp}\left(\mathbb{P}\right)\ne\text{supp}\left(\mathbb{Q}\right)$. Then there exists $x_{i_0}\in \text{supp}\left(P\right)$ such that $x_{i_0}\neq y, \:\forall y\in\text{supp}\left(\mathbb{Q}\right)$ (if not, then a $y_{i_0}$ exists in $\text{supp}\left(Q\right)$ and $y_{i_0}\notin \text{supp}\left(P\right)$ as the support are different but it's the same, it does not matter). As $d_l\left(\mathbb{P},\mathbb{Q}\right)=0$ we have that :$$
-    \exists\pi\in\RR^{nm}_+ : \sum_{i\in I}\pi_{ij}=q_j, \sum_{j\in J}\pi_{ij}=p_i, \forall i,j \text{ and } \sum_{j\in J}\sum_{i\in I}\pi_{ij}\lVert x_i-y_j\rVert^l=0.
-    $$
-    Look at the last equation, each term of the sum is positive, then it follows that :
-    \begin{equation}\label{useful}
-    \forall i,j \in I\times J, \: \pi_{ij}\lVert x_i-y_j\rVert^l=0.
-    \end{equation}
-    and you can forget the $l^{th}$ power without a single remorse :
-    $$
-     \forall i,j \in I\times J, \: \pi_{ij}\lVert x_i-y_j\rVert=0.
-    $$
-    But we said that there exists $x_{i_0}\in\text{supp}\left(P\right)\setminus\text{supp}\left(Q\right)$. It follows that $\forall j\in J, \pi_{i_0j}=0$ what's impossible because of the constraints we had, $0=\sum_{j\in J}\pi_{i_0j}=p_{i_0}\neq0.$ First step : check ! $$d_l\left(\mathbb{P},\mathbb{Q}\right)=0\implies \text{supp}\left(\mathbb{P}\right)=\text{supp}\left(\mathbb{Q}\right).$$
-    W.l.o.g. we can renumber the atom and then say $p_i$ and $q_i$ are associated to the same atom. We use \Cref{useful} and we have that :
-    $$
-    \forall k\in I, k\neq i, \pi_{ki}=0, \pi_{ik}=0.
-    $$
-    Then the constraints on $\pi$'s sum on rows and columns give  : $$ 
-    \sum_{k\in I}\pi_{ki}=\pi_{ii}=q_i \text{ and } \sum_{k\in J}\pi_{ik}=\pi_{ii}=p_i.
-    $$
-    We've proven the definiteness of $d_l$. Because supports and weights are the same for both distribution : $\mathbb{P}=\mathbb{Q}$.
-    \item Triangle inequality, see \cite[Proposition 2.2]{peyre_computational_2019}
-\end{enumerate}
-\begin{remark}
-    If $0<l<1, d_l^l$ is a distance.
-\end{remark}
-\section{Computing Wasserstein distance}
-\label{compute}
-Let $\mathbb{P}=\sum_{i\in I}\delta_{x_i}p_i, \mathbb{Q}=\sum_{j\in J}\delta_{y_j}q_j$ two finite distributions. Computing the distance is equivalent to solving a linear program. Thus it is "easily" computable (with the simplex or with better-fitting techniques as it is a min-cost transportation problem).
-If we write $n=|I|, m=|J|$ and :
-$$
-\pi=\begin{bmatrix}
-    \pi_{11}& \hdots&\pi_{1m}&\pi_{21}&\hdots&\pi_{2m}&\hdots\pi_{nm}
-\end{bmatrix}^T.
-$$
-Than the constraints can be visualized with the matrix $A=\begin{pmatrix}
-    A_I \\
-    A_J
-\end{pmatrix}$ with $A_I$ $k^{th}$ row (out of the $n$ rows) being : 
-$$\begin{bmatrix}
-    0&\hdots&0&1&\hdots&1&0&\hdots&0
-\end{bmatrix}.$$
-with $m\times(k-1)$ zeros at the beginning, then $m$ ones and then zeros. 
-\newline
-Similarly $A_J$ $k^{th}$ row (out of the $m$ rows) is full of zeros except at position $k+(j-1)\times m, \forall j\in J$ where you will find ones. This way, it's easy to find a distance between two finite distributions.
-\newline
-
-One more thing we can say is that $rk(A)=n+m-1$. The rows of A are linearly dependant : $L_1+...+L_n-L_{n+1}-...-L_{n+m}=0$. Then if we take a linear combination of rows $A_1,...,A_{n+m-1}$ that is equal to zero, we have that $$
-\sum_{i=1}^{n+m-1}\lambda_iL_i^T=\begin{bmatrix}
-    \lambda_1+\lambda_{n+1}\\ \vdots\\ \lambda_1+\lambda_{n+m-1}\\ \lambda_{1} \\ \lambda_2+\lambda_{n+1} \\ \vdots \\ \lambda_2+\lambda_{n+m-1}\\ \lambda_2  \\ \vdots
-\end{bmatrix}=0_{\RR^{nm}}.
-$$
-Directly, we see that $\forall i \in [\![1;n]\!], \lambda_i=0$ when we look at the $(m\times i)^{th}$ coefficient and then $\forall k\in[\![1;n+m-1]\!], \lambda_k=0$ is easy to see. Then $rk(A)=n+m-1$. \rp{kind of useless as we know that the number of variables in basis is $n+m$ (number of constraints) but can be the starting point of sparsity explanation if I study regularization as Benoît mentionned}
-\section{Scaled distribution and Wasserstein distance}
-\label{scaled}
- Let $m\in\mathbb{N}^*$, $\mathbb{Q}\in\mathcal{P}(X,m) $ and $\lambda\in\RR^*$. We have that
-\begin{align*}
-    d_l(\mathbb{P}^\lambda,\mathbb{Q})^l&=\min_{\pi\in\mathbb{R_+^{|I|\times|J|}}}\left\{ 
-\sum_{i\in I}\sum_{j\in J}\pi_{ij}\lVert\lambda x_i-y_j\rVert^l \: \text{ : } \:  \begin{aligned}
-& \sum_{j\in J}\pi_{ij}=p_i \: \forall i\in I \\
-& \sum_{i\in I}\pi_{ij}=q_j \: \forall j\in J
-\end{aligned}\right\} \\&=\lambda^l\cdot\min_{\pi\in\mathbb{R_+^{|I|\times|J|}}}\left\{ 
-\sum_{i\in I}\sum_{j\in J}\pi_{ij}\lVert x_i-\frac{1}{\lambda}y_j\rVert^l \: \text{ : } \:  \begin{aligned}
-& \sum_{j\in J}\pi_{ij}=p_i \: \forall i\in I \\
-& \sum_{i\in I}\pi_{ij}=q_j \: \forall j\in J
-\end{aligned}\right\} \\
-&=\lambda^l \cdot d_l(\mathbb{P},\mathbb{Q}^{\frac{1}{\lambda}})^l.
-\end{align*}
-Taking the $\frac{1}{\lambda}^{th}$ power gives :  $d_l(\mathbb{P}^\lambda,\mathbb{Q})=\lambda\cdot d_l(\mathbb{P},\mathbb{Q}^{\frac{1}{\lambda}})$. Now, we have $$C_l(\mathbb{P}^\lambda,m)\leq d_l(\mathbb{P}^\lambda,\mathbb{Q})=\lambda\cdot d_l(\mathbb{P},\mathbb{Q}^{\frac{1}{\lambda}})$$
-But the left hand side does not depend on $\mathbb{Q}$ any longer so we can minimize the right hand side over $\mathbb{Q}\in\mathcal{P}(X,m)$ almost directly $C_l(\mathbb{P},m)=\min_\mathbb{Q}\left\{d_l(\mathbb{P},\mathbb{Q}),\: \mathbb{Q}\in\mathcal{P}(\mathbb{R}^d,m)\right\}=\min_\mathbb{Q}\left\{d_l(\mathbb{P},\mathbb{Q}^\frac{1}{\lambda}),\: \mathbb{Q}\in\mathcal{P}(\mathbb{R}^d,m)\right\}$ :
-$$
-C_l(\mathbb{P}^\lambda,m)\leq \lambda\cdot C_l(\mathbb{P},m).
-$$
-Similarly we can prove : $C_l(\mathbb{P}^\lambda,m)\geq \lambda\cdot C_l(\mathbb{P},m)$, both results prove the positive homogeneity of the Wasserstein distance.
-The result holds for $\lambda=0$. $m\geq 1$ (don't you dare trying to reduce a distribution to a distribution without a single atom...), $\mathbb{P}^0=\delta_0$. We have that : $$0\leq C_l(\mathbb{P}^0,m)\leq d_l(\mathbb{P}^0,\delta_0)=0.$$
-\section{Scaled distribution and Wasserstein distance 2.0}
-\label{scaled 2}
-Using what we did in the appendix above, with $\mathbb{Q}\in\mathcal{P}\left(\text{supp}\left(P\right),m\right)\subset \mathcal{P}(X,m)$, it's easy to verify that $\mathbb{Q}^\lambda\in\mathcal{P}\left(\text{supp}\left(P^\lambda\right),m\right)$ and we have that : $$\lambda D_l\left(\mathbb{P},m\right)\leq \lambda d_l\left(\mathbb{P},\mathbb{Q}\right)=d_l\left(\mathbb{P}^\lambda,\mathbb{Q}^\lambda\right).$$ 
-Similarly to the above appendix, we can now minimize the right hand side because the left hand side does not depend on $\mathbb{Q}, \lambda$.
-We have :
-$$
-\lambda D_l\left(\mathbb{P},m\right)\leq D_l\left(\mathbb{P}^\lambda,m\right).
-$$
-The exact same thing works in order to get : 
-$$
-\lambda D_l\left(\mathbb{P},m\right)\geq D_l\left(\mathbb{P}^\lambda,m\right).
-$$
-Meaning that : 
-$$
-\lambda D_l\left(\mathbb{P},m\right)=D_l\left(\mathbb{P}^\lambda,m\right).
-$$
-As a reminder, we've proven the same thing for $C_l$. Works too when $\lambda= 0$.
-\section{Re-positionning and Wasserstein distance}
-We want to prove that re-positionning does not affect $C_l$ ($D_l$ equally). Let $\mathbb{P}=\sum_{i\in I}\delta_{x_i}p_i,\mathbb{Q}=\sum_{j\in J}\delta_{y_j}q_j, a\in\RR^d$. Let us write : $\mathbb{P}_a=\sum_{i\in I}\delta_{x_i+a}p_i$. 
-\begin{align*}
-d_l(\mathbb{P}_a,\mathbb{Q})&=\left(\min_{\pi\in\mathbb{R_+^{|I|\times|J|}}}\left\{ 
-\sum_{i\in I}\sum_{j\in J}\pi_{ij}\lVert (x_i+a)-y_j\rVert^l \: \text{ : } \:  \begin{aligned}
-& \sum_{j\in J}\pi_{ij}=p_i \: \forall i\in I \\
-& \sum_{i\in I}\pi_{ij}=q_j \: \forall j\in J
-\end{aligned}\right\}\right)^{1/l}
-\\ &= \left(\min_{\pi\in\mathbb{R_+^{|I|\times|J|}}}\left\{ 
-\sum_{i\in I}\sum_{j\in J}\pi_{ij}\lVert x_i-(y_j-a)\rVert \: \text{ : } \:  \begin{aligned}
-& \sum_{j\in J}\pi_{ij}=p_i \: \forall i\in I \\
-& \sum_{i\in I}\pi_{ij}=q_j \: \forall j\in J
-\end{aligned}\right\}\right)^{1/l}
-\\ &=d_l\left(\mathbb{P},\mathbb{Q}_{-a}\right)
-\end{align*}
-Let us do it again... alright. Let $\mathbb{Q}\in\mathcal{P}\left(\RR^d,m\right)$, we have that :
-$$
-C_l\left(P_a,m\right)\leq d_l\left(\mathbb{P}_a,\mathbb{Q}\right)=d_l\left(\mathbb{P},\mathbb{Q}_{-a}\right).
-$$
-Once again, yes, the left hand side does not depend on $\mathbb{Q}, a$ and $\mathbb{Q}_{-a}\in\mathcal{P}\left(\RR^d,m\right)$, it follows that :
-$$
-C_l\left(P_a,m\right)\leq C_l\left(P,m\right).
-$$
-And we can do the same thing to get the opposite inequality, then we have : 
-$$
-C_l\left(P_a,m\right)= C_l\left(P,m\right).
-$$
-\section{Eigenvalues of a matrix invariant under permutations}
- \label{eigen}
- A matrix $A$ that is invariant under permutations can be written as $A=\alpha I_n + \beta \mathbf{1}\mathbf{1}^T$ whose characteristic polynomial is :
-$$\chi_A(X)=\text{det}(\begin{bmatrix}
-    X- \alpha - \beta & -\beta&\hdots&-\beta \\
-    -\beta & \ddots &\ddots&\vdots \\
-    \vdots &\ddots &\ddots&   \\
-    &&&-\beta\\
-    -\beta&\hdots&-\beta&X-\alpha-\beta
-\end{bmatrix})=(X-\alpha-n\beta)\text{P}_{A_1}\left(X\right).$$
-where $\text{P}_{A_1}\left(X\right)$ is the determinant of the matrix $XI_n-A$ with its first column replaced by a column of ones. The first equality arises from adding every column to the first one, so the first column is a column of $X-\alpha-n\beta$, so we can factorize by $X-\alpha-n\beta$. What we have to do next is do add $\beta\cdot C_1$ ($C_1$ is the column of ones) to every other column, what gives us a lower triangular matrix with the diagonal $diag(1,X-\alpha,...,X-\alpha)$, and we have $$
-\chi_A(X)=(X-\alpha-n\beta)(X-\alpha)^{n-1}$$
-
-\section{Chebyshev center problem for the norm L2}
-\label{chebyshev}
-The Chebyshev problem is :
-\begin{align*}
-    &\min_{r,\mu} \quad r\\
-    &\text{s.t.}\quad \lVert x_i-\mu\rVert^2-r^2 \leq 0, \;\forall i\in I.\\
-    &-r\leq0
-\end{align*}
-We can write the Lagrangian of this problem : 
-$$
-\mathcal{L}(r,\mu,\lambda)=r+\lambda_0r+\sum_{i\in I}\lambda_i(\lVert x_i-\mu\rVert^2-r^2)
-$$
-KKT conditions provide at optimality : \begin{align*}
-    \lambda\geq0\\
-    \nabla_r\mathcal{L}(r,\mu,\lambda)=0\\
-    \nabla_\mu\mathcal{L}(r,\mu,\lambda)=0\\
-    \forall i\in I,\;\lambda_i(\lVert x_i-\mu\rVert^2-r^2)=0 \\
-    \lambda_0r=0
-\end{align*}
-The gradient isn't always defined according to the norm but when it's $\lVert\cdot\rVert_2$ : 
-\begin{align*}
-    \lambda\geq0\\
-    1+\lambda_0-2r\sum_{i\in I}\lambda_i=0\\
-    \sum_{i\in I}\lambda_i(x_i-\mu)=0\\
-    \forall i\in I,\;\lambda_i(\lVert x_i-\mu\rVert^2-r^2)=0 \\
-    \lambda_0r=0
-\end{align*}
-All $\lambda_i, \: i\in I$ can not be $0$, otherwise, the equation $1+\lambda_0-2r\sum_{i\in I}\lambda_i=0$ is impossible (as $\lambda_0$ is also positive). Then, there exists $i\in I$ such that $\lambda_i>0$, for this particular $i$, $\lVert x_i-\mu\lVert^2=r^2$. Moreover, initial constraints give that :
-$$
-r^2\geq \max_{i\in I}\lVert x_i-\mu \rVert^2
-$$
-Then we can conclude that :
-$$
-r^*\left(\mu\right)=\max_{i\in I}\lVert x_i-\mu\rVert^2.
-$$
-But we haven't found the optimal $\mu$, thus the problem becomes : 
-$$
-\min_{\mu\in\RR^d}r^*\left(\mu\right)=\min_{\mu\in\RR^d}\max_{i\in I}\lVert x_i-\mu\rVert^2=\min_{\mu\in\RR^d}\left\{\mu^T\mu+\max_{i\in I}\left[x_i^Tx_i-2\mu^Tx_i\right]\right\}.
-$$
-\section{Upgrading local search}\label{L_p optim}
-In order to improve the Wasserstein distance given by local search algorithm, one must solve $m$ times: 
-$$
-\min_{y\in\RR^d}\sum_{i\in I}p_i\lVert x_i-y\rVert^\ell=\min_{y\in\RR^d}\sum_{i\in I}p_i\left(\lVert x_i-y\rVert^2\right)^{\ell/2}.
-$$
-With $p_i>0$, $I$ a particular set and for an arbitrary norm, in most cases we will use $\text{L}2$-norm. For this particular norm, the case $\ell=1$ gives the geometric median and $\ell=2$ gives the mean. With L$2$-norm, the function $f$ to minimize is differentiable and we can write : 
-$$
-\nabla f\left(y\right)=-\ell\sum_{i\in I}p_i\lVert x_i-y\rVert^{\ell-2}\left(x_i-y\right).
-$$
-Any gradient-based method would be efficient to solve this problem. \rp{can be interesting to study more but hard to find references}
 \bibliography{biblio}
 \bibliographystyle{alpha}
 \end{document}
