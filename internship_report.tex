@@ -388,17 +388,88 @@ Assume that we use the euclidean norm. In the case $\ell=1$, $y_j^*$ is attained
     $$\sqrt{\frac{n-m}{n-1}}\leq\bar{C_1}\left(n,m\right)\leq\bar{C_2}\left(n,m\right)\leq\sqrt{\frac{n-m}{n-1}}.$$
 \end{theorem}
 \subsection{Discrete scenario reduction}
-Reduced scenario sets obtained via continuous scenario reduction are always at least as good as reduced sets obtained via discrete scenario reduction. We will try to quantify the gap between the solution of both problems. More precisely, in this part we find for $\ell\in\{1,2\}$: 
+Reduced distributions obtained via continuous scenario reduction are always at least as good as reduced sets obtained via discrete scenario reduction. We will try to quantify the gap between the solution of both problems. More precisely, in this part we find for $\ell\in\{1,2\}$: 
 $$\underline{\kappa_\ell}\left(n,m\right)\cdot C_\ell\left(P,m\right)\leq D_\ell\left(P,m\right)\leq \bar{\kappa_\ell}\left(n,m\right)\cdot C_\ell\left(P,m\right).$$
 The goal is to find the largest $\underline{\kappa_\ell}\left(n,m\right)$ and smallest $\bar{\kappa_\ell}\left(n,m\right)$ so the bounds are as tight as possible. Solving the continuous problem will give bounds on the discrete. It's easy to argue that : 
 $$
 \underline{\kappa_\ell}\left(n,m\right)\geq1.
 $$
-Because we've already proven: 
+Because we have already proven: 
 $$
 C_\ell\left(P,m\right)\leq D_\ell\left(P,m\right).
 $$
-\rp{a continuer}
+Similarly to what we have done just before, it is time to reformulate the discrete scenario reduction problem such as:
+\begin{theorem}\label{reformulation 2}
+    For any type-l Wasserstein distance induced by any norm $\lVert\cdot\rVert$, the discrete scenario reduction problem admits the following reformulation: 
+    $$
+    D_\ell\left(P,m\right)=\min_{\{I_j\}\in\mathfrak{P}\left(I,m\right)}\left[ \frac{1}{n}\sum_{j\in J}\min_{y_j\in\{x_i : i\in I_j\}}\sum_{i\in I_j}\lVert x_i-y_j\rVert^\ell\right]^{1/\ell}.
+    $$
+\end{theorem}
+
+What follows assumes that $n\geq2, m\in\{1,...,n-1\}$ and $d\geq2.$
+\paragraph{\textbf{Type-2 Wasserstein distance.}}
+\begin{theorem}
+    The upper bound $\bar\kappa_2\left(n,m\right)$ satisfies $\bar\kappa_2\left(n,m\right)\leq \sqrt{2}$ for all n, m.
+\end{theorem}
+\begin{proof} 
+    The proof is very interesting for one's intuition. \textbf{In the first step}, we prove the result for $m=1$. Let $P=\frac{1}{n}\sum_{i\in I}\delta_{x_i}\in\mathcal{P}_U\left(\RR^d,n\right)$. W.l.o.g., we can assume that $\frac{1}{n}\sum_{i\in I}x_i=0$ and $\frac{1}{n}\sum_{i\in I}\lVert x_i\rVert^2=1$ because re-positionning does not affect $C_\ell$ and $D_\ell$ and re-scaling affects equally $D_\ell$ and $C_\ell$ (\rp{refaire un appendice propre sur cela}).
+    \newline
+    The first reformulation of \Cref{theorem1} gives that :
+    $$
+    C_2\left(P,1\right)=\left[\frac{1}{n}\sum_{i\in I}\lVert x_i-\text{mean}(I)\rVert_2^2\right]^{1/2}=1.
+    $$
+    Now we use the reformulation of \Cref{reformulation 2} in order to write:
+    $$
+    D_2\left(P,1\right)=\left[\frac{1}{n}\min_{j\in I}\sum_{i\in I}\lVert x_i-x_j\rVert^2_2\right]^{1/2}.
+    $$
+    The $\left(j, x_j\right)$ minimizing this expression minimizes the sum of squared distances with all atoms of $P$. Let us develop:
+    \begin{align*}
+    D_2\left(P,1\right)&=\left[\frac{1}{n}\min_{j\in I}\sum_{i\in I}\left(\rVert x_i\rVert^2_2-2x_i^Tx_j+\rVert x_j\rVert^2_2\right)\right]^{1/2}\\&=\left[\frac{1}{n}\sum_{i\in I}\lVert x_i\rVert_2^2-\frac{2}{n}\min_{j\in I}\left(\sum_{i\in I}x_i^T\right)x_j+\min_{j\in I}\lVert x_j\rVert^2_2\right]^{1/2} \\&=\left(1+\min_{j\in I}\lVert x_j\rVert^2_2\right)^{1/2}\leq\sqrt{2}.
+    \end{align*}
+Where we have used $\text{mean}(I)=0$ to write the third equality. The final inequality is due to: $$\min_{j\in I}\lVert x_j\rVert^2_2=\frac{1}{n}\sum_{i\in I}\min_{j\in I}\lVert x_j\rVert^2_2\leq \frac{1}{n}\sum_{i\in I}\lVert x_j\rVert^2_2=1$$. Then: $$D_2\left(P,1\right)\leq\sqrt{2}$$
+In order to make it complete for the case $m=1$. Let $P=\frac{1}{n}\sum_{i\in I}\delta_{x_i}\in\mathcal{P}_U\left(\RR^d,n\right)$. We consider $P'=\frac{1}{n}\sum_{i\in I}\delta_{\frac{x_i-\text{mean}(I)}{r}}$ with $r=\sqrt{\sum_{i\in I}\rVert x_i-\text{mean}(I)\lVert^2_2}$. $P'$ verifies the aforementionned conditions. Then we have: 
+$$
+\frac{D_2\left(P,1\right)}{C_2\left(P,1\right)}=\frac{rD_2\left(P',1\right)}{rC_2\left(P',1\right)}=\frac{D_2\left(P',1\right)}{C_2\left(P',1\right)}\leq \sqrt{2}.
+$$
+Finally, we have : $$\bar\kappa_2\left(n,1\right)\leq\sqrt{2}.$$
+\newline
+
+\textbf{Step 2} extends the result for $n,m\in\{1,...,n-1\}$ using the result above for $m=1$ by decomposing with $m$ scenario reduction problem with 1 atom. Let $P\in\mathcal{P}_U\left(\RR^d,n\right). $ With \Cref{theorem1}, we can write that :
+$$
+C_2\left(P,m\right)=\min_{\{I_j\}\in \mathfrak{P}(I,m)}\left\{ \frac{1}{n}\sum_{j\in J}\sum_{i\in I_j}\lVert x_i-\text{mean}\left(I_j\right)\rVert^2_2 \right\}^{1/2}
+$$
+For an optimal $\{I_j^*\}\in\mathfrak{P}\left(I,m\right)$, we have that :
+$$
+C_2\left(P,m\right)=\left(\frac{1}{n}\sum_{j\in J}\sum_{i\in I_j^*} \lVert x_i-\text{mean}\left(I_j^*\right)\rVert^2_2\right)^{1/2}=\left(\frac{1}{n}\sum_{j\in J}\lvert I_j^*\rvert C^2_{2,j}\right)^{1/2}.
+$$
+with $C_{2,j}=\left(\frac{1}{\lvert I_j^*\rvert}\sum_{i\in I_j^*}\lVert x_i -\text{mean}\left(I_j\right)\rVert^2_2\right)$. So typically,  $C_{2,j}=C_2\left(\frac{1}{\lvert I_j^*\rvert}\sum_{i\in I_j^*}\delta_{x_i},1\right)$ as reminded for \textbf{step 1}.
+
+With $D_{2,k}=\min_{i\in I_k}\left(\frac{1}{\lvert I_k\rvert}\sum_{j\in I_k}\lVert x_j -x_i\rVert^2_2\right)^{1/2}$ and \Cref{reformulation 2}, we have the analogous expression for an optimal $\{I_k^*\}\in\mathfrak{P}\left(I,m\right)$ : 
+$$
+D_2\left(P,m\right)=\left[ \sum_{k\in K}\frac{\lvert I_k^*\rvert}{n}D_{2,k}^2\right]^{1/2}\leq \left[ \sum_{j\in J}\frac{\lvert I_j^*\rvert}{n}D_{2,j}^2\right]^{1/2}\leq \left[ \sum_{j\in J}\frac{\lvert I_j^*\rvert}{n}2C_{2,j}^2\right]^{1/2}=\sqrt{2}C_2\left(P,m\right).
+$$
+The first inequality stands because $I_j^*\in\{I_j^*\}$ is an optimal partition for $C_2$, thus it is worse than or equal to $I_k^*$ for $D_2$. The second inequality stems from \textbf{step 1}. The statement is thus proven.
+\end{proof}
+\begin{proposition}
+    $\bar\kappa_2\left(n,m\right)=\sqrt{2}$, meaning that there exists $P\in\mathcal{P}_U\left(\RR^d,n\right)$ such that $D_2\left(P,m\right)=\sqrt{2}C_2\left(P,m\right)$
+\end{proposition}
+
+Lower bounds are given as follows : 
+\begin{proposition}
+    The lower bound $\underline\kappa_2\left(n,m\right)=1$ whenever $n\geq3$ and $m\in\{1,...,n-2\}$ while $\underline\kappa_2\left(n,n-1\right)=\sqrt{2}.$
+\end{proposition}
+\paragraph{\textbf{Type-1 Wasserstein distance.}}
+Similarly to the Type-2 Wasserstein distance, we intend to find $\bar{\kappa}_1\left(n,m\right), \underline\kappa_1\left(n,m\right)$. In this part, we will only stack results. See \cite[Section 3.2]{rujeerapaiboon_scenario_2022} for proofs.
+\begin{theorem}
+    The upper bound $\bar\kappa_1\left(n,m\right)$ satisfies $\bar\kappa_1\left(n,m\right)\leq2$ whenever $m\in\{2,...,n-2\}$ as well as $\bar\kappa_1\left(n,1\right)\leq2\left(1-\frac{1}{n}\right)$ and $\bar\kappa_1\left(n,n-1\right)\leq1$
+\end{theorem}
+\begin{proposition}
+    There is $P\in\mathcal{P}_U\left(\RR^d,n\right)$ such that $D_1\left(P,m\right)=2\left(1-\frac{1}{n}\right)C_1\left(P,m\right)$ under the 1-norm for all $n$ divisible by $2m$, all $m$ and all $d\geq \frac{n}{2m}$.
+\end{proposition}
+\begin{proposition}
+    The lower bound $\underline{\kappa}_1\left(n,m\right)$ satisfies $\underline{\kappa}_1\left(n,m\right)=1$ for all $n, m$.
+\end{proposition}
+
 \section{Algorithms for scenario reduction}
 In this section, we present various algorithms and heuristics that are often used for scenario reduction problem. In order to check the accuracy of algorithms, we write the output of an algorithm $\bar{D_\ell}\left(P,m\right)$ which is an upper bound of   $D_\ell\left(P,m\right)$. We then define the \emph{approximation ratio} by: 
 $$
@@ -515,21 +586,21 @@ There also exist a backward version of this algorithm where the reduced set of a
 \subsection{Local-search algorithm}\label{guarant}
 Adapting local-search to the discrete scenario reduction problem with the advantage of bounding the approximation ratio under the type-1 Wasserstein distance for both the continuous and discrete scenario reduction problem. The approximation ratio is bounded by 5 for the discrete scenario reduction problem and 10 for the continuous.
 \begin{algorithm}
-    \caption{Local search algorithm for $D_l\left(\mathbb{P},m\right)$}\label{Local search}
-    Initialize the reduced set $R\subseteq \text{supp}\left(\mathbb{P}\right), \lvert R\rvert = m$, arbitrarily. \\ Select the next change to be applied to the reduced set as 
+    \caption{Local search algorithm for $D_l\left(P,m\right)$}\label{Local search}
+    Initialize the reduced set $R\subseteq \text{supp}\left(P\right), \lvert R\rvert = m$, arbitrarily. \\ Select the next change to be applied to the reduced set as 
     $$
-    \left(y,y'\right)\in\argmin\left\{D_l\left(\mathbb{P},R\cup\{y\}\setminus \{y'\}\right) : \left(y,y'\right)\in\text{supp}\left(\mathbb{P}\setminus R\right)\times R\right\},
+    \left(y,y'\right)\in\argmin\left\{D_l\left(P,R\cup\{y\}\setminus \{y'\}\right) : \left(y,y'\right)\in\text{supp}\left(P\setminus R\right)\times R\right\},
     $$
-    and update $R\gets R\cup \{y\}\setminus \{y'\}$ if $D_l\left(\mathbb{P}, R\cup\{y\}\setminus \{y'\} \right)<D_l\left(\mathbb{P},R\right).$ \\ Repeat Step 2 until no further improvement is possible.
+    and update $R\gets R\cup \{y\}\setminus \{y'\}$ if $D_l\left(P, R\cup\{y\}\setminus \{y'\} \right)<D_l\left(P,R\right).$ \\ Repeat Step 2 until no further improvement is possible.
 \end{algorithm}
 
 If various changes are possible in Step 2, you can either choose to use a "first-fit" (swap whenever you find a couple that reduces the distance) or a "best-fit" (explore all possible exchanges and consider the optimal) strategy.
 
-We now use what we found for $\bar\kappa_1$ to state that this algorithm gives rise to an algorithm with approximation ratio : $2\times 5$. Let $n,m,\mathbb{P}\in\mathcal{P}_E\left(\RR^d,m\right)$, we have that : 
+We now use what we found for $\bar\kappa_1$ to state that this algorithm gives rise to an algorithm with approximation ratio : $2\times 5$. Let $n,m,P\in\mathcal{P}_E\left(\RR^d,m\right)$, we have that : 
 $$
-\frac{\bar{D}_l\left(\mathbb{P},m\right)}{C_l\left(\mathbb{P},m\right)}\leq \frac{2\bar{D}_l\left(\mathbb{P},m\right)}{D_l\left(\mathbb{P},m\right)}\leq 2\max_{n,m,\mathbb{P}\in\mathcal{P}_E(\RR^d,n)}\frac{\bar{D}_l\left(\mathbb{P},m\right)}{D_l\left(\mathbb{P},m\right)}=2\times5=10.
+\frac{\bar{D}_l\left(P,m\right)}{C_l\left(P,m\right)}\leq \frac{2\bar{D}_l\left(P,m\right)}{D_l\left(P,m\right)}\leq 2\max_{n,m,P\in\mathcal{P}_E(\RR^d,n)}\frac{\bar{D}_l\left(P,m\right)}{D_l\left(P,m\right)}=2\times5=10.
 $$
-We can now maximize the left hand side on $n,m,\mathbb{P}$ as the right hand side does not depend on the three.
+We can now maximize the left hand side on $n,m,P$ as the right hand side does not depend on the three.
 The same approach does not work for the local search as you swap atoms. An idea would have been to store an index vector, a vector that tells you with atom reaches $\min_{x\in R}\lVert x_i-x\rVert^l$ so that you know when you have to compute again the minimum on $R$ (whenever the swap removes the atom reaching the minimum). That does not look very efficient, but it would have looked that way : 
 \begin{algorithm}
 \caption{Local-search in precision}
@@ -548,7 +619,7 @@ Create $d=pm^0$, there is improvement. \\
             }
         }
         \For{$j\in I\setminus R$}{
-            Compute $\left(m_{ij}\right) = \min \left\{ m, D^j \}\right\}$ where $\min$ is the minimum component-wise.\\ Compute $D_l(\mathbb{P}, R \cup \{x_i\}) = p m_{ij}$.\\
+            Compute $\left(m_{ij}\right) = \min \left\{ m, D^j \}\right\}$ where $\min$ is the minimum component-wise.\\ Compute $D_l(P, R \cup \{x_i\}) = p m_{ij}$.\\
             \If{$pm_{ij} < d$}{
                 $d=pm_{ij}$ and there is improvement ! \\
                 You can exit the \textbf{for} $i\in R$ loop if you want first-fit with , or you can keep going the for loop until you find the best-fit as $d$ is now worth $pm_{ij}$.
@@ -568,7 +639,7 @@ Let us review a mixed-integer linear programming (MILP) reformulation of the dis
 \begin{theorem}
 The discrete scenario reduction problem can be formulated as: 
 \begin{align*}
-    D_l^l\left(\mathbb{P},m\right)=&\min_{\Pi,\lambda}\:\frac{1}{n}<\pi,D> \\ &\text{s.t. } \;\pi e=e, \; \pi \leq e\lambda^T,\; \lambda^Te=m\\&\quad\quad \pi\in\RR^{n\times m}_+, \; \lambda\in\{0,1\}^n
+    D_l^l\left(P,m\right)=&\min_{\Pi,\lambda}\:\frac{1}{n}<\pi,D> \\ &\text{s.t. } \;\pi e=e, \; \pi \leq e\lambda^T,\; \lambda^Te=m\\&\quad\quad \pi\in\RR^{n\times m}_+, \; \lambda\in\{0,1\}^n
     \end{align*}
     with $D\in \mathbb{S}^n$ and $D_{ij}=\lVert x_i-x_j\rVert^l$
 \end{theorem}
@@ -576,22 +647,22 @@ The discrete scenario reduction problem can be formulated as:
     This reformulation takes the most of \Cref{closed formula}.
 \end{remark}
 \subsection{m-means}
-The aim of $m$-means clustering is to reduced $n$ observations to $k$ clusters such that the intra-cluster sums of squared distances are minimized. It turns out to be a good idea to select $m$ atoms with the $n$ of $\text{supp}\left(\mathbb{P}\right)$. The amount of atoms in a cluster will give the probability of observing the cluster for the reduced distribution !
+The aim of $m$-means clustering is to reduced $n$ observations to $k$ clusters such that the intra-cluster sums of squared distances are minimized. It turns out to be a good idea to select $m$ atoms with the $n$ of $\text{supp}\left(P\right)$. The amount of atoms in a cluster will give the probability of observing the cluster for the reduced distribution !
 
 
 \begin{algorithm}
-    \caption{$m$-means clustering for $C_l\left(\mathbb{P},m\right)$}\label{k m}
-    Initialize the reduced set $R=\{y_1,...,y_m\} \subseteq \text{supp}\left(\mathbb{P}\right)$ arbitrarily \\ Let $\{I_j\}\in\mathfrak{P}\left(I,m\right)$ be any partition whose sets $I_j, j\in J$, contain all atoms of supp$\left(P\right)$ that are closest to $y_j$ (ties may be broken arbitrarily). \\ For each $j\in J$, update $y_j$ as : $$y_j \gets \argmin_{y\in\RR^d} \left\{ \sum_{i\in I_j}\lVert x_i-y\rVert^l\right\}$$ \\ Repeat Steps 2 and 3 until the reduced set $R$ no longer changes.
+    \caption{$m$-means clustering for $C_l\left(P,m\right)$}\label{k m}
+    Initialize the reduced set $R=\{y_1,...,y_m\} \subseteq \text{supp}\left(P\right)$ arbitrarily \\ Let $\{I_j\}\in\mathfrak{P}\left(I,m\right)$ be any partition whose sets $I_j, j\in J$, contain all atoms of supp$\left(P\right)$ that are closest to $y_j$ (ties may be broken arbitrarily). \\ For each $j\in J$, update $y_j$ as : $$y_j \gets \argmin_{y\in\RR^d} \left\{ \sum_{i\in I_j}\lVert x_i-y\rVert^l\right\}$$ \\ Repeat Steps 2 and 3 until the reduced set $R$ no longer changes.
 \end{algorithm}
 The reduced distribution is :
 $$
 \mathbb{Q}=\frac{1}{n}\sum_{y\in R}\delta_{y}c\left(y\right)
 $$
-where $ c\left(y\right)$ denotes the amount of atoms of $\mathbb{P}$ in the cluster $y$. Because here we consider $\mathbb{P}$ uniform.
+where $ c\left(y\right)$ denotes the amount of atoms of $P$ in the cluster $y$. Because here we consider $P$ uniform.
 
 \subsection{A new algorithm for continuous scenario reduction}
 Dupačová et al.'s algorithm and local-search methods gives a great approximation of $D_\ell\left(P,m\right)$, we know also the distance can be written as:
-$$D_l\left(\mathbb{P},R\right)=\sum_{i\in I}p_i\min_{j\in R}\lVert x_i-x_j\Vert^l=\sum_{j\in R}\left[\sum_{i\in I_j}p_i\lVert x_i-x_j\rVert^l\right].$$
+$$D_l\left(P,R\right)=\sum_{i\in I}p_i\min_{j\in R}\lVert x_i-x_j\Vert^l=\sum_{j\in R}\left[\sum_{i\in I_j}p_i\lVert x_i-x_j\rVert^l\right].$$
 Now we may improve the value of the Wasserstein distance by finding an optimal $x_j$ for each $I_j$. The idea is to decompose each sum on $I_j$ as we have done above in order to find for $I_j$: 
 $$
 y_j\in \argmin_{y\in\RR^d}\sum_{i\in I_j}p_i\lVert x_i-y\rVert^l.
@@ -671,7 +742,7 @@ We have seen that backward method is not interesting in terms of CPU time. We wi
     \begin{subfigure}[b]{0.45\textwidth}
         \centering
         \includegraphics[width=\textwidth]{plots/milp efficiency n4.pdf}
-        \caption{$d_2\left(\mathbb{P},R\right)^2$ comparison between both algorithms}
+        \caption{$d_2\left(P,R\right)^2$ comparison between both algorithms}
         \label{n4 effi}
     \end{subfigure}
     \hfill
@@ -741,7 +812,7 @@ Where we know $D_\ell\left(P,m\right)$ thanks to the MILP formulation and $Q$ is
     \label{improvement ratio }
 \end{figure}
 
-For both $n=100$ and $n=200$, local-search gives a better approximation to $D_l\left(\mathbb{P},m\right)$ to the detriment of calculation time. Both best-fit and first-fit can be used even though the tendency is that first-fit has more run time variation from $m$ to $m+1$ when best-fit tends to be more stable. Best payouts for local-search are seen when you want to reduce $n$ to $m\leq\frac{n}{2}$. When $m\approx n$, there may still be a gain but thin. 
+For both $n=100$ and $n=200$, local-search gives a better approximation to $D_l\left(P,m\right)$ to the detriment of calculation time. Both best-fit and first-fit can be used even though the tendency is that first-fit has more run time variation from $m$ to $m+1$ when best-fit tends to be more stable. Best payouts for local-search are seen when you want to reduce $n$ to $m\leq\frac{n}{2}$. When $m\approx n$, there may still be a gain but thin. 
 
 \subsubsection{Modified versions of local-search}
 Local-search can be very excruciating but still we can play with different variables. E.g. not allowing small swaps for first-fit, use a clever set of starters. We will now present and compare variations of the local-search method with the aim of reducing run time without damaging efficiency. 
