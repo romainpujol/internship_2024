@@ -18,6 +18,7 @@
 \usepackage{dsfont}
 \usepackage{cleveref}
 \usepackage{bm}
+\usepackage{extramarks}
 \usepackage[colorinlistoftodos,bordercolor=orange,backgroundcolor=orange!20,linecolor=orange,textsize=scriptsize]{todonotes}
 \usepackage{subcaption}
 \SetAlgoNlRelativeSize{-1}
@@ -37,12 +38,12 @@
 \fancypagestyle{plain}{
     \fancyhf{} 
 }
-
+\fancyhead[C]{\normalfont\leftmark}
 
 \titleformat{\section}[hang]
   {\normalfont\Large\bfseries} % Format du texte
   {\thesection{} - } % Préfixe (ex. 1.1 - )
-  {0pt} % Espace entre le préfixe et le titre
+  {1pt} % Espace entre le préfixe et le titre
   {\Large\bfseries} % Format du titre
 
 % Configurer les sous-sections
@@ -81,7 +82,7 @@
 \newcommand{\RR}{\mathbb{R}}
 
 \renewcommand{\contentsname}{Table of contents}
-
+\renewcommand{\sectionmark}[1]{\markboth{\thesection. #1}{}}
 
 \begin{document}
 
@@ -326,7 +327,7 @@ $$
 $$
 Thereafter we will consider a finite distribution $P$ and attempt to find another distribution $Q$ with fewer atoms with the idea of minimizing the type-$\ell$ Wasserstein distance between them. This would control the term: $\lvert v\left(P\right)-v\left(Q\right)\rvert$. We will work with $\ell\in\left\{1,2\right\}$ for the theoretical part and $\ell=2$ for every simulation.
 
-\section{Scenario reduction with Wasserstein distance on finite distributions}
+\section{Wasserstein distance with finite distribution}
 
 In this part, we present tools and concepts useful for scenario reduction aswell as their guarantees and limits. Results derive from \cite{rujeerapaiboon_scenario_2022}. 
 
