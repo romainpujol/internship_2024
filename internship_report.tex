@@ -6,6 +6,7 @@
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{titletoc}
+\usepackage{appendix}
 \usepackage{bbold}
 \usepackage{enumitem}
 \usepackage{amssymb}
@@ -45,7 +46,7 @@
 \titleformat{\section}[hang]
   {\normalfont\Large\bfseries} % Format du texte
   {\thesection{} - } % Préfixe (ex. 1.1 - )
-  {1pt} % Espace entre le préfixe et le titre
+  {0pt} % Espace entre le préfixe et le titre
   {\Large\bfseries} % Format du titre
 
 % Configurer les sous-sections
@@ -87,7 +88,6 @@
 \renewcommand{\sectionmark}[1]{\markboth{\thesection. #1}{}}
 
 \begin{document}
-
 
 \thispagestyle{empty}
 
@@ -183,16 +183,14 @@ Università di Pisa, Lungarno Antonio Pacinotti, 43.
     
 \end{titlepage}
 
-
-% Table des matières
 \tableofcontents
 
 \newpage
 \pagestyle{fancy} % Activer le style fancy
 \fancyfoot[R]{\thepage/\pageref{LastPage}} 
 \fancyfoot[C]{Romain Pujol / Università di Pisa \\ \textcolor{red}{Confidential / Non confidential report}}
-\section{Introduction}
-\section{Stability in stochastic programming}\label{stability}
+\section{$\quad$ Introduction}
+\section{$\quad$ Stability in stochastic programming}\label{stability}
 \subsection{Context and notations}
 Many Stochastic Programming (SP) models can be written as:
 \begin{equation}\label{stochastic}
@@ -330,7 +328,7 @@ $$
 $$
 Thereafter we will consider a finite distribution $P$ and attempt to find another distribution $Q$ with fewer atoms with the idea of minimizing the type-$\ell$ Wasserstein distance between them. This would control the term: $\lvert v\left(P\right)-v\left(Q\right)\rvert$. The Wasserstein distance with $\ell\in\left\{1,2\right\}$ have been the most studied computationally because of their gentle properties. We will work with $\ell\in\left\{1,2\right\}$ for the theoretical part and $\ell=2$ for every simulation.
 
-\section{Scenario reduction with Wasserstein distance on finite distribution}
+\section{$\quad$ Scenario reduction with Wasserstein distance on finite distribution}
 
 In this part, we present tools and concepts useful for scenario reduction as well as their guarantees and limits. Results derive from \cite{rujeerapaiboon_scenario_2022}. 
 
@@ -349,7 +347,7 @@ $$
 \begin{remark}
     A more general definition can be written by replacing the norm with a particular cost between objects $x_i$ and $y_j$ that does not need to be symmetric for example. 
 \end{remark}
-For $\ell\geq1$, the functional $d_\ell$ meets the requirements of a distance. Values are positive, symmetry is direct, definiteness is more involved: \rp{appendix }the idea is to prove first that $d_\ell\left(P,Q\right)=0$ implies that $\text{supp}\left(P\right)=\text{supp}\left(Q\right)$, concluding will be easy after that. The triangle inequality derives from the gluing lemma, see e.g. \cite[Chapter 1]{peyre_computational_2019}. A pro of this particular distance is to rely on the underlying structure of the normed space and extend it to probability distributions supported on $X$. The philosophy of this distance is to measure the minimum cost of moving weights from $x_i$ to $y_j$ where costs are defined by the norm. For $\ell\in\mathopen{]}0,1\mathclose{]}, d_\ell^\ell$ is a distance.
+For $\ell\geq1$, the functional $d_\ell$ meets the requirements of a distance. Values are positive, symmetry is direct, definiteness is more involved, see \ref{definiteness}. The triangle inequality derives from the gluing lemma, see e.g. \cite[Chapter 1]{peyre_computational_2019}. A pro of this particular distance is to rely on the underlying structure of the normed space and extend it to probability distributions supported on $X$. The philosophy of this distance is to measure the minimum cost of moving weights from $x_i$ to $y_j$ where costs are defined by the norm. For $\ell\in\mathopen{]}0,1\mathclose{]}, d_\ell^\ell$ is a distance.
 \newline
 
 Let $\mathcal{P}_U(X,n)$ denote the set of all \emph{uniform} discrete distribution on $X\subset R^d$ with $n$ distinct scenarios and $\mathcal{P}(X,m)$ denote the set of discrete distributions on $X\subset R^d$ with \emph{at most} m scenarios. 
@@ -368,11 +366,20 @@ Let $P$ be a finite distribution on $\RR^d$. As $\text{supp}\left(P\right)\subse
 
 \subsection{Comparative study of continuous and discrete scenario reduction}\label{comparative}
 
-In this part, we provide bounds on the Wasserstein distance between an original distribution of $n$ atoms and its reduced one with $m\ll n$ atoms. Atoms of the reduced distribution are either free in $\RR^d$ in the case of continuous scenario reduction or in $\text{supp}\left(P\right)$ in the discrete case. Let $X$ be a subset of $\RR^d$ and $\lVert \cdot \rVert$ be a norm on $X$. We will work with uniform distribution $P\in\mathcal{P}_U\left(\RR^d,n\right)$ with the idea that the distributions derive from sampling. If not, intuitively one can break down masses of high probability into many atoms. We also restrict ourselves to distribution whose atoms lie within the unit ball and $\frac{1}{n}\sum_ix_i=0$. This is a valid assumption because first $C_\ell$ and $D_\ell$ are invariant under translation, second $C_\ell$ and $D_\ell$ are positively homogeneous. Let $P=\frac{1}{\lvert I\rvert}\sum_{i\in I}\delta_{x_i}$, $\text{card}\left(I\right)=n<+\infty$, $1<m<n$, $\lambda\in\RR^*$ and $a\in\RR^d$ \rp{faire une appendice}\rp{rajouter un dessin pour breakdown masses}:
+In this part, we provide bounds on the Wasserstein distance between an original distribution of $n$ atoms and its reduced one with $m\ll n$ atoms. Atoms of the reduced distribution are either free in $\RR^d$ in the case of continuous scenario reduction or in $\text{supp}\left(P\right)$ in the discrete case. Let $X$ be a subset of $\RR^d$ and $\lVert \cdot \rVert$ be a norm on $X$. We will work with uniform distribution $P\in\mathcal{P}_U\left(\RR^d,n\right)$ with the idea that the distributions derive from sampling. If not, intuitively one can break down masses of high probability into many atoms. The following figure \Cref{break down} illustrates this remark. The red crosses represent atoms of the original distribution and sizes the probability of an atom. \clearpage
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=0.40\linewidth]{plots/break down.pdf}
+    \caption{Illustration explaining how to break down masses}
+    \label{break down}
+\end{figure}
+
+We also restrict ourselves to distribution whose atoms lie within the unit ball and $\frac{1}{n}\sum_ix_i=0$. This is a valid assumption because first $C_\ell$ and $D_\ell$ are invariant under translation, second $C_\ell$ and $D_\ell$ are positively homogeneous. Let $P=\frac{1}{\lvert I\rvert}\sum_{i\in I}\delta_{x_i}$, $\text{card}\left(I\right)=n<+\infty$, $1<m<n$, $\lambda\in\RR^*$ and $a\in\RR^d$ \rp{faire une appendice}:
 $$ 
 C_\ell\left(P,m\right)=\frac{1}{\lvert\lambda\rvert} C_\ell\left(\sum_{i\in I}p_i\delta_{\lambda x_i+a},m\right).
 $$
-The result hold when swapping $C$ by $D$. A goal of this part is to quantify and study the worst case of scenario reduction defined by:
+The result hold when swapping $C$ by $D$. See \ref{appendix restrict} and \ref{appendix homogen}. A goal of this part is to quantify and study the worst case of scenario reduction defined by:
 $$    \bar{C}_\ell\left(n,m \right)=\left\{\max_{P\in\mathcal{P}_U(\mathbb{R}^d,n)}C_\ell(P,m)\: :\: \text{supp}(P)\in B(0,1)\right\}.
 $$
 Let us write a first bound that we will tighten thereafter, let $P\in\mathcal{P}_U(\mathbb{R}^d,n)$:
@@ -476,7 +483,7 @@ Similarly to the Type-2 Wasserstein distance, we intend to find $\bar{\kappa}_1\
 \begin{proposition}
     The lower bound $\underline{\kappa}_1\left(n,m\right)$ satisfies $\underline{\kappa}_1\left(n,m\right)=1$ for all $n, m$.
 \end{proposition}
-\section{Algorithms for scenario reduction}
+\section{$\quad$ Algorithms for scenario reduction}
 In this section, we present various algorithms and heuristics that are often used for scenario reduction problem. In order to check the accuracy of algorithms, we write the output of an algorithm $\bar{D_\ell}\left(P,m\right)$ which is an upper bound of   $D_\ell\left(P,m\right)$. We then define the \emph{approximation ratio} by: 
 $$
 \max_{n,m,P\in\mathcal{P}_U(\RR^d,n)}\frac{\bar{D}_\ell\left(P,m\right)}{D_\ell\left(P,m\right)}.
@@ -669,7 +676,7 @@ The aim of $m$-means clustering is to reduced $n$ observations to $k$ clusters s
 \end{algorithm}
 The reduced distribution is :
 $$
-\mathbb{Q}=\frac{1}{n}\sum_{y\in R}\delta_{y}c\left(y\right)
+Q=\frac{1}{n}\sum_{y\in R}\delta_{y}c\left(y\right)
 $$
 where $ c\left(y\right)$ denotes the amount of atoms of $P$ in the cluster $y$. Because here we consider $P$ uniform.
 
@@ -692,7 +699,7 @@ We could thus modify each centroïd $x_j$ by the optimal $y^*_j$ we found for $I
 
 This algorithm is $m$-means algorithm but with a clever first guess.
 
-\section{Efficient implementation and results}\label{fast}
+\section{$\quad$ Efficient implementation and results}\label{fast}
 In this section, the goal is to compare different methods based on two criterion: time, value of $d_\ell\left(P,Q\right)$. The aim of this section is to determine which method is the most effective if a user does not provide specific instructions. We will explore many techniques. 
 \subsection{Dupačová et al' algorithm, forward and backward methods}
 \subsubsection{Outputs}
@@ -936,7 +943,7 @@ In this part we want to compare \Cref{improved ls}  with a generalized $m$-means
 
 The $m$-means algorithm tends to be a little better than local-search in this simulation even though its approximation ratio is not bounded. Nevertheless, it remains understandable to have a closer distribution with $m$-means because it can decide to use atoms that are not included in $\text{supp}\left(P\right)$. Combining the idea of $m$-means with local-search gives in general a slightly better value and most important it presents more stability and by stability I mean that the efficiency curve is smoother.
 
-\section{The multiproduct assembly problem}\label{section mpa}
+\section{$\quad$ The multiproduct assembly problem}\label{section mpa}
 In this section, we will apply scenario reduction to the \emph{multiproduct assembly problem} with finitely many demand scenarios. This assumption can be allowed as the manufacturer may use $k$ past demands with a probability $\frac{1}{k}$ to model the future demand.
 \subsection{Problem}
 \cite[Chapter 1.3]{shapiro_lectures_2009} gives a clear presentation of the problem that I am writing, I will be adding notes when necessary. A manufacturer produces $n$ \emph{products}. Each product is composed by \emph{parts}. There are $m$ parts. The product $i$ requires $a_{ij}$ units of part $j$, then $a_{ij}\in\mathbb{N}$. Demands are modeled as a random vector $D=\begin{pmatrix} D_1 & \hdots & D_n \end{pmatrix}$ note that the distribution of $D$ is known. Before the demand is known the manufacturer may preorder parts at a unit cost of $c_j$ for a unit of part $j$. After the demand $D$ is observed, the manufacturer has to decide which portion of the demand is to be satisfied with her or his parts inventory. It costs additionally $l_i$ to satisfy a unit of demand for product $i$ and the unit selling price of this product is $q_i$. The unused parts are saved and are given a value $s_j < c_j$, saving a parts is not a loss but the value given to this saving can not exceed the purchase price. Now suppose that the numbers of parts ordered during the first-stage are $x_j, j=1,\hdots,m$. We want to know how to produce. Let $z_i,i=1,\hdots,n$ be the number of units of product $i$ produced and $y_j$ the numbers of part $j$ left in the inventory. After the demand $D$ is known, production is decided in order to minimize losses:
@@ -1092,17 +1099,74 @@ In \ref{fast}, we have presented different ways of considering some scenario red
 \end{figure}
 
 These figures present: Wasserstein distance between the original distribution and reduced ones (either via local-search or greedy algorithm), the optimal value ratio and run time. Both local-search and greedy algorithm give comparable ratios (less than 2\% when reducing the number of scenarios by a factor 10) even though local-search tends to give better approximation as it gives a distribution that is generally closer to the original one. Obviously when $m$ grows, distribution generated are closer to the original one, hence, it gives a smaller ratio in general. This observation is comforting with the Lipschitz nature of the problem: $$\lvert v\left(P\right)-v\left(Q\right)\rvert \leq C d_\ell\left(P,Q\right)^\ell.$$ A distribution that is closer to the original one will generally lead to a closer optimal value. There can be a gap sometimes. Run time grows linearly with $m$ because Gurobi is very efficient for small scales LP. Solving the LP \ref{LP} with $n=2000$ takes about 29 seconds, when the reduced LP with $m=200$ is completed in about 2 seconds. Cutting the number of scenarios by a factor 10 is clearly not threatening here and reduces run time. Generating this new scenario set can be excruciating but still it can be very interesting in some cases e.g. if you dare optimizing on cost vector in a multiproduct assembly problem with a certain distribution of demands. You can reduce once demands and then use the reduced distribution to save run time when solving again and again the LP.
-\section{Conclusion}
+\section{$\quad$ Conclusion}
 \clearpage
 \bibliography{biblio}
 \bibliographystyle{alpha}
 \clearpage
-\appendix
 
-\section*{Appendix A}\label{appendix metric}
-\addcontentsline{toc}{section}{Appendix A}
 
-\section*{Appendix B}
-\addcontentsline{toc}{section}{Appendix B}
+\begin{appendices}
+    
+\section{$\quad$ Fortet-Mourier is a distance}\label{appendix metric}
 
+\section{$\quad$ Definiteness of Wasserstein distance}\label{definiteness}
+\noindent Let $\ell\geq 1$, $P=\sum_{i\in I}\delta_{x_i}p_i$ and $Q=\sum_{j\in J}\delta_{y_j}q_j$ such that $d_\ell\left(P,Q\right)=0$. We prove that $d_\ell\left(P,Q\right)=0\implies \text{supp}\left(P\right)=\text{supp}\left(Q\right)$. By contradiction, let us assume that $\text{supp}\left(P\right)\ne\text{supp}\left(Q\right)$. Then there exists $x_{i_0}\in \text{supp}\left(P\right)$ such that $x_{i_0}\neq y,$ for all $ y\in\text{supp}\left(Q\right)$ (if not, then a $y_{i_0}$ exists in $\text{supp}\left(Q\right)$ and $y_{i_0}\notin \text{supp}\left(P\right)$ as the support are different). As $d_l\left(P,Q\right)=0$ we have that:$$
+    \exists\pi\in\RR^{nm}_+ : \sum_{i\in I}\pi_{ij}=q_j, \sum_{j\in J}\pi_{ij}=p_i, \forall i,j \text{ and } \sum_{j\in J}\sum_{i\in I}\pi_{ij}\lVert x_i-y_j\rVert^\ell=0.
+    $$
+Take a look at the last equation, each term of the sum is positive, then it follows that:
+    \begin{equation}\label{useful}
+    \forall i,j \in I\times J, \: \pi_{ij}\lVert x_i-y_j\rVert^\ell=0.
+    \end{equation}
+    We can forget the $\ell^{th}$ power:
+    $$
+     \forall i,j \in I\times J, \: \pi_{ij}\lVert x_i-y_j\rVert=0.
+    $$
+    But we said that there exists $x_{i_0}\in\text{supp}\left(P\right)\setminus\text{supp}\left(Q\right)$. It follows that $\forall j\in J, \pi_{i_0j}=0$ what's impossible because of the constraints we had, $0=\sum_{j\in J}\pi_{i_0j}=p_{i_0}\neq0$, what is absurd. Then $$d_\ell\left(P,Q\right)=0\implies \text{supp}\left(P\right)=\text{supp}\left(Q\right).$$
+    W.l.o.g. we can renumber the atom and then say $p_i$ and $q_i$ are associated to the same atom. We use \Cref{useful} and we have that :
+    $$
+    \forall k\in I, k\neq i, \pi_{ki}=0, \pi_{ik}=0.
+    $$
+    Then the constraints on $\pi$'s sum on rows and columns give  : $$ 
+    \sum_{k\in I}\pi_{ki}=\pi_{ii}=q_i \text{ and } \sum_{k\in J}\pi_{ik}=\pi_{ii}=p_i.
+    $$
+    We've proven the definiteness of $d_l$. Because supports and weights are the same for both distribution : $P=Q$.
+
+\section{$\quad$ Invariant under translation }\label{appendix restrict}
+\noindent Let $x_i,y_j\in\RR^d$, $P=\sum_{i\in I}\delta_{x_i}p_i$ with $n$ atoms, $m<n$, $Q=\sum_{j\in J}\delta_{y_j}q_j$ with $m$ atoms, $\ell\geq1$, $\lambda\in\RR^*$, and $a\in\RR^d$. We write $P_a=\sum_{i\in I}\delta_{x_i+a}p_i$. We have that:
+\begin{align*}
+d_\ell(P_a,Q)&=\left(\min_{\pi\in\mathbb{R_+^{|I|\times|J|}}}\left\{ 
+\sum_{i\in I}\sum_{j\in J}\pi_{ij}\lVert \left(x_i+a\right)-y_j\rVert^\ell \: \text{ : } \:  \begin{aligned}
+& \sum_{j\in J}\pi_{ij}=p_i \: \forall i\in I \\
+& \sum_{i\in I}\pi_{ij}=q_j \: \forall j\in J
+\end{aligned}\right\}\right)^{1/\ell}
+\\ &= \left(\min_{\pi\in\mathbb{R_+^{|I|\times|J|}}}\left\{ 
+\sum_{i\in I}\sum_{j\in J}\pi_{ij}\lVert x_i-\left(y_j-a\right)\rVert^\ell \: \text{ : } \:  \begin{aligned}
+& \sum_{j\in J}\pi_{ij}=p_i \: \forall i\in I \\
+& \sum_{i\in I}\pi_{ij}=q_j \: \forall j\in J
+\end{aligned}\right\}\right)^{1/\ell}
+\\ &=d_\ell\left(P,Q_{-a}\right).
+\end{align*}
+From this equality, it follows easily that:
+$$
+C_\ell\left(P_a,m\right)=C_\ell\left(P,m\right)
+$$
+For $D_\ell$, $\text{supp}\left(P_a\right)=\text{supp}\left(P\right)+a$, thus we can write for $Q$ such that $\text{supp}\left(Q\right)\subset \text{supp}\left(P\right)$, $\text{supp}\left(Q_a\right)\subset \text{supp}\left(P_a\right)$:
+$$
+d_\ell(P_a,Q_a)=d_\ell(P,Q).
+$$
+As we would have done for $C_\ell$:
+$$
+D_\ell\left(P_a,m\right)\leq d_\ell(P_a,Q_a) = d_\ell(P,Q).
+$$
+But the left-hand side does not depend on $Q$, we can minimize over $Q$ where the support of $Q$ is contained in the support of $P$. We can write:
+$$
+D_\ell\left(P_a,m\right)\leq D_\ell\left(P,m\right).
+$$
+Similarly we can prove the opposite and then it follows that:
+$$
+D_\ell\left(P_a,m\right)= D_\ell\left(P,m\right).
+$$
+\section{$\quad$ Positively homogenous}\label{appendix homogen}
+\end{appendices}
 \end{document}
