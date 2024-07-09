@@ -108,18 +108,18 @@
 \begin{center}	
     {\huge \bf\ Research Internship  \\
     \vspace{1cm}
-    \huge Scenario reduction techniques for two-stage programming. \\
+    \huge Scenario reduction techniques for two-stage programming \\
     \vspace{1.5cm}
 
-    \normalsize Field of study : Applied Mathematics \\
-    School year : 2023 - 2024 \\
+    \normalsize Field of study: Applied Mathematics \\
+    School year: 2023 - 2024 \\
 
 
 
-    \vspace{3.3cm}
-    \textcolor{red}{Confidentiality notice : }\\
+    \vspace{3.75cm}
+    \textcolor{red}{Confidentiality notice:}\\
     \color{black}
-    \vspace{0.5cm}
+    \vspace{0.75cm}
     }
 \end{center}
 
@@ -167,7 +167,8 @@ Università di Pisa, Lungarno Antonio Pacinotti, 43.
     \vspace*{1cm}
         \Large\textbf{Abstract} \\
     
-    \normalsize Two-stage stochastic optimization problems become very large when the distributions involved have a large number of atoms. The goal is to solve simplified two-stage problems by reducing the size of the initial distribution in order to decrease CPU time. This scenario reduction is ruled by a certain metric, the Wasserstein distance. It is also necessary to ensure that the optimal values obtained from both problems are similar. In order to integrate scenario reduction techniques into the SMS++ ecosystem at the University of Pisa, a special attention is paid to algorithmic efficiency. \\ 
+    \normalsize Two-stage stochastic optimization problems become extremely large when the distributions involved have a large number of atoms. To address this issue, we can \emph{reduce} the size of the distributions to decrease the number of variables and constraints in the problem, hence facilitating the resolution of the optimization problem. It is required to ensure that the reduced distribution maintains the structure and characteristics of the original distribution. The proximity between distributions is quantified using Wasserstein distances. In order to integrate scenario reduction techniques into the SMS++ ecosystem of the University of Pisa, attention is paid to algorithmic efficiency. \\
+
     
     \textbf{Key-words:} Stochastic programming, scenario reduction, Wasserstein distance, greedy algorithm, local-search, stability.
   \\
@@ -175,7 +176,7 @@ Università di Pisa, Lungarno Antonio Pacinotti, 43.
         \vspace*{1cm}
         \Large\textbf{Résumé} \\
     
-    \normalsize Les problèmes d'optimisation stochastique à deux étapes sont de très grande taille lorsque les distributions mises en jeu ont un grand nombre d'atomes. L'objectif sera de résoudre des problèmes à deux étapes simplifiés en \emph{réduisant} la taille de la distribution initiale pour diminuer le temps de calcul. Cette réduction de scénarios est gouvernée par une certaine métrique, la distance de Wasserstein. Il faut aussi être capable de s'assurer que les valeurs optimales obtenues via les deux problèmes sont similaires. Dans le but d'intégrer les techniques de réduction de scénario dans l'écosystème SMS++ de l'Université de Pise, une attention particulière est portée à l'efficacité algorithmique. \\
+    \normalsize Les problèmes d'optimisation stochastique à deux étapes sont de très grande taille lorsque les distributions mises en jeu ont un grand nombre d'atomes. Pour combattre cet écueil, on peut tenter de \emph{réduire} la taille des distributions pour diminuer le nombre de variables et de contraintes du problème et donc faciliter la résolution du problème d'optimisation. Il faut s'assurer que la distribution réduite garde la structure et les caractéristiques de la distribution initiale. On quantifie la proximité entre distributions grâce aux distances de Wasserstein. Dans le but d'intégrer les techniques de réduction de scénario dans l'écosystème SMS++ de l'Université de Pise, une attention particulière est portée à l'efficacité algorithmique.  \\
     
     \textbf{Mots-clés :} Optimisation stochastique, réduction de scénario, distance de Wasserstein, algorithme glouton, recherche locale, stabilité.
     
@@ -191,37 +192,37 @@ Università di Pisa, Lungarno Antonio Pacinotti, 43.
 \fancyfoot[C]{Romain Pujol / Università di Pisa \\ \textcolor{red}{Confidential / Non confidential report}}
 \section{Introduction}
 \section{Stability in stochastic programming}\label{stability}
-\subsection{Context and notions}
+\subsection{Context and notations}
 Many Stochastic Programming (SP) models can be written as:
 \begin{equation}\label{stochastic}
 \min\left\{\int_\Xi F_0\left(x,\xi\right)\text{d}P\left(\xi\right)\:,\: x\in X, \: \int_\Xi F_j\left(x,\xi\right)\text{d}P\left(\xi\right)\leq0, j=1,...,d\right\}.
 \end{equation}
 
-Here $X\subset\RR^m$ is closed, $\Xi\subset\RR^s$ is closed, $F_j$ are random lower semi-continuous functions for all $j\in\{0,...,d\}$ and $P$ is a Borel probability measure on $\Xi$. The set $X$ does not depend on $P$ and defines constraints on $x$. The goal of this part is to highlight a specific metric on distributions that would ensure that if two distributions $P$ and $Q$ are close, then the value of both SP models are close. We write:
+Here $X\subset\RR^m$ is closed, $\Xi\subset\RR^s$ is closed, $F_j$ are random lower semi-continuous functions for all $j\in\{0,...,d\}$ and $P\in\mathcal{P}\left(\Xi\right)$ a Borel probability measure on $\Xi$. For this work, one can note that we will mostly work with discrete distributions. A discrete distribution $P$ is written as $P=\sum_{i\in I}\delta_{x_i}p_i$ with the atoms $x_i\in\Xi$, the probabilities $p_i$ are positive of sum 1, the set $I$ is at most countable and $\delta$ is a Dirac measure. The set $X$ does not depend on $P$ and defines constraints on $x$. The goal of this part is to highlight a specific metric on distributions that would ensure that if two distributions $P$ and $Q$ are close, then the value of both SP models are close. We write:
 \begin{align*}
     &\mathcal{X}\left(P\right)=\left\{x\in X, \int_\Xi F_j\left(x,\xi\right)\text{d}P\left(\xi\right)\leq0, j=1,...,d\right\},\\
     &v\left(P\right)=\inf\left\{\int_\Xi F_0\left(x,\xi\right)\text{d}P\left(\xi\right)\:,\: x\in \mathcal{X}\left(P\right)\right\}, \\
     &X^*\left(P\right)=\argmin\left\{\int_\Xi F_0\left(x,\xi\right)\text{d}P\left(\xi\right)\:,\: x\in X, \: \int_\Xi F_j\left(x,\xi\right)\text{d}P\left(\xi\right)\leq0, j=1,...,d\right\}.
 \end{align*}
-So $\mathcal{X}\left(P\right)$ denotes the feasible set, $v\left(P\right)$ the optimal value of \eqref{stochastic} and $X^*\left(P\right)$ its set of minimizers. For every integer $p\geq 1$, let us define $\mathcal{F}_p\left(\Xi\right)$ a class of measurable functions from $\Xi$ to $\RR$ named locally Lipschitz continuous functions:
+So $\mathcal{X}\left(P\right)$ denotes the feasible set, $v\left(P\right)$ the optimal value of Problem \eqref{stochastic} and $X^*\left(P\right)$ its set of minimizers. For every integer $p\geq 1$, let us define $\mathcal{F}_p\left(\Xi\right)$ a class of measurable functions from $\Xi$ to $\RR$ named locally Lipschitz continuous functions:
 \begin{align*}
     &\mathcal{F}_p\left(\Xi\right)=\left\{f:\Xi\to \RR: \lvert f\left(\xi\right)-f\left(\xi'\right)\rvert \leq c_p\left(\xi,\xi'\right)\lVert\xi-\xi'\rVert, \forall \xi,\xi'\in \Xi^2 \right\}, \\
    & c_p\left(\xi,\xi'\right)=\max \left\{1,\lVert\xi \rVert,\lVert\xi'\rVert\right\}^{p-1}.
 \end{align*}
-When $p=1$, we recall 1-Lipschitz functions. When $p\geq 2$, there exists another dependency on the space $\Xi$ allowing functions with higher and higher variations as $p$ increases. One can note that $F_1\left(\Xi\right)\subset F_2\left(\Xi\right)\subset F_3\left(\Xi\right) \hdots$ For $P,Q\in\mathcal{P}_p\left(\Xi\right)^2$ where $\mathcal{P}_p\left(\Xi\right)=\left\{Q\in\mathcal{P}\left(\Xi\right), \int_\Xi \lVert\xi\rVert^pdQ\left(\xi\right)\right\}$, the latest statement allows us to define $p$-th order Fortet-Mourier metric as:
+When $p=1$, we get 1-Lipschitz functions. When $p\geq 2$, there exists another dependency on the space $\Xi$ allowing functions with higher variations as $p$ increases. One can note that $F_1\left(\Xi\right)\subset F_2\left(\Xi\right)\subset F_3\left(\Xi\right) \hdots$ For $P,Q\in\mathcal{P}_p\left(\Xi\right)^2$ where $\mathcal{P}_p\left(\Xi\right)=\left\{Q\in\mathcal{P}\left(\Xi\right), \int_\Xi \lVert\xi\rVert^pdQ\left(\xi\right)\right\}$, the latest statement allows us to define $p$-th order Fortet-Mourier metric as:
 $$
 \zeta_p\left(P,Q\right)=\sup_{f\in\mathcal{F}_p\left(\Xi\right)}\lvert \int_\Xi f\left(\xi\right)\text{d}P\left(\xi\right)-\int_\Xi f\left(\xi\right)\text{d}Q\left(\xi\right)\rvert.
 $$
-See \href{https://www.imo.universite-paris-saclay.fr/~pierre-loic.meliot/master/exam-2017.pdf}{metric proof}.
+See \ref{appendix metric}\href{https://www.imo.universite-paris-saclay.fr/~pierre-loic.meliot/master/exam-2017.pdf}{metric proof}.
 
 \subsection{Result}
 Let $Q\in\mathcal{P}\left(\Xi\right)$, we write the perturbed model:
 \begin{equation*}
     \min\left\{\int_\Xi F_0\left(x,\xi\right)\text{d}Q\left(\xi\right)\:,\: x\in X, \: \int_\Xi F_j\left(x,\xi\right)\text{d}Q\left(\xi\right)\leq0, j=1,...,d\right\},
 \end{equation*}
-which is \eqref{stochastic} but with the distribution $Q$ instead of $P$. In this part we will try to compare the notions we have presented in the above part, for instance, we want to bound $\lvert v\left(P\right)-v\left(Q\right)\rvert$ in terms of distribution metrics. \cite[Corollary 14]{romisch_stability_2003} gives:
+which is Problem \eqref{stochastic} but with the distribution $Q$ instead of $P$. In this part we will try to compare the notions we have presented in the above part, for instance, we want to bound $\lvert v\left(P\right)-v\left(Q\right)\rvert$ in terms of distribution metrics. \cite[Corollary 14]{romisch_stability_2003} gives:
 \begin{theorem}\label{stability_th}
-    Let the number of constraints in \eqref{stochastic} be $d=0$ and assume that:
+    Let the number of constraints in Problem \eqref{stochastic} be $d=0$ and assume that:
     \begin{enumerate}
         \item The  solution set $X^*\left(P\right)$ is nonempty and $\mathcal{U}$ is an open, bounded neighbourhood of $X^*\left(P\right)$.
         \item The set $X$ is convex and $F_0\left(\cdot,\xi\right)$ is convex on $\RR^m$ for each $\xi\in\Xi$.
@@ -234,14 +235,14 @@ which is \eqref{stochastic} but with the distribution $Q$ instead of $P$. In thi
     \end{align*}
     Where $\Psi_p$ is defined in \cite[2.22-2.23]{romisch_stability_2003}. Whenever $Q\in\mathcal{P}\left(\Xi\right)$ with finite $p$-th order absolute moments and $\zeta_p\left(P,Q\right)<\delta$
 \end{theorem}
-These results has two main points. First, we understand that under a slight perturbation of $P$ (in terms of Fortet-Mourier metric), the optimal value is controlled. The parameter $p$ appears in the third assumption. Second, the set of optimal $x$ of the perturbed model will remain close to the set of optimal $x$ of the original problem. This is a result of stability. 
+These results has two main points which can be seen as stability results. First, we understand that under a slight perturbation of $P$ (in terms of Fortet-Mourier metric), the optimal value of Problem \eqref{stochastic} is controlled. Second, the set of optimal $x$ of the perturbed model will remain close to the set of optimal $x$ of the original problem. Note that the parameter $p$ appears in the third assumption.
 
 \subsection{Application to two-stage linear models}\label{two stage}
 We consider a linear two-stage model with fixed recourse, this model is generically written as: 
 \begin{equation}\label{lp stoch}
-    \min_x\left\{c^Tx + \mathbb{E}_\xi\left(\inf_y q\left(\xi\right)^Ty \right)\: :\: Wy\left(\xi\right)=h\left(\xi\right)-T\left(\xi\right)x\:,\: y\left(\xi\right)\geq0\:,\: x\in X \right\}.
+    \min_x\left\{c^Tx + \mathbb{E}_\xi\left(\inf_y q\left(\xi\right)^Ty \right)\: :\: Wy\left(\xi\right)=h\left(\xi\right)-T\left(\xi\right)x,\: y\left(\xi\right)\geq0,\: x\in X \right\}.
 \end{equation}
-Where $x$ is called the first-stage decision variable, $y$ the second. The general idea of this model is a first-stage decision has to be made before observing $\xi$. The distribution of $\xi$ is known so that $x$ is chosen to ensure the best average outcome. Then after observing $\xi$, the second-stage variable $y$ is determined. One can note that the only decision you make is $x$ as $y$ is determined by $x$ and $\xi$. The term "fixed recourse" highlights the nature of $W$, a fixed matrix that does not depend (in that case) on $\xi$. See \cite{wets_stochastic_1974} for a complete survey on linear two-stage programs with fixed recourse. In order to fit in the definition  \ref{stochastic}, we define:
+Where $x$ is called the first-stage decision variable, $y$ the second. The general idea of this model is a first-stage decision has to be made before observing $\xi$. The distribution of $\xi$ is known so that $x$ is chosen to ensure the best average outcome. Then after observing $\xi$, the second-stage variable $y$ is determined. The term "fixed recourse" highlights the nature of $W$, a fixed matrix that does not depend (in that case) on $\xi$. See \cite{wets_stochastic_1974} for a complete survey on linear two-stage programs with fixed recourse. In order to fit in the Definition \ref{stochastic}, we define:
 $$
 F_0\left(x,\xi\right)=\begin{cases} 
   c^Tx + \phi\left(q\left(\xi\right), h\left(\xi\right) -T\left(\xi\right)x\right) & h\left(\xi\right)-     T\left(\xi\right)x \in \text{pos}\left(W\right), q\left(\xi\right) \in D, \\
@@ -253,12 +254,12 @@ where $\text{pos}(W)=\left\{Wy, y\in\RR_+^m\right\}$, $D=\left\{u\in\RR^m:\left\
     \min_x\left\{\int_\Xi F_0\left(x,\xi\right)\text{d}P\left(\xi\right): x\in X\right\}. 
 \end{equation}
 One can note that $d=0$ in this formulation. Let us introduce two assumptions: 
-\begin{assumption}\label{h1} For each $\left(x,\xi\right)\in X\times \Xi$ it holds that $h\left(\xi\right)- T\left(\xi\right)x\in \text{pos}\left(W\right), q\left(\xi\right) \in D$.
+\begin{assumption}\label{h1} For each $\left(x,\xi\right)\in X\times \Xi$ it holds that $h\left(\xi\right)- T\left(\xi\right)x\in \text{pos}\left(W\right)$, and $q\left(\xi\right) \in D$.
 \end{assumption}
 \begin{assumption}
-\label{h2} $P\in\mathcal{P}\left(\Xi\right)$ and has a finite $2$-th moment i.e. $\int_\Xi \lVert \xi\rVert^2\text{d}P\left(\xi\right) < \infty$.
+\label{h2} Let the distribution $P$ be in $\mathcal{P}\left(\Xi\right)$ and has a finite second moment i.e. $\int_\Xi \lVert \xi\rVert^2\text{d}P\left(\xi\right) < \infty$.
 \end{assumption}
-\noindent Under these two assumptions, equivalence between \ref{lp stoch} and \ref{rewrite} is direct, even though it may look harsh, as both terms inside the integral converge then it is a matter of notation.
+\noindent Under these two assumptions, equivalence between Problem \ref{lp stoch} and Problem \ref{rewrite} is direct, even though it may look harsh, as both terms inside the integral converge then it is a matter of notation.
 %\begin{proof}
     %Let $x\in X$. \Cref{h1} states that $F_0$ will always be written $c^Tx + \phi\left(q\left(\xi\right), h\left(\xi\right) -T\left(\xi\right)x\right)$ when we integrate it on $\Xi$ when $x\in X$.
     %\begin{align*}
@@ -266,54 +267,54 @@ One can note that $d=0$ in this formulation. Let us introduce two assumptions:
     %    &= c^Tx + \int_\Xi \inf_y\left\{q\left(\xi\right)^Ty\: :\: Wy=h\left(\xi\right) -T\left(\xi\right)x\right\}\text{d}P\left(\xi\right) \\
     %    &= \left\{c^Tx + \int_\Xi \inf_y\left\{q\left(\xi\right)^Ty\right\}\text{d}P\left(\xi\right)\:,\: Wy=h\left(\xi\right) -T\left(\xi\right)x\right\}
     %\end{align*}
-    %There is no problem to split the integral in two as $c^Tx$ is finite, does not depend on $\xi$ and the whole integral is finite aswell. We  used obviously $\int_\Xi\text{d}P\left(\xi\right)=1$. The third equality is a matter of notation. 
+    %There is no problem to split the integral in two as $c^Tx$ is finite, does not depend on $\xi$ and the whole integral is finite as well. We  used obviously $\int_\Xi\text{d}P\left(\xi\right)=1$. The third equality is a matter of notation. 
 %\end{proof}
 
 \begin{proposition}\label{prop 2}
-    Let \Cref{h1} be satisfied. Then $F_0$ is a random convex function. Furthermore there exist constants $L>0, \bar{L}>0$, and $K>0$ such that the following holds for all $\xi,\xi'\in\Xi^2$ and $x,x'\in X^2$ with $\max\left\{\lVert x\rVert, \lVert x' \rVert\right\}\leq r$:
+    Let \Cref{h1} be satisfied. Then $F_0$ is a random convex function. Furthermore there exist constants $L>0, \bar{L}>0$, and $K>0$ such that the following holds for all $\left(\xi,\xi'\right)\in\Xi^2$ and $\left(x,x'\right)\in X^2$ with any $r>0$ such that $\max\left\{\lVert x\rVert, \lVert x' \rVert\right\}\leq r$, we have:
     \begin{align}
         \lvert F_0\left(x,\xi\right)- F_0\left(x,\xi'\right)\rvert &\leq Lr\max\left\{1,\lVert \xi\rVert, \lVert \xi'\rVert\right\}\lVert \xi-\xi'\rVert, \label{lips}\\
-        \lvert F_0\left(x,\xi\right)- F_0\left(x',\xi\right)\rvert &\leq \bar{L}\max\left\{1,\lVert\xi\rVert^2\right\}\lVert x-x'\rVert, \\
-        \lvert F_0\left(x,\xi\right) \rvert&\leq Kr\max\left\{1,\lVert\xi\rVert^2\right\}.
+        \lvert F_0\left(x,\xi\right)- F_0\left(x',\xi\right)\rvert &\leq \bar{L}\max\left\{1,\lVert\xi\rVert^2\right\}\lVert x-x'\rVert, \nonumber \\
+        \lvert F_0\left(x,\xi\right) \rvert&\leq Kr\max\left\{1,\lVert\xi\rVert^2\right\} \nonumber.
     \end{align}
      
 \end{proposition}
 \begin{proof}
     See \cite[Proposition 22]{romisch_stability_2003}.
 \end{proof}
-Thereafter we will work with finite distributions, meaning that $\Xi$ will always be bounded. With $\Xi$ be bounded, we can modify a little what is said in \Cref{lips} from \Cref{prop 2} to our best convenience:
+Thereafter we will work with finite distributions, implying that the support of $P$ will always be bounded. For our work, we can easily bound $\Xi$ w.l.o.g. Moreover, every distribution that we will create in this work have their support included in $\text{supp}\left(P\right)$ or in the convex hull of $\text{supp}\left(P\right)$. Thus we can assume that $\Xi$ is bounded, we can modify a little what is said in \Cref{lips} from \Cref{prop 2} to our convenience:
 $$
 \lvert F_0\left(x,\xi\right)- F_0\left(x,\xi'\right) \leq L'r \lVert \lVert \xi-\xi'\rVert, \text{ with } L'=L\max\left\{1,\max_{\xi\in\Xi}\lVert\xi\rVert\right\}.
 $$
 This means that there exists a constant $C>0$ such that $\frac{1}{C}F_0\left(x,\cdot\right)\in\mathcal{F}_1\left(\Xi\right)$ for each $x\in X$ hence if we fix $U$ an open, bounded neighbourhood of $X^*\left(P\right)$ the result hold for each $x\in X\cap \text{cl}U\subset X$. In other words, condition (3) of \Cref{stability_th} is verified with $p=1$.
 
 \begin{corollary}
-    Let both assumptions \Cref{h1} and \Cref{h2} be satisfied, $\Xi$ be bounded and let $X^*\left(P\right)$ be nonempty and $\mathcal{U}$ be an open, bounded neighbourhood of $X^*\left(P\right).$ Then there exist constants $L>0$ and $\delta >0$ such that:
+    Let \Cref{h1} and \Cref{h2} be satisfied, $\Xi$ be bounded, $X^*\left(P\right)$ be nonempty and $\mathcal{U}$ be an open, bounded neighbourhood of $X^*\left(P\right).$ Then there exist constants $L>0$ and $\delta >0$ such that:
     \begin{align*}
         \lvert v\left(P\right)-v\left(Q\right)\rvert \leq L\zeta_1\left(P,Q\right) \\
         \emptyset \ne X^*\left(Q\right)\subset X^*\left(P\right)+\Psi_P\left(L\zeta_1\left(P,Q\right)\right)\mathbb{B}
     \end{align*}
-    whenever $Q\in\mathcal{P}\left(\Xi\right)$ and has a finite $1$-th moment and $\zeta_1\left(P,Q\right)<\delta$.
+    whenever $Q\in\mathcal{P}\left(\Xi\right)$ and has a finite first moment and $\zeta_1\left(P,Q\right)<\delta$.
 \end{corollary}
 \begin{proof}
     This is an application of \Cref{stability_th} with $p=1$ where both assumptions are sufficient to ensure that conditions (2), (3) of \Cref{stability_th} are verified. Condition (1) is verified when the problem is well posed, meaning that there exists a solution. See \cite[Proposition 22]{romisch_stability_2003}.
 \end{proof}
 \begin{remark}
-    In \cite{romisch_stability_2003}, they do not assume that $\Xi$ is bounded and then the results hold with $p=2$.
+    In \cite{romisch_stability_2003}, $\Xi$ is not assumed to be bounded but the results hold with $p=2$.
 \end{remark}
-Consider now a two-stage model with a distribution $P=\sum_{i\in I}\delta_{x_i}p_i$ with $n$ atoms, $n$ is large. We may want to find another distribution $Q$ with a reduced number of atoms close to $P$ in terms of $\zeta_1$ so that $\lvert v\left(P\right)-v\left(Q\right)\rvert$ is controlled. Finding such a distribution $Q$ would reduce run time when solving the associated SP on a computer. Let us recall the definition of the $p$-th order Fortet-Mourier metric:
+Consider now a two-stage model with a distribution $P=\sum_{i\in I}\delta_{x_i}p_i$ with $n$ atoms and $n$ is large. We may want to find another distribution $Q$ with a reduced number of atoms. We want $Q$ to be close to $P$ in terms of the distance $\zeta_1$ so that $\lvert v\left(P\right)-v\left(Q\right)\rvert$ is controlled. Finding such a reduced distribution $Q$ would reduce run time when solving the associated SP on a computer. Let us recall the Definition of the $p$-th order Fortet-Mourier metric:
 $$
 \zeta_1\left(P,Q\right)=\sup_{F\in\mathcal{F}_1\left(\Xi\right)}\lvert \int_\Xi F\left(\xi\right)\text{d}P\left(\xi\right)-\int_\Xi F\left(\xi\right)\text{d}Q\left(\xi\right)\rvert,
 $$
-where $\mathcal{F}_1\left(\Xi\right)=\left\{F:\Xi\to \RR: \lvert F\left(\xi\right)-F\left(\tilde{\xi}\right)\rvert \leq \lVert\xi-\xi'\rVert, \forall \xi,\xi'\in \Xi^2 \right\}$. Computing this upper bound on the Lipschitz functions tends to be hard nay impossible. We introduce $U\left(P,Q\right)$ the set of joint distributions whose marginals are $P$ and $Q$ and the type-$\ell$ Wasserstein distance: $$
-W_\ell\left(P,Q\right) = \left\{\min_{\pi\in U\left(P,Q\right)}\int_{\Xi^2}\lVert \xi-\xi'\rVert^l \text{d}\pi\left(\xi,\xi'\right)\right\}^{1/l}.$$
+where $\mathcal{F}_1\left(\Xi\right)=\left\{F:\Xi\to \RR: \lvert F\left(\xi\right)-F\left(\tilde{\xi}\right)\rvert \leq \lVert\xi-\xi'\rVert, \forall \left(\xi,\xi'\right)\in \Xi^2 \right\}$. Computing this upper bound on the Lipschitz functions tends to be difficult. We introduce $U\left(P,Q\right)$ the set of joint distributions whose marginals are $P$ and $Q$ and the type-$\ell$ Wasserstein distance: $$
+W_\ell\left(P,Q\right) = \left\{\min_{\pi\in U\left(P,Q\right)}\int_{\Xi^2}\lVert \xi-\xi'\rVert^\ell \text{d}\pi\left(\xi,\xi'\right)\right\}^{1/\ell}.$$
 Where $\lVert \cdot \rVert$ denotes the norm on $\Xi$ used to define $\mathcal{F}_1\left(\Xi\right)$. The next idea is to bound $\zeta_1$ by any $W_\ell$ which would be easier to compute.
 \begin{align*}
     \zeta_1\left(P,Q\right)&= \sup_{F\in\mathcal{F}_1\left(\Xi\right)}\lvert \int_\Xi F\left(\xi\right)\text{d}P\left(\xi\right)-\int_\Xi F\left(\xi\right)\text{d}Q\left(\xi\right)\rvert, \\
-    &=\mathcal{W}_1\left(P,Q\right), \quad \mathcal{W} \text{ being the dual of } W \text{, see \cite{peyre_computational_2019}[Chapter 6],}\\
+    &=\mathcal{W}_1\left(P,Q\right), \quad \mathcal{W} \text{ being the dual of } W \text{, see \cite[Chapter 6]{peyre_computational_2019},}\\
     &= W_1\left(P,Q\right), \quad \text{due to the duality theorem of Kantorovich-Rubinstein.}
 \end{align*}
-In order to choose a $\ell$ that will simplify the work, $\ell\in\left\{1,2\right\}$ actually, we will prove that $W_1\left(P,Q\right)\leq W_\ell\left(P,Q\right)$ for any $\ell \geq 1$.  Let $\ell >1$, $q>1$ such that $\frac{1}{\ell}+\frac{1}{q}=1$ and $\pi\in U\left(P,Q\right)$:
+Let $\ell >1$, $q>1$ such that $\frac{1}{\ell}+\frac{1}{q}=1$ and $\pi\in U\left(P,Q\right)$:
 \begin{align*}
 W_1\left(P,Q\right)&\leq \int_{\Xi^2}\lVert \xi-\xi'\rVert \text{d}\pi\left(\xi\times\xi'\right),\: \pi \text{ may not be optimal,} \\ &\leq \left(\int_{\Xi^2} \lvert 1\rvert^{q}\text{d}\pi\left(\xi\times\xi'\right)\right)^{1/q} \left(\int_{\Xi^2}\lVert \xi-\xi'\rVert^\ell\text{d}\pi\left(\xi\times\xi'\right)\right)^{1/\ell}, \: \text{due to Hölder's inequality} \\
 &=\left(\int_{\Xi^2}\lVert \xi-\xi'\rVert^\ell\text{d}\pi\left(\xi\times\xi'\right)\right)^{1/\ell}.
@@ -326,18 +327,18 @@ For a two-stage linear model, we have finally proven that for $\ell\geq1$, there
 $$
 \lvert v\left(P\right)-v\left(Q\right)\rvert \leq LW_\ell\left(P,Q\right).
 $$
-Thereafter we will consider a finite distribution $P$ and attempt to find another distribution $Q$ with fewer atoms with the idea of minimizing the type-$\ell$ Wasserstein distance between them. This would control the term: $\lvert v\left(P\right)-v\left(Q\right)\rvert$. We will work with $\ell\in\left\{1,2\right\}$ for the theoretical part and $\ell=2$ for every simulation.
+Thereafter we will consider a finite distribution $P$ and attempt to find another distribution $Q$ with fewer atoms with the idea of minimizing the type-$\ell$ Wasserstein distance between them. This would control the term: $\lvert v\left(P\right)-v\left(Q\right)\rvert$. The Wasserstein distance with $\ell\in\left\{1,2\right\}$ have been the most studied computationally because of their gentle properties. We will work with $\ell\in\left\{1,2\right\}$ for the theoretical part and $\ell=2$ for every simulation.
 
-\section{Wasserstein distance with finite distribution}
+\section{Scenario reduction with Wasserstein distance on finite distribution}
 
-In this part, we present tools and concepts useful for scenario reduction aswell as their guarantees and limits. Results derive from \cite{rujeerapaiboon_scenario_2022}. 
+In this part, we present tools and concepts useful for scenario reduction as well as their guarantees and limits. Results derive from \cite{rujeerapaiboon_scenario_2022}. 
 
 \subsection{Introduction to Wasserstein distance}
-In the case of discrete distributions $P=\sum_{i\in I}p_i\delta_{x_i}$ and $Q=\sum_{j\in J}q_j\delta_{y_j}$. The type-$l$ Wasserstein distance between $P$ and $Q$ is defined as :  
+We focus on the case of discrete distributions $P=\sum_{i\in I}p_i\delta_{x_i}$ and $Q=\sum_{j\in J}q_j\delta_{y_j}$. The type-$l$ Wasserstein distance between $P$ and $Q$ is defined as:  
 \begin{definition}{Type-$\ell$ Wasserstein distance}
 $$
 d_\ell(P,Q)=\left(\min_{\pi\in\mathbb{R}_+^{\lvert I\rvert\times\lvert J\rvert}}\left\{ 
-\sum_{i\in I}\sum_{j\in J}\pi_{ij}\lVert x_i-y_j\rVert^l \: \text{ : } \:  \begin{aligned}
+\sum_{i\in I}\sum_{j\in J}\pi_{ij}\lVert x_i-y_j\rVert^\ell \: \text{ : } \:  \begin{aligned}
 & \sum_{j\in J}\pi_{ij}=p_i \: \forall i\in I \\
 & \sum_{i\in I}\pi_{ij}=q_j \: \forall j\in J
 \end{aligned}\right\}\right)^{1/\ell}.
@@ -345,36 +346,37 @@ $$
 \end{definition}
 
 \begin{remark}
-    A more general definition can be written by replacing the norm with a particular distance between objects $x_i$ and $y_j$. 
+    A more general definition can be written by replacing the norm with a particular cost between objects $x_i$ and $y_j$ that does not need to be symmetric for example. 
 \end{remark}
-For $l\geq1$, this mathematical expression meets the requirements of a distance. Values are positive, symmetry is direct, definiteness requires more work but the idea is to start by proving that $d_\ell\left(P,Q\right)=0$ implies that $\text{supp}\left(P\right)=\text{supp}\left(Q\right)$, concluding will be easy after that. Triangle inequality derives from the gluing lemma, see e.g. \cite[Chapter 1]{peyre_computational_2019}. For $l\in\mathopen{]}0,1\mathclose{]}, d_\ell^\ell$ is a distance. A pro of this particular distance is to rely on the underlying structure meaning the norm. The philosophy of this distance is to measure the minimum cost of moving weights from $x_i$ to $y_j$ where costs are defined by the norm.
+For $\ell\geq1$, the functional $d_\ell$ meets the requirements of a distance. Values are positive, symmetry is direct, definiteness is more involved: \rp{appendix }the idea is to prove first that $d_\ell\left(P,Q\right)=0$ implies that $\text{supp}\left(P\right)=\text{supp}\left(Q\right)$, concluding will be easy after that. The triangle inequality derives from the gluing lemma, see e.g. \cite[Chapter 1]{peyre_computational_2019}. A pro of this particular distance is to rely on the underlying structure of the normed space and extend it to probability distributions supported on $X$. The philosophy of this distance is to measure the minimum cost of moving weights from $x_i$ to $y_j$ where costs are defined by the norm. For $\ell\in\mathopen{]}0,1\mathclose{]}, d_\ell^\ell$ is a distance.
 \newline
 
-Let $\mathcal{P}_U(X,n)$ denote the set of all \emph{uniform} discrete distribution on $X\subset R^d$ with $n$ distinct scenarios (do not mind if I use scenarios instead of scenari) and $\mathcal{P}(X,m)$ denote the set of discrete distributions on $X\subset R^d$ with \emph{at most} m scenarios. 
+Let $\mathcal{P}_U(X,n)$ denote the set of all \emph{uniform} discrete distribution on $X\subset R^d$ with $n$ distinct scenarios and $\mathcal{P}(X,m)$ denote the set of discrete distributions on $X\subset R^d$ with \emph{at most} m scenarios. 
 \newline
 
-As presented in the conclusion of \ref{stability}, we want to find a distribution that minimizes the Wasserstein distance over a particular set of distribution. Two types of reduction are typically presented. The continous scenario reduction problem :
+As presented in the conclusion of \Cref{stability}, we want to find a distribution that minimizes the Wasserstein distance over a particular set of distribution. We study two types of scenario reduction. The continous scenario reduction problem is:
 $$
-C_\ell(P,m)=\min_Q\left\{d_\ell(P,Q),\: Q\in\mathcal{P}(\mathbb{R}^d,m)\right\}, 
+C_\ell(P,m)=\min_Q\left\{d_\ell(P,Q),\: Q\in\mathcal{P}\left(\mathbb{R}^d,m\right)\right\}, 
 $$
-and the discrete scenario reduction problem :
+and the discrete scenario reduction problem is:
 $$
-D_\ell(P,m)=\min_Q\left\{d_\ell(P,Q),\: Q\in\mathcal{P}(\text{supp}(P),m)\right\}.
+D_\ell(P,m)=\min_Q\left\{d_\ell(P,Q),\: Q\in\mathcal{P}(\text{supp}\left(P\right),m)\right\}.
 $$
 
-Let $P$ be a finite distribution on $\RR^d$. Obviously $\text{supp}(P)\subset \RR^d$ what leads to $C_\ell(P,m)\leq D_\ell(P,m)$. Discrete scenario reduction may be sometimes more suitable as continous scenario reduction can generate atoms that may be nonsensical in a particular context.
+Let $P$ be a finite distribution on $\RR^d$. As $\text{supp}\left(P\right)\subset \RR^d$, it follows that $C_\ell\left(P,m\right)\leq D_\ell\left(P,m\right)$. Discrete scenario reduction may be sometimes more suitable as continous scenario reduction can generate atoms that may lack interpretability. For example in \ref{section mpa}, a non-integer demand of screw can be weird.
 
-\subsection{Results of scenario reduction}
-In this part, we provide bounds on the Wasserstein distance between an original distribution of $n$ atoms and its reduced one with $m<n$ atoms. Let $X\subset \RR^d$ and $\lVert \cdot \rVert$ be a norm on $X$. We restrict ourselves to distribution whose atoms lie within the unit ball and $\frac{1}{n}\sum_ix_i=0$. This is a legal assumption because of first repositionning a distribution does not affect $C_\ell$, second the positive homogeneity of $C_\ell$. Let $P=\sum_{i\in I}p_i\delta_{x_i}$, $\text{card}\left(I\right)=n<+\infty$, $1<m<n$, $\lambda\in\RR_+^*$ and $a\in\RR^d$:
+\subsection{Comparative study of continuous and discrete scenario reduction}
+
+In this part, we provide bounds on the Wasserstein distance between an original distribution of $n$ atoms and its reduced one with $m\ll n$ atoms. Atoms of the reduced distribution are either free in $\RR^d$ in the case of continuous scenario reduction or in $\text{supp}\left(P\right)$ in the discrete case. Let $X$ be a subset of $\RR^d$ and $\lVert \cdot \rVert$ be a norm on $X$. We will work with uniform distribution $P\in\mathcal{P}_U\left(\RR^d,n\right)$ with the idea that the distributions derive from sampling. If not, intuitively one can break down masses of high probability into many atoms. We also restrict ourselves to distribution whose atoms lie within the unit ball and $\frac{1}{n}\sum_ix_i=0$. This is a valid assumption because first $C_\ell$ is invariant under translation, second $C_\ell$ is positively homogeneous. Let $P=\frac{1}{\lvert I\rvert}\sum_{i\in I}\delta_{x_i}$, $\text{card}\left(I\right)=n<+\infty$, $1<m<n$, $\lambda\in\RR^*$ and $a\in\RR^d$ \rp{faire une appendice}:
+$$ 
+C_\ell\left(P,m\right)=\frac{1}{\lvert\lambda\rvert} C_\ell\left(\sum_{i\in I}p_i\delta_{\lambda x_i+a},m\right).
 $$
-C_\ell\left(P,m\right)=\frac{1}{\lambda} C_\ell\left(\sum_{i\in I}p_i\delta_{\lambda x_i+a},m\right).
-$$
-We will work with uniform distribution $P\in\mathcal{P}_U\left(\RR^d,n\right)$ with the idea that the distributions derive from sampling and if not you can multiply atoms around a point of high probability. A goal of this part is to quantify and study the worst case of scenario reduction defined by:
+\rp{rajouter un dessin pour breakdown masses} A goal of this part is to quantify and study the worst case of scenario reduction defined by:
 $$    \bar{C}_\ell\left(n,m \right)=\left\{\max_{P\in\mathcal{P}_U(\mathbb{R}^d,n)}C_\ell(P,m)\: :\: \text{supp}(P)\in B(0,1)\right\}.
 $$
 Let us write a first bound that we will tighten thereafter, let $P\in\mathcal{P}_U(\mathbb{R}^d,n)$:
-$$C_\ell\left(P,m\right)\leq C_\ell\left(P,1\right)\leq d_\ell\left(P,\delta_{0_{\RR^d}}\right)\leq 1.$$
-As the right-hand side of the equation does not depend on $P$, one can take the upper bound over $P\in\mathcal{P}_U\left(\RR^d,n\right)$ and write that:
+\begin{equation}\label{easy bound}C_\ell\left(P,m\right)\leq C_\ell\left(P,1\right)\leq d_\ell\left(P,\delta_{0_{\RR^d}}\right)\leq 1.\end{equation}
+As the right-hand side of \Cref{easy bound} does not depend on $P$, one can take the upper bound over $P\in\mathcal{P}_U\left(\RR^d,n\right)$ and write that:
 $$
 \bar{C}_\ell\left(n,m \right)\leq1.
 $$
@@ -383,16 +385,18 @@ Let $\mathfrak{P}(I,m)$ be the family of m-set partitions of $I$. Following \cit
 $$C_\ell(P,m)=\min_{\{I_j\}\in \mathfrak{P}(I,m)}\left\{ \frac{1}{n}\sum_{j\in J}\min_{y_j\in\mathbb{R}^d}\sum_{i\in I_j}\lVert x_i-y_j\rVert^\ell \right\}^{1/\ell}.$$
 \end{theorem}
 \begin{remark}
-    This reformulation takes the most of \Cref{closed formula}.
+    This reformulation finds his roots of \Cref{closed formula}.
 \end{remark}
-Assume that we use the euclidean norm. In the case $\ell=1$, $y_j^*$ is attained by any geometric median. Now if $\ell=2$, the inner minimum can be found easily, gradient of the inner function is well-defined and minimizing with  no constraints gives: $$y_j^*=\text{mean}\left(I_j\right)=\frac{1}{\lvert I_j\rvert}{\sum_{i\in I_j}x_i}.$$ 
-\begin{theorem}{Tighter bounds}
-    $$\sqrt{\frac{n-m}{n-1}}\leq\bar{C_1}\left(n,m\right)\leq\bar{C_2}\left(n,m\right)\leq\sqrt{\frac{n-m}{n-1}}.$$
-\end{theorem}
-\subsection{Discrete scenario reduction}
+Assume that $X$ is endowed the euclidean norm. In the case $\ell=1$, $y_j^*$ is attained by any geometric median. Now if $\ell=2$, the inner minimum can be found easily, gradient of the inner function is well-defined and minimizing with  no constraints gives: $$y_j^*=\text{mean}\left(I_j\right)=\frac{1}{\lvert I_j\rvert}{\sum_{i\in I_j}x_i}.$$ 
+\begin{proposition}{Tighter bounds}
+$$\bar{C_1}\left(n,m\right)\leq\bar{C_2}\left(n,m\right)\leq\sqrt{\frac{n-m}{n-1}}.$$
+\end{proposition}
+\begin{proof}
+    See \cite[Theorem 2 and 3]{rujeerapaiboon_scenario_2022}.
+\end{proof}
 Reduced distributions obtained via continuous scenario reduction are always at least as good as reduced sets obtained via discrete scenario reduction. We will try to quantify the gap between the solution of both problems. More precisely, in this part we find for $\ell\in\{1,2\}$: 
 $$\underline{\kappa_\ell}\left(n,m\right)\cdot C_\ell\left(P,m\right)\leq D_\ell\left(P,m\right)\leq \bar{\kappa_\ell}\left(n,m\right)\cdot C_\ell\left(P,m\right).$$
-The goal is to find the largest $\underline{\kappa_\ell}\left(n,m\right)$ and smallest $\bar{\kappa_\ell}\left(n,m\right)$ so the bounds are as tight as possible. Solving the continuous problem will give bounds on the discrete. It's easy to argue that : 
+The goal is to find the largest $\underline{\kappa_\ell}\left(n,m\right)$ and smallest $\bar{\kappa_\ell}\left(n,m\right)$ so the bounds are as tight as possible. Solving the continuous problem will give bounds on the discrete. It is easy to argue that : 
 $$
 \underline{\kappa_\ell}\left(n,m\right)\geq1.
 $$
@@ -410,9 +414,9 @@ Similarly to what we have done just before, it is time to reformulate the discre
 
 What follows assumes that $n\geq2, m\in\{1,...,n-1\}$ and $d\geq2.$
 \paragraph{\textbf{Type-2 Wasserstein distance.}}
-\begin{theorem}
+\begin{proposition}
     The upper bound $\bar\kappa_2\left(n,m\right)$ satisfies $\bar\kappa_2\left(n,m\right)\leq \sqrt{2}$ for all n, m.
-\end{theorem}
+\end{proposition}
 \begin{proof} 
     The proof is very interesting for one's intuition. \textbf{In the first step}, we prove the result for $m=1$. Let $P=\frac{1}{n}\sum_{i\in I}\delta_{x_i}\in\mathcal{P}_U\left(\RR^d,n\right)$. W.l.o.g., we can assume that $\frac{1}{n}\sum_{i\in I}x_i=0$ and $\frac{1}{n}\sum_{i\in I}\lVert x_i\rVert^2=1$ because re-positionning does not affect $C_\ell$ and $D_\ell$ and re-scaling affects equally $D_\ell$ and $C_\ell$ (\rp{refaire un appendice propre sur cela}).
     \newline
@@ -478,42 +482,42 @@ $$
 \max_{n,m,P\in\mathcal{P}_U(\RR^d,n)}\frac{\bar{D}_\ell\left(P,m\right)}{D_\ell\left(P,m\right)}.
 $$
 Naturally this approximation ratio is greater than or equal to 1 as $\bar{D}_\ell\left(P,m\right)\geq D_\ell\left(P,m\right)$. A bounded approximation ratio would ensure a proximity to optimality for the reduced scenario set obtained via this particular algorithm. On the contrary an unbounded ratio means that there exist distributions whose reduced distribution obtained via an algorithm will be arbitrary far from the optimal.
-\subsection{A closed formula}
+\subsection{Redistribution rule}
 In this part, we write and make the proof of a useful result that we will use in most algorithms.
 \begin{theorem}\label{closed formula}
-    Let $P=\sum_{i\in I}p_i\delta_{x_i}$ be a fixed distribution, $Q=\sum_{j\in J}q_j\delta_{y_j}$ have $y_j$ fixed and $q_j$ are free. Then, 
+    Let $P=\sum_{i\in I}p_i\delta_{x_i}$ be a fixed distribution, $Q=\sum_{j\in J}q_j\delta_{y_j}$ have the atoms $y_j$ fixed and the weights $q_j$ are variable. Then we have that: 
     $$\sum_{j\in J}\left(\sum_{i\in I_j}p_i\right)\delta_{y_j}\in \argmin_Q D_\ell\left(P,Q\right).$$
     Where $I_j=\left\{i\in I \mid j=\argmin_{k\in J} \lVert x_i-y_k\rVert^\ell\right\}$ (ties may be broken arbitrarily but must be broken). The probability of observing $y_j$ is the probability of observing atoms of $P$ whose closest atom of $Q$ is $y_j$ according to the chosen norm.
 \end{theorem}
 \begin{proof}
-Let us write carefully the problem, we intend to find:
+Let us write carefully the problem, we intend to solve:
 $$
     \min_{q\geq0}\:\left\{d_\ell\left(P,\sum_{j\in J}q_j\delta_{y_j}\right)\text{ such that} \;\sum_{j\in J}q_j=1 \right\}.
 $$
 
-We will first find a lower bound of that expression, then we will prove that the lower bound is attained by the distribution given by the theorem. For the sake of readability, let us write $U\left(p,q\right)=\left\{\pi\in\RR^{\lvert I\rvert\times\lvert J\rvert}_+\:,\: \sum_{i\in I}\pi_{ij}=q_j\:,\:\sum_{j\in J}\pi_{ij}=p_i\right\}$ the constrained set for $\pi$ defined by the distance of Wasserstein.
+We will first find a lower bound of that expression, then we will prove that the lower bound is attained by the distribution given by the theorem. Let us write $U\left(p,q\right)=\left\{\pi\in\RR^{\lvert I\rvert\times\lvert J\rvert}_+,\: \sum_{i\in I}\pi_{ij}=q_j,\:\sum_{j\in J}\pi_{ij}=p_i\right\}$ the admissible set for $\pi$ defined in the Wasserstein distance definition.
 \newline
     
-Let $q\geq 0$ such that $\sum_{j\in J}q_j=1$. We write $Q=\sum_{j\in J}q_j\delta_{y_j}$ and $P=\sum_{i\in I}p_i\delta_{x_i}$.  We have that :
-
+Let $q\geq 0$ such that $\sum_{j\in J}q_j=1$. We write $Q=\sum_{j\in J}q_j\delta_{y_j}$ and $P=\sum_{i\in I}p_i\delta_{x_i}$. We have that:
+\rp{numérotation}
 \begin{align*}
     d_\ell\left(P,Q\right)^\ell&= \min_{\pi\in U\left(p,q\right)}\sum_{i\in I}\left[\sum_{j\in J}\pi_{ij}\lVert x_i-y_j\rVert^\ell\right] \\
     &\geq \min_{\pi\in U\left(p,q\right)}\sum_{i\in I}\left[\sum_{j\in J}\pi_{ij}\min_{k\in J}\left\{\lVert x_i-y_k\lVert^\ell\right\}\right] \\ &= \min_{\pi\in U\left(p,q\right)}\sum_{i\in I}\min_{k\in J}\left\{\lVert x_i-y_k\lVert^\ell\right\}p_i
     \\& =\sum_{i\in I}\min_{k\in J}\left\{\lVert x_i-y_k\lVert^\ell\right\}p_i.
 \end{align*}
     
-First inequality stems from the positivity of $\pi$ and naturally $\forall j\in J, \lVert x_i-y_j\rVert^\ell \geq \min_{k\in J}\lVert x_i-y_j\rVert^\ell$. Before last expression no longer depends on $\pi$ then comes the last expression. The last expression is our lower bound. 
+The first inequality stems from the positivity of $\pi$ and for every $j\in J, \lVert x_i-y_j\rVert^\ell \geq \min_{k\in J}\lVert x_i-y_j\rVert^\ell$. Before last expression no longer depends on $\pi$ then comes the last expression. The last expression is our lower bound. 
 
 Here we write $\delta^K$ the Kronecker delta, we choose: 
 \begin{align*}
     q_j&=\sum_{i\in I_j}p_i, \\
     \pi_{ij}&=p_i\delta^K_{j,\argmin_{k\in J}\lVert x_i-y_k\rVert^\ell}.
 \end{align*}
-First, we will verify that $\pi$ is admissible. $\cup_{j\in J}I_j$ represents a partition of $I$ because ties must be broken. $\pi$ is indeed positive, $\sum_{j\in J}\pi_{ij}=p_i\sum_{j\in J}\delta^K_{j,\argmin_{k\in J}\lVert x_i-y_k\rVert^\ell}=p_i$ as ties musts be broken and $\sum_{i\in I}\pi_{ij}=\sum_{i\in I}p_i\delta^K_{j,\argmin_{k\in J}\lVert x_i-y_k\rVert^\ell}=\sum_{i\in I_j}p_i=q_j$. So $\pi$ is admissible. The objective function is worth: 
+First, we will verify that $\pi$ is admissible. $\cup_{j\in J}I_j$ represents a partition of $I$ because ties must be broken. $\pi$ is indeed positive, $\sum_{j\in J}\pi_{ij}=p_i\sum_{j\in J}\delta^K_{j,\argmin_{k\in J}\lVert x_i-y_k\rVert^\ell}=p_i$ as ties must be broken and $\sum_{i\in I}\pi_{ij}=\sum_{i\in I}p_i\delta^K_{j,\argmin_{k\in J}\lVert x_i-y_k\rVert^\ell}=\sum_{i\in I_j}p_i=q_j$. So $\pi$ is admissible. The objective value \rp{ou objective function value} is worth: 
 \begin{align*}
     \sum_{i\in I}\sum_{j\in J}\pi_{ij}\lVert x_i-y_j\rVert^\ell &=\sum_{i\in I}\sum_{j\in J}p_i\delta^K_{j, \argmin_{k\in J}\lVert x_i-y_k\rVert^\ell}\lVert x_i-y_j\rVert^\ell \\ &=\sum_{i\in I}p_i\left[\sum_{j\in J}\delta^K_{j, \argmin_{k\in J}\lVert x_i-y_k\rVert^\ell}\lVert x_i-y_j\rVert^\ell\right] \\ &=\sum_{i\in I}p_i\min_{k\in J}\lVert x_i-y_k\rVert^\ell.
 \end{align*}
-All in all, with the notation $Q_0=\sum_{j\in J}\left(\sum_{i\in I_j}p_i\right)\delta_{y_j}$ we've proven that :
+All in all, with the notation $Q_0=\sum_{j\in J}\left(\sum_{i\in I_j}p_i\right)\delta_{y_j}$ we have proven that :
 $$
 \sum_{i\in I}p_i\min_{k\in J}\lVert x_i-y_k\rVert ^\ell\leq \min_{q} D_\ell^\ell\left(P,\sum_{j\in J}\delta_{y_j}q_j\right)\leq d_\ell^\ell\left(P,Q_0\right) \leq \sum_{i\in I}p_i\min_{k\in J}\lVert x_i-y_k\rVert ^\ell.
 $$
@@ -521,11 +525,11 @@ First inequality is due to the lower bound we found earlier. Second comes from t
 $$
 \min_{q} D_\ell^\ell\left(P,\sum_{j\in J}\delta_{y_j}q_j\right)= d_\ell^\ell\left(P,Q_0\right)= \sum_{i\in I}p_i\min_{k\in J}\lVert x_i-y_k\rVert ^\ell.
 $$
-What gives us:
+Finally, we have shown that:
 $$\sum_{j\in J}\left(\sum_{i\in I_j}p_i\right)\delta_{y_j}\in \argmin_Q D_\ell\left(P,Q\right).$$
 \end{proof}
 \begin{remark}
-    The proof in the litterature provided by \cite{dupacova_scenario_2003} takes the most of the dual formulation of this linear program. In my opinion, the proof I am giving here uses more intuitive thoughts.
+    A proof of \Cref{closed formula} can be found in \cite{dupacova_scenario_2003} \rp{take the most à changer} based on duality. The original proof given here is based only on primal arguments.
 \end{remark}
 
 \subsection{Dupačová et al. algorithm}
@@ -617,7 +621,7 @@ Create $d=pm^0$, there is improvement. \\
     Make a copy of $m^0$ in m. \\
         \For{$k\in I$}{
             \If{index$\left[k\right]=i$}{
-                Change $\left[m\right]_k$ by $\min_{\alpha\in R\setminus\{i\}}\lVert x_k-x_\alpha\rVert^l$ and $index\left[k\right]$ aswell.
+                Change $\left[m\right]_k$ by $\min_{\alpha\in R\setminus\{i\}}\lVert x_k-x_\alpha\rVert^l$ and $index\left[k\right]$ as well.
             }
         }
         \For{$j\in I\setminus R$}{
@@ -925,7 +929,7 @@ In this part we want to compare \Cref{improved ls}  with a generalized $m$-means
 
 The $m$-means algorithm tends to be a little better than local-search in this simulation even though its approximation ratio is not bounded. Nevertheless, it remains understandable to have a closer distribution with $m$-means because it can decide to use atoms that are not included in $\text{supp}\left(P\right)$. Combining the idea of $m$-means with local-search gives in general a slightly better value and most important it presents more stability and by stability I mean that the efficiency curve is smoother.
 
-\section{The multiproduct assembly problem}
+\section{The multiproduct assembly problem}\label{section mpa}
 In this section, we will apply scenario reduction to the \emph{multiproduct assembly problem} with finitely many demand scenarios. This assumption can be allowed as the manufacturer may use $k$ past demands with a probability $\frac{1}{k}$ to model the future demand.
 \subsection{Problem}
 \cite[Chapter 1.3]{shapiro_lectures_2009} gives a clear presentation of the problem that I am writing, I will be adding notes when necessary. A manufacturer produces $n$ \emph{products}. Each product is composed by \emph{parts}. There are $m$ parts. The product $i$ requires $a_{ij}$ units of part $j$, then $a_{ij}\in\mathbb{N}$. Demands are modeled as a random vector $D=\begin{pmatrix} D_1 & \hdots & D_n \end{pmatrix}$ note that the distribution of $D$ is known. Before the demand is known the manufacturer may preorder parts at a unit cost of $c_j$ for a unit of part $j$. After the demand $D$ is observed, the manufacturer has to decide which portion of the demand is to be satisfied with her or his parts inventory. It costs additionally $l_i$ to satisfy a unit of demand for product $i$ and the unit selling price of this product is $q_i$. The unused parts are saved and are given a value $s_j < c_j$, saving a parts is not a loss but the value given to this saving can not exceed the purchase price. Now suppose that the numbers of parts ordered during the first-stage are $x_j, j=1,\hdots,m$. We want to know how to produce. Let $z_i,i=1,\hdots,n$ be the number of units of product $i$ produced and $y_j$ the numbers of part $j$ left in the inventory. After the demand $D$ is known, production is decided in order to minimize losses:
@@ -1088,7 +1092,7 @@ These figures present: Wasserstein distance between the original distribution an
 \clearpage
 \appendix
 
-\section*{Appendix A}
+\section*{Appendix A}\label{appendix metric}
 \addcontentsline{toc}{section}{Appendix A}
 
 \section*{Appendix B}
