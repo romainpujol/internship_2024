@@ -6,6 +6,7 @@
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{titletoc}
+\usepackage{bbold}
 \usepackage{enumitem}
 \usepackage{amssymb}
 \usepackage[boxed, linesnumbered]{algorithm2e}
@@ -365,13 +366,13 @@ $$
 
 Let $P$ be a finite distribution on $\RR^d$. As $\text{supp}\left(P\right)\subset \RR^d$, it follows that $C_\ell\left(P,m\right)\leq D_\ell\left(P,m\right)$. Discrete scenario reduction may be sometimes more suitable as continous scenario reduction can generate atoms that may lack interpretability. For example in \ref{section mpa}, a non-integer demand of screw can be weird.
 
-\subsection{Comparative study of continuous and discrete scenario reduction}
+\subsection{Comparative study of continuous and discrete scenario reduction}\label{comparative}
 
-In this part, we provide bounds on the Wasserstein distance between an original distribution of $n$ atoms and its reduced one with $m\ll n$ atoms. Atoms of the reduced distribution are either free in $\RR^d$ in the case of continuous scenario reduction or in $\text{supp}\left(P\right)$ in the discrete case. Let $X$ be a subset of $\RR^d$ and $\lVert \cdot \rVert$ be a norm on $X$. We will work with uniform distribution $P\in\mathcal{P}_U\left(\RR^d,n\right)$ with the idea that the distributions derive from sampling. If not, intuitively one can break down masses of high probability into many atoms. We also restrict ourselves to distribution whose atoms lie within the unit ball and $\frac{1}{n}\sum_ix_i=0$. This is a valid assumption because first $C_\ell$ is invariant under translation, second $C_\ell$ is positively homogeneous. Let $P=\frac{1}{\lvert I\rvert}\sum_{i\in I}\delta_{x_i}$, $\text{card}\left(I\right)=n<+\infty$, $1<m<n$, $\lambda\in\RR^*$ and $a\in\RR^d$ \rp{faire une appendice}:
+In this part, we provide bounds on the Wasserstein distance between an original distribution of $n$ atoms and its reduced one with $m\ll n$ atoms. Atoms of the reduced distribution are either free in $\RR^d$ in the case of continuous scenario reduction or in $\text{supp}\left(P\right)$ in the discrete case. Let $X$ be a subset of $\RR^d$ and $\lVert \cdot \rVert$ be a norm on $X$. We will work with uniform distribution $P\in\mathcal{P}_U\left(\RR^d,n\right)$ with the idea that the distributions derive from sampling. If not, intuitively one can break down masses of high probability into many atoms. We also restrict ourselves to distribution whose atoms lie within the unit ball and $\frac{1}{n}\sum_ix_i=0$. This is a valid assumption because first $C_\ell$ and $D_\ell$ are invariant under translation, second $C_\ell$ and $D_\ell$ are positively homogeneous. Let $P=\frac{1}{\lvert I\rvert}\sum_{i\in I}\delta_{x_i}$, $\text{card}\left(I\right)=n<+\infty$, $1<m<n$, $\lambda\in\RR^*$ and $a\in\RR^d$ \rp{faire une appendice}\rp{rajouter un dessin pour breakdown masses}:
 $$ 
 C_\ell\left(P,m\right)=\frac{1}{\lvert\lambda\rvert} C_\ell\left(\sum_{i\in I}p_i\delta_{\lambda x_i+a},m\right).
 $$
-\rp{rajouter un dessin pour breakdown masses} A goal of this part is to quantify and study the worst case of scenario reduction defined by:
+The result hold when swapping $C$ by $D$. A goal of this part is to quantify and study the worst case of scenario reduction defined by:
 $$    \bar{C}_\ell\left(n,m \right)=\left\{\max_{P\in\mathcal{P}_U(\mathbb{R}^d,n)}C_\ell(P,m)\: :\: \text{supp}(P)\in B(0,1)\right\}.
 $$
 Let us write a first bound that we will tighten thereafter, let $P\in\mathcal{P}_U(\mathbb{R}^d,n)$:
@@ -412,13 +413,13 @@ Similarly to what we have done just before, it is time to reformulate the discre
     $$
 \end{theorem}
 
-What follows assumes that $n\geq2, m\in\{1,...,n-1\}$ and $d\geq2.$
+\noindent What follows assumes that $n\geq2, m\in\{1,...,n-1\}$ and $d\geq2.$ \\
 \paragraph{\textbf{Type-2 Wasserstein distance.}}
 \begin{proposition}
     The upper bound $\bar\kappa_2\left(n,m\right)$ satisfies $\bar\kappa_2\left(n,m\right)\leq \sqrt{2}$ for all n, m.
 \end{proposition}
 \begin{proof} 
-    The proof is very interesting for one's intuition. \textbf{In the first step}, we prove the result for $m=1$. Let $P=\frac{1}{n}\sum_{i\in I}\delta_{x_i}\in\mathcal{P}_U\left(\RR^d,n\right)$. W.l.o.g., we can assume that $\frac{1}{n}\sum_{i\in I}x_i=0$ and $\frac{1}{n}\sum_{i\in I}\lVert x_i\rVert^2=1$ because re-positionning does not affect $C_\ell$ and $D_\ell$ and re-scaling affects equally $D_\ell$ and $C_\ell$ (\rp{refaire un appendice propre sur cela}).
+    The proof is very interesting for one's intuition. \textbf{In the first step}, we prove the result for $m=1$. Let $P=\frac{1}{n}\sum_{i\in I}\delta_{x_i}\in\mathcal{P}_U\left(\RR^d,n\right)$. As presentend in the introduction of \ref{comparative}, we can assume w.l.o.g. that $\frac{1}{n}\sum_{i\in I}x_i=0$ and $\frac{1}{n}\sum_{i\in I}\lVert x_i\rVert^2=1$.
     \newline
     The first reformulation of \Cref{theorem1} gives that :
     $$
@@ -475,7 +476,6 @@ Similarly to the Type-2 Wasserstein distance, we intend to find $\bar{\kappa}_1\
 \begin{proposition}
     The lower bound $\underline{\kappa}_1\left(n,m\right)$ satisfies $\underline{\kappa}_1\left(n,m\right)=1$ for all $n, m$.
 \end{proposition}
-
 \section{Algorithms for scenario reduction}
 In this section, we present various algorithms and heuristics that are often used for scenario reduction problem. In order to check the accuracy of algorithms, we write the output of an algorithm $\bar{D_\ell}\left(P,m\right)$ which is an upper bound of   $D_\ell\left(P,m\right)$. We then define the \emph{approximation ratio} by: 
 $$
@@ -485,9 +485,9 @@ Naturally this approximation ratio is greater than or equal to 1 as $\bar{D}_\el
 \subsection{Redistribution rule}
 In this part, we write and make the proof of a useful result that we will use in most algorithms.
 \begin{theorem}\label{closed formula}
-    Let $P=\sum_{i\in I}p_i\delta_{x_i}$ be a fixed distribution, $Q=\sum_{j\in J}q_j\delta_{y_j}$ have the atoms $y_j$ fixed and the weights $q_j$ are variable. Then we have that: 
-    $$\sum_{j\in J}\left(\sum_{i\in I_j}p_i\right)\delta_{y_j}\in \argmin_Q D_\ell\left(P,Q\right).$$
-    Where $I_j=\left\{i\in I \mid j=\argmin_{k\in J} \lVert x_i-y_k\rVert^\ell\right\}$ (ties may be broken arbitrarily but must be broken). The probability of observing $y_j$ is the probability of observing atoms of $P$ whose closest atom of $Q$ is $y_j$ according to the chosen norm.
+    Let $P=\sum_{i\in I}p_i\delta_{x_i}$ be a fixed distribution, $Q\left(q\right)=\sum_{j\in J}q_j\delta_{y_j}$ have its atoms $y_j$ fixed and its weights $q_j$ are variable. Then we have that: 
+    $$Q^*=\sum_{j\in J}\left(\sum_{i\in C_j}p_i\right)\delta_{y_j}\in \argmin_q d_\ell\left(P,Q\left(q\right)\right).$$
+    Where $C_j=\left\{i\in I \mid j=\argmin_{k\in J} \lVert x_i-y_k\rVert^\ell\right\}$ representing the index $i$ of the closest atom of $X$ for $y_j$. If there is a tie, that is $k_0\ne k_1$ and $\lVert x_i-y_{k_0}\rVert=\lVert x_i-y_{k_1}\rVert=\min_{k\in J}\lVert x_i-y_{k}\rVert$, you must break the tie by a manner of your choice. Thus, $q_j^*=\sum_{i\in C_j}p_i$
 \end{theorem}
 \begin{proof}
 Let us write carefully the problem, we intend to solve:
@@ -495,44 +495,54 @@ $$
     \min_{q\geq0}\:\left\{d_\ell\left(P,\sum_{j\in J}q_j\delta_{y_j}\right)\text{ such that} \;\sum_{j\in J}q_j=1 \right\}.
 $$
 
-We will first find a lower bound of that expression, then we will prove that the lower bound is attained by the distribution given by the theorem. Let us write $U\left(p,q\right)=\left\{\pi\in\RR^{\lvert I\rvert\times\lvert J\rvert}_+,\: \sum_{i\in I}\pi_{ij}=q_j,\:\sum_{j\in J}\pi_{ij}=p_i\right\}$ the admissible set for $\pi$ defined in the Wasserstein distance definition.
+We will first find a lower bound of that expression, then we will prove that the lower bound is attained by $Q^*$. Let us write $U\left(p,q\right)=\left\{\pi\in\RR^{\lvert I\rvert\times\lvert J\rvert}_+,\: \sum_{i\in I}\pi_{ij}=q_j,\:\sum_{j\in J}\pi_{ij}=p_i\right\}$ the admissible set for $\pi$ defined in the Wasserstein distance definition.
 \newline
     
-Let $q\geq 0$ such that $\sum_{j\in J}q_j=1$. We write $Q=\sum_{j\in J}q_j\delta_{y_j}$ and $P=\sum_{i\in I}p_i\delta_{x_i}$. We have that:
+Let $q\geq 0$ such that $\sum_{j\in J}q_j=1$. We write $Q\left(q\right)=\sum_{j\in J}q_j\delta_{y_j}$ and $P=\sum_{i\in I}p_i\delta_{x_i}$. We have that:
 \rp{numérotation}
-\begin{align*}
-    d_\ell\left(P,Q\right)^\ell&= \min_{\pi\in U\left(p,q\right)}\sum_{i\in I}\left[\sum_{j\in J}\pi_{ij}\lVert x_i-y_j\rVert^\ell\right] \\
-    &\geq \min_{\pi\in U\left(p,q\right)}\sum_{i\in I}\left[\sum_{j\in J}\pi_{ij}\min_{k\in J}\left\{\lVert x_i-y_k\lVert^\ell\right\}\right] \\ &= \min_{\pi\in U\left(p,q\right)}\sum_{i\in I}\min_{k\in J}\left\{\lVert x_i-y_k\lVert^\ell\right\}p_i
-    \\& =\sum_{i\in I}\min_{k\in J}\left\{\lVert x_i-y_k\lVert^\ell\right\}p_i.
-\end{align*}
+\begin{align}
+    d_\ell\left(P,Q\left(q\right)\right)^\ell&= \min_{\pi\in U\left(p,q\right)}\sum_{i\in I}\left[\sum_{j\in J}\pi_{ij}\lVert x_i-y_j\rVert^\ell\right] \nonumber \\
+    &\geq \min_{\pi\in U\left(p,q\right)}\sum_{i\in I}\left[\sum_{j\in J}\pi_{ij}\min_{k\in J}\left\{\lVert x_i-y_k\lVert^\ell\right\}\right] \label{pi posi} \\ &= \min_{\pi\in U\left(p,q\right)}\sum_{i\in I}\min_{k\in J}\left\{\lVert x_i-y_k\lVert^\ell\right\}p_i \label{no pi}
+    \\& =\sum_{i\in I}\min_{k\in J}\left\{\lVert x_i-y_k\lVert^\ell\right\}p_i. \label{low bound}
+\end{align}
     
-The first inequality stems from the positivity of $\pi$ and for every $j\in J, \lVert x_i-y_j\rVert^\ell \geq \min_{k\in J}\lVert x_i-y_j\rVert^\ell$. Before last expression no longer depends on $\pi$ then comes the last expression. The last expression is our lower bound. 
+The first inequality \ref{pi posi} stems from the positivity of $\pi$ and for every $j\in J, \lVert x_i-y_j\rVert^\ell \geq \min_{k\in J}\lVert x_i-y_j\rVert^\ell$. The before last expression \ref{no pi} no longer depends on $\pi$ then comes the last expression. Line \ref{low bound} is our lower bound as it no longer depends on $q_j$, we can easily minimize on $q_j$:
+\begin{equation}\label{lower}\min_{q}d_\ell\left(P,\left(q\right)\right)^\ell\geq\sum_{i\in I}\min_{k\in J}\left\{\lVert x_i-y_k\lVert^\ell\right\}p_i.
+\end{equation}
 
-Here we write $\delta^K$ the Kronecker delta, we choose: 
+We write now $\delta^K$ the Kronecker delta. The Kronecker delta is defined as: $$\delta^K_{ij} = \begin{cases} 
+      1 & \text{if } i=j \\
+      0 & \text{otherwise. } 
+   \end{cases}.$$
+Let us write a transport plan $\pi^*$ to move the distributuion $P$ to the distribution $Q^*$.
 \begin{align*}
-    q_j&=\sum_{i\in I_j}p_i, \\
-    \pi_{ij}&=p_i\delta^K_{j,\argmin_{k\in J}\lVert x_i-y_k\rVert^\ell}.
+    q_j^*&=\sum_{i\in C_j}p_i, \\
+    \pi_{ij}^*&=p_i\delta^K_{j,\argmin_{k\in J}\lVert x_i-y_k\rVert^\ell}.
 \end{align*}
-First, we will verify that $\pi$ is admissible. $\cup_{j\in J}I_j$ represents a partition of $I$ because ties must be broken. $\pi$ is indeed positive, $\sum_{j\in J}\pi_{ij}=p_i\sum_{j\in J}\delta^K_{j,\argmin_{k\in J}\lVert x_i-y_k\rVert^\ell}=p_i$ as ties must be broken and $\sum_{i\in I}\pi_{ij}=\sum_{i\in I}p_i\delta^K_{j,\argmin_{k\in J}\lVert x_i-y_k\rVert^\ell}=\sum_{i\in I_j}p_i=q_j$. So $\pi$ is admissible. The objective value \rp{ou objective function value} is worth: 
+\noindent This transport plan $\pi^*$ is chosen with the idea of moving the mass $p_i$ of $x_i$ to the closest atom that is in the support of $Q$. $\pi^*$ is positive, knowing that the sets $\{C_j\}_{j\in J}$ represents a partition of $I$ (as ties are broken), let us verify that $\pi^*\in U\left(P,Q\right)$:
 \begin{align*}
-    \sum_{i\in I}\sum_{j\in J}\pi_{ij}\lVert x_i-y_j\rVert^\ell &=\sum_{i\in I}\sum_{j\in J}p_i\delta^K_{j, \argmin_{k\in J}\lVert x_i-y_k\rVert^\ell}\lVert x_i-y_j\rVert^\ell \\ &=\sum_{i\in I}p_i\left[\sum_{j\in J}\delta^K_{j, \argmin_{k\in J}\lVert x_i-y_k\rVert^\ell}\lVert x_i-y_j\rVert^\ell\right] \\ &=\sum_{i\in I}p_i\min_{k\in J}\lVert x_i-y_k\rVert^\ell.
+    &\sum_{j\in J}\pi^*_{ij}=p_i\sum_{j\in J}\delta^K_{j,\argmin_{k\in J}\lVert x_i-y_k\rVert^\ell}=p_i, \\
+    &\sum_{i\in I}\pi^*_{ij}=\sum_{i\in I}p_i\delta^K_{j,\argmin_{k\in J}\lVert x_i-y_k\rVert^\ell}=\sum_{i\in I_j}p_i=q_j.
+\end{align*} $\pi^*$ is admissible. The value of the objective function is: 
+\begin{align*}
+    \sum_{i\in I}\sum_{j\in J}\pi^*_{ij}\lVert x_i-y_j\rVert^\ell &=\sum_{i\in I}\sum_{j\in J}p_i\delta^K_{j, \argmin_{k\in J}\lVert x_i-y_k\rVert^\ell}\lVert x_i-y_j\rVert^\ell \\ &=\sum_{i\in I}p_i\left[\sum_{j\in J}\delta^K_{j, \argmin_{k\in J}\lVert x_i-y_k\rVert^\ell}\lVert x_i-y_j\rVert^\ell\right] \\ &=\sum_{i\in I}p_i\min_{k\in J}\lVert x_i-y_k\rVert^\ell.
 \end{align*}
-All in all, with the notation $Q_0=\sum_{j\in J}\left(\sum_{i\in I_j}p_i\right)\delta_{y_j}$ we have proven that :
+All in all, we have proven that:
 $$
-\sum_{i\in I}p_i\min_{k\in J}\lVert x_i-y_k\rVert ^\ell\leq \min_{q} D_\ell^\ell\left(P,\sum_{j\in J}\delta_{y_j}q_j\right)\leq d_\ell^\ell\left(P,Q_0\right) \leq \sum_{i\in I}p_i\min_{k\in J}\lVert x_i-y_k\rVert ^\ell.
+\sum_{i\in I}p_i\min_{k\in J}\lVert x_i-y_k\rVert ^\ell\overset{I(1)}{\leq} \min_{q} d_\ell^\ell\left(P,Q\left(q\right)\right)\overset{I(2)}{\leq} d_\ell^\ell\left(P,Q^*\right) \overset{I(3)}{\leq} \sum_{i\in I}p_i\min_{k\in J}\lVert x_i-y_k\rVert ^\ell.
 $$
-First inequality is due to the lower bound we found earlier. Second comes from the fact that we fixed $q_j$ for $Q_0$. Third stems from the definition of $D_\ell$ and because we chose a $\pi\in U\left(p,q\right)$. Then we have that:
+The first inequality $I(1)$ is due to \ref{lower}. The second $I(2)$ comes from the fact that we fixed $q_j$ for $Q^*$. The third $I(3)$ stems from the definition of $d_\ell$ because we chose a particular $\pi^*\in U\left(p,q\right)$. Then we have that:
 $$
-\min_{q} D_\ell^\ell\left(P,\sum_{j\in J}\delta_{y_j}q_j\right)= d_\ell^\ell\left(P,Q_0\right)= \sum_{i\in I}p_i\min_{k\in J}\lVert x_i-y_k\rVert ^\ell.
+\min_{q} d_\ell^\ell\left(P,Q\left(q\right)\right)= d_\ell^\ell\left(P,Q^*\right)= \sum_{i\in I}p_i\min_{k\in J}\lVert x_i-y_k\rVert ^\ell.
 $$
 Finally, we have shown that:
-$$\sum_{j\in J}\left(\sum_{i\in I_j}p_i\right)\delta_{y_j}\in \argmin_Q D_\ell\left(P,Q\right).$$
+$$\sum_{j\in J}\left(\sum_{i\in I_j}p_i\right)\delta_{y_j}\in \argmin_q d_\ell\left(P,Q\left(q\right)\right).$$
 \end{proof}
 \begin{remark}
-    A proof of \Cref{closed formula} can be found in \cite{dupacova_scenario_2003} \rp{take the most à changer} based on duality. The original proof given here is based only on primal arguments.
+    A proof of \Cref{closed formula} can be found in \cite{dupacova_scenario_2003} based on duality. The original proof given here is based only on primal arguments.
 \end{remark}
 
-\subsection{Dupačová et al. algorithm}
+\subsection{Dupačová et al. algorithm to approximate discrete scenario reduction}
 Dupačová et al. \cite{dupacova_scenario_2003} provides a greedy algorithm for $D_\ell\left(P,m\right)$. Generally, the distribution obtained is not a solution of the discrete scenario reduction problem. 
 
 \begin{algorithm}
@@ -667,7 +677,7 @@ $$
 where $ c\left(y\right)$ denotes the amount of atoms of $P$ in the cluster $y$. Because here we consider $P$ uniform.
 
 \subsection{A new algorithm for continuous scenario reduction}
-Dupačová et al.'s algorithm and local-search methods gives a great approximation of $D_\ell\left(P,m\right)$, we know also the distance can be written as:
+Dupačová et al. algorithm and local-search methods gives a great approximation of $D_\ell\left(P,m\right)$, we know also the distance can be written as:
 $$D_l\left(P,R\right)=\sum_{i\in I}p_i\min_{j\in R}\lVert x_i-x_j\Vert^l=\sum_{j\in R}\left[\sum_{i\in I_j}p_i\lVert x_i-x_j\rVert^l\right].$$
 Now we may improve the value of the Wasserstein distance by finding an optimal $x_j$ for each $I_j$. The idea is to decompose each sum on $I_j$ as we have done above in order to find for $I_j$: 
 $$
