@@ -482,7 +482,7 @@ $$
 \max_{n,m,P\in\mathcal{P}_U(\RR^d,n)}\frac{\bar{D}_\ell\left(P,m\right)}{D_\ell\left(P,m\right)}.
 $$
 Naturally this approximation ratio is greater than or equal to 1 as $\bar{D}_\ell\left(P,m\right)\geq D_\ell\left(P,m\right)$. A bounded approximation ratio would ensure a proximity to optimality for the reduced scenario set obtained via this particular algorithm. On the contrary an unbounded ratio means that there exist distributions whose reduced distribution obtained via an algorithm will be arbitrary far from the optimal.
-\subsection{Redistribution rule}
+\subsection{Redistribution rule}\label{redistribution rule}
 In this part, we write and make the proof of a useful result that we will use in most algorithms.
 \begin{theorem}\label{closed formula}
     Let $P=\sum_{i\in I}p_i\delta_{x_i}$ be a fixed distribution, $Q\left(q\right)=\sum_{j\in J}q_j\delta_{y_j}$ have its atoms $y_j$ fixed and its weights $q_j$ are variable. Then we have that: 
@@ -543,7 +543,7 @@ $$\sum_{j\in J}\left(\sum_{i\in I_j}p_i\right)\delta_{y_j}\in \argmin_q d_\ell\l
 \end{remark}
 
 \subsection{Dupačová et al. algorithm to approximate discrete scenario reduction}
-Dupačová et al. \cite{dupacova_scenario_2003} provides a greedy algorithm for $D_\ell\left(P,m\right)$. Generally, the distribution obtained is not a solution of the discrete scenario reduction problem. 
+Dupačová et al. \cite{dupacova_scenario_2003} provides a greedy algorithm for $D_\ell\left(P,m\right)$. Generally, the distribution obtained is not a solution of the discrete scenario reduction problem. We write $D_\ell\left(P, X\right)$ where $X$ represents a set of atoms the value: $\min_{q}d_\ell\left(P,\sum_{i=1}^{\lvert X\rvert} q_jx_j\right)$.
 
 \begin{algorithm}
   \caption{Dupačová et al.}\label{dupacova}
@@ -552,9 +552,7 @@ Dupačová et al. \cite{dupacova_scenario_2003} provides a greedy algorithm for 
   Update $R\gets R\cup \{y\}$.\\ Repeat step 2 and 3 until $\lvert R\rvert=m$.
 \end{algorithm}
 
-Step 2 is not so trivial even though it may look easy at first. The main thing is to find the optimal distribution supported on $R\cup\{y\}$. The next result allows us not to rely on solving a linear program what would reduce run time. In fact the result is quite intuitive if you remember that Wasserstein distance translates the cost of moving one pile to another knowing that both piles have the same weight.
-
-With \Cref{closed formula}, it is easy to find an efficient way to compute $D_\ell$ of step 2 : 
+\noindent Step 2 is not direct. The main thing is to find the optimal distribution supported on $R\cup\{y\}$. The redistribution rule that has been presented in the section \ref{redistribution rule} allows us not to rely on solving a linear program. With \Cref{closed formula}, it is easy to find an efficient way to compute the step 2 : 
 $$
 D_\ell\left(P,R\cup \{y_j\}\right)=\sum_{i\in I}p_i\min_{z\in R\cup\{y\}}\lVert x_i-z \rVert^l.
 $$
@@ -569,7 +567,7 @@ $$
 With $D^i$ being the $i^{th}$ column of $D$ and $p=\begin{pmatrix}
     p_1 & \hdots & p_n
 \end{pmatrix}$.
-We create $m^1=D^{i_1}$. For the second iteration, we can only select the indexes $[\![1;n]\!]\setminus \{i_1\}$. For each $x_i\in [\![1;n]\!]\setminus \{i_1\}$, let us create a vector $m_i$ such that : $\left(m_i\right)_j=\min\left\{\left(m^1\right)_j,\left(D^i\right)_j\right\}$, now we can write $D_\ell$ as : $$
+We create $m^1=D^{i_1}$. For the second iteration, we can only select the indexes $[\![1;n]\!]\setminus \{i_1\}$. For each $i \in [\![1;n]\!]\setminus \{i_1\}$, let us create a vector $m_i$ such that : $\left(m_i\right)_j=\min\left\{\left(m^1\right)_j,\left(D^i\right)_j\right\}$, now we can write $D_\ell$ as : $$
 D_\ell\left(P,\{x_{i_1}\}\cup \{x_i\}\right)=pm_i.
 $$
 Then follows the efficient algorithm :
@@ -660,11 +658,10 @@ The discrete scenario reduction problem can be formulated as:
     with $D\in \mathbb{S}^n$ and $D_{ij}=\lVert x_i-x_j\rVert^l$
 \end{theorem}
 \begin{remark}
-    This reformulation takes the most of \Cref{closed formula}.
+    Once again, the reformulation derives from \Cref{closed formula}.
 \end{remark}
 \subsection{$m$-means}
-The aim of $m$-means clustering is to reduced $n$ observations to $k$ clusters such that the intra-cluster sums of squared distances are minimized. It turns out to be a good idea to select $m$ atoms with the $n$ of $\text{supp}\left(P\right)$. The amount of atoms in a cluster will give the probability of observing the cluster for the reduced distribution !
-
+The aim of $m$-means clustering is to reduced $n$ observations to $k$ clusters such that the intra-cluster sums of squared distances are minimized. It turns out to be a good idea to select $m$ atoms with the $n$ of $\text{supp}\left(P\right)$. The amount of atoms in a cluster will give the probability of observing the cluster for the reduced distribution.
 
 \begin{algorithm}
     \caption{$m$-means clustering for $C_l\left(P,m\right)$}\label{k m}
