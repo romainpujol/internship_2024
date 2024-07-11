@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 import time
 from sklearn.cluster import KMeans
 import os
+import gurobipy as gp
+from gurobipy import GRB
 
 os.environ["OMP_NUM_THREADS"] = "1"
 
@@ -44,33 +46,22 @@ def minimum_vector(v1,v2):
             v3[i]=min(v1[i],v2[i])
         return v3
 
-def sum_p(m,p):
-    n1=len(m)
-    n2=len(p)
-    if n1!=n2:
-        print("error dimension sum_p")
-        return -1
-    else:
-        s=0
-        for i in range(n1):
-            s+=p[i]*m[i]
-        return s
+def generate_data(n):
+    samples_normal = np.random.normal(0,2,size=n)
+    samples_normal2 =np.random.normal(5,2,size=n)
+    samples_gamma = np.random.gamma(0, 2, size=n)
+    samples_gamma2 = np.random.gamma(1,2,size=n)
+    samples_gamma3 = np.random.gamma(2,2,size=n)
 
-def generate_data_u(n):
+    samples_uni = np.random.uniform(0,10,size=n)
 
-    x = np.random.normal(loc=10, scale=2, size=n)
-
-    y = np.random.gamma(shape=2, scale=2, size=n)
-
-    probabilities = [1/n]*n
-
-    data=[0]*n
+    samples = []
     for i in range(n):
-        data[i]=[x[i],y[i]]
+        samples.append([samples_normal[i],samples_normal2[i],samples_gamma[i],samples_gamma2[i],samples_gamma3[i],samples_uni[i]])
 
-    return (data,probabilities)
+    return (samples,[1/n]*n)
 
-def dupacova_forward(distribution_x,m,l,distribution_p):
+def dupacova_forward(distribution_x,m,l):
     #we assume that the distribution is uniform as it is meant to come from sampling.
     D = matrice_distance(distribution_x,distribution_x,l)
     n = len(distribution_x)
@@ -78,14 +69,12 @@ def dupacova_forward(distribution_x,m,l,distribution_p):
     reduced_set = []
     index_to_chose=[i for i in range(len(distribution_x))]
     best_d=10000000000
-    if len(distribution_p)==0:
-        distribution_p = [1/n]*n
 
     while len(reduced_set)<m:
         for i in index_to_chose:
             minimum_i=minimum.copy()
             minimum_i=minimum_vector(minimum_i,D[i])
-            distance=sum_p(minimum_i,distribution_p)
+            distance=sum(minimum_i)/n
             if distance<best_d:
                 index=i
                 best_m=minimum_i
@@ -94,7 +83,7 @@ def dupacova_forward(distribution_x,m,l,distribution_p):
         reduced_set.append(distribution_x[index])
         index_to_chose.remove(index)
 
-    return (reduced_set,minimum)
+    return (reduced_set,sum(minimum)/n)
 
 
 def local_search_bf(distribution_x,index_reduced,l):
@@ -109,6 +98,7 @@ def local_search_bf(distribution_x,index_reduced,l):
         minimum = [0] * n
         index_closest = [0] * n
 
+        # Initial computation of minimum distances and closest indices
         for i in range(n):
             d = float('inf')
             for k in index_reduced:
@@ -153,7 +143,7 @@ def local_search_bf(distribution_x,index_reduced,l):
                             distance_to_reduce = distance_ij
 
             if best_i == -1 and best_j == -1:
-                # No improvement
+                # No improvement found
                 improvement = False
             else:
                 # Swap i and j in the reduced set
@@ -228,9 +218,9 @@ def local_search_ff(distribution_x, index_reduced, l):
                         best_j = j
                         best_m = m_ij
                         distance_to_reduce = distance_ij
-                        break  # improvement
+                        break  # Get out of the loop
             if best_i != -1 and best_j != -1:
-                break  # improvement
+                break  # Get out of the loop
 
         if best_i == -1 and best_j == -1:
             improvement = False
@@ -239,6 +229,7 @@ def local_search_ff(distribution_x, index_reduced, l):
             index_reduced.append(best_j)
             minimum = best_m
 
+            # Mise à jour des indices les plus proches
             for i in range(n):
                 d = float('inf')
                 for k in index_reduced:
@@ -250,6 +241,82 @@ def local_search_ff(distribution_x, index_reduced, l):
     reduced_distribution = [distribution_x[i] for i in index_reduced]
     return reduced_distribution, sum(minimum) / n
 
+def local_search_ff_modified(distribution_x, index_reduced, l):
+    n = len(distribution_x)
+    m = len(index_reduced)
+    if m > n - 1:
+        print("choose another m, remember m < n, IMPOSSIBLE")
+        print("m=",m)
+        print("n=",n)
+        print(distribution_x)
+        return 0
+
+    D = matrice_distance(distribution_x, distribution_x, l)
+    minimum = [float('inf')] * n
+    index_closest = [-1] * n
+
+    for i in range(n):
+        for k in index_reduced:
+            dist = D[i][k]
+            if dist < minimum[i]:
+                minimum[i] = dist
+                index_closest[i] = k
+
+    distance_to_reduce = sum(minimum) / n
+    improvement = True
+
+    while improvement:
+        best_i = -1
+        best_j = -1
+        best_m = []
+
+        for i in index_reduced:
+            m0 = minimum.copy()
+            index0 = index_closest.copy()
+
+            for j in range(n):
+                if index0[j] == i:
+                    d = float('inf')
+                    for k in index_reduced:
+                        if k != i:
+                            dist = D[j][k]
+                            if dist < d:
+                                d = dist
+                                best_k = k
+                    m0[j] = d
+                    index0[j] = best_k
+
+            for j in range(n):
+                if j not in index_reduced:
+                    m_ij = minimum_vector(D[j], m0)
+                    distance_ij = sum(m_ij) / n
+                    if distance_ij < 0.95*distance_to_reduce:
+                        best_i = i
+                        best_j = j
+                        best_m = m_ij
+                        distance_to_reduce = distance_ij
+                        break  # Out of the loop when a suitable improvement is found
+            if best_i != -1 and best_j != -1:
+                break
+
+        if best_i == -1 and best_j == -1:
+            improvement = False
+        else:
+            index_reduced.remove(best_i)
+            index_reduced.append(best_j)
+            minimum = best_m
+
+            # Mise à jour des indices les plus proches
+            for i in range(n):
+                d = float('inf')
+                for k in index_reduced:
+                    dist = D[i][k]
+                    if dist < d:
+                        d = dist
+                        index_closest[i] = k
+
+    reduced_distribution = [distribution_x[i] for i in index_reduced]
+    return reduced_distribution, sum(minimum) / n
 
 def set_to_index(reduced,big):
     index=[]
@@ -263,121 +330,129 @@ def set_to_index(reduced,big):
     else:
         return index
 
+def dupacova_backward(distribution_x,m,l):
+    D = matrice_distance(distribution_x,distribution_x,l)
+    n = len(distribution_x)
+    minimum = [0]*n
+    reduced_set = distribution_x.copy()
+    index_to_rm=[i for i in range(n)]
+    index_closest=[i for i in range(n)]
 
 
+    while len(reduced_set)>m:
+        d_best=10000000000
+        for i in index_to_rm:
+            minimum_i=minimum.copy()
+            index_closest_i=index_closest.copy()
+            for k in range(n):
+                if index_closest_i[k]==i:
+                    #then we have to compute min_{i\in R}||x_k-x_i||^l
+                    minimum_over=[D[k][a] for a in index_to_rm if a!=i]
+                    ind=[a for a in index_to_rm if a!=i]
+                    minimum_i[k]=min(minimum_over)
+                    index_closest_i[k]=ind[minimum_over.index(min(minimum_over))]
+                d=sum(minimum_i)/n
+            if d<d_best:
+                d_best=d
+                to_rm=i
+                m_best=minimum_i
+                best_index=index_closest_i
+
+        minimum=m_best
+        index_closest=best_index
+        atom_to_rm=distribution[to_rm]
+        reduced_set.remove(atom_to_rm)
+        index_to_rm.remove(to_rm)
+
+    return (reduced_set,sum(minimum)/n)
+
+
+def milp_formulation(distribution,m):
+    # for L2 norm and l=2
+    n = len(distribution)
+    distance = matrice_distance(distribution,distribution,2)
+
+    #define the model
+    model = gp.Model("model")
+    model.setParam('Heuristics', 0)
+    pi = model.addVars(n,n, vtype=GRB.CONTINUOUS, name="pi")
+    lambd = model.addVars(n, vtype=GRB.BINARY, name="lambd")
+    model.setObjective(sum(pi[i,j]*distance[i,j] for i in range(n) for j in range(n))/n, GRB.MINIMIZE)
+    model.addConstrs(sum(pi[i,j] for j in range(n))==1 for i in range(n))
+    model.addConstr((sum(lambd[j] for j in range(n))==m),name="reduction")
+    for j in range(n):
+        model.addConstrs((pi[i,j] <= lambd[j] for i in range(n)),name="activation")
+    model.optimize()
+    a = model.objVal
+    model.dispose()
+    return a
+
+"""
+n = 500
+distribution=generate_data(n)
+
+t1 = time.time()
+z=milp_formulation(distribution[0],50)
+t2=time.time()
+print("gurobi a pris ",t2-t1,"secondes et donne une valeur de ",z)
+t3=time.time()
+a = dupacova_forward(distribution[0],50,2)
+t4=time.time()
+print("dupacova a pris ",t4-t3,"secondes et donne une valeur de ",a[1])
+"""
 
 n = 100
 deb = 10
 
-distribution=generate_data_u(n)
+distribution=generate_data(n)
 
 mm = [i for i in range(deb,n-deb)]
 
-time_bf = [0]*len(mm)
-time_ff = [0]*len(mm)
-time_ff_dup_reverse= [0]*len(mm)
-time_ff_dup = [0]*len(mm)
-time_bf_dup_reverse= [0]*len(mm)
-time_bf_dup= [0]*len(mm)
-time_ff_km= [0]*len(mm)
-time_bf_km=[0]*len(mm)
+time_dup = [0]*len(mm)
+#time_bf = [0]*len(mm)
+#time_ff = [0]*len(mm)
+time_dup_back=[0]*len(mm)
+time_milp=[0]*len(mm)
 
-value_bf = [0]*len(mm)
-value_ff = [0]*len(mm)
-value_ff_dup_reverse= [0]*len(mm)
-value_ff_dup = [0]*len(mm)
-value_bf_dup_reverse= [0]*len(mm)
-value_bf_dup= [0]*len(mm)
-value_ff_km= [0]*len(mm)
-value_bf_km= [0]*len(mm)
+
+
+value_dup=[0]*len(mm)
+#value_bf = [0]*len(mm)
+#value_ff = [0]*len(mm)
+value_milp = [0]*len(mm)
+value_dup_back=[0]*len(mm)
 
 for i in range(len(mm)):
     print(i, "/", len(mm))
-    #run of local-search best-fit
+    #run of dup forward
     t1=time.time()
-    bf = local_search_bf(distribution[0],list(range(mm[i])),2)
+    dup = dupacova_forward(distribution[0],mm[i],2)
     t2=time.time()
-    time_bf[i]=t2-t1
-    value_bf[i]=bf[1]
+    time_dup[i]=t2-t1
+    value_dup[i]=dup[1]
 
-    #run of local-search first-fit
+    #run of dup backward
     t5=time.time()
-    ff = local_search_ff(distribution[0],list(range(mm[i])),2)
+    ff = dupacova_backward(distribution[0],mm[i],2)
     t6=time.time()
-    time_ff[i]=t6-t5
-    value_ff[i]=ff[1]
+    time_dup_back[i]=t6-t5
+    value_dup_back[i]=ff[1]
 
-    #run dupacova in order to get the starter and then
+    #run milp
     t3=time.time()
-    dupacova = dupacova_forward(distribution[0],mm[i],2,distribution[1])
+    value_milp[i] = milp_formulation(distribution[0],mm[i])
     t4=time.time()
-    # add t4-t3 to the duration of bf and ff with dupacova starters
-    index_dup=set_to_index(dupacova[0],distribution[0])
-    index_dup_rev=index_dup[::-1]
-
-    t7=time.time()
-    ff_dup_rev = local_search_ff(distribution[0],index_dup_rev,2)
-    t8=time.time()
-    time_ff_dup_reverse[i]=t8-t7+t4-t3
-    value_ff_dup_reverse[i]=ff_dup_rev[1]
-
-    t9=time.time()
-    ff_dup = local_search_ff(distribution[0],index_dup,2)
-    t10=time.time()
-    time_ff_dup[i]=t10-t9+t4-t3
-    value_ff_dup[i]=ff_dup[1]
-
-    t50=time.time()
-    bf_dup = local_search_bf(distribution[0],index_dup,2)
-    t51=time.time()
-    time_bf_dup[i]=t51-t50+t4-t3
-    value_bf_dup[i]=bf_dup[1]
-
-
-    t11=time.time()
-    bf_dup_rev = local_search_bf(distribution[0],index_dup_rev,2)
-    t12=time.time()
-    time_bf_dup_reverse[i]=t12-t11+t4-t3
-    value_bf_dup_reverse[i]=bf_dup_rev[1]
-
-
-    #run of a k-means
-    t1_km=time.time()
-    k=mm[i]
-    kmeans = KMeans(n_clusters=k)
-    kmeans.fit(distribution[0])
-    centroids = kmeans.cluster_centers_
-    mat_dist = matrice_distance(centroids,distribution[0],2)
-    centers = []
-
-    for z in range(mm[i]):
-        centers.append(np.argmin(mat_dist[z]))
-
-    if len(set(centers))== mm[i]:
-        t2_km=time.time()
-        t15=time.time()
-        bf_km=local_search_bf(distribution[0],centers,2)
-        t16=time.time()
-        value_bf_km[i] = bf_km[1]
-        time_bf_km[i] = t16-t15+t2_km-t1_km
-        t17=time.time()
-        ff_km=local_search_ff(distribution[0],centers,2)
-        t18=time.time()
-        value_ff_km[i] = ff_km[1]
-        time_ff_km[i] = t18-t17+t2_km-t1_km
+    time_milp[i]=t4-t3
+    value_milp[i] = milp_formulation(distribution[0],mm[i])
 
 
 plt.figure(figsize=(10, 6))
-plt.plot(mm,time_bf,label="Best-fit")
-plt.plot(mm,time_ff, label = "First-fit")
-plt.plot(mm,time_bf_dup,label="Best-fit, Dupacova starters")
-plt.plot(mm,time_ff_dup, label = "First-fit, Dupacova starters")
-plt.plot(mm,time_bf_dup_reverse,label="Best-fit, reverse Dupacova starters")
-plt.plot(mm,time_ff_dup_reverse, label = "First-fit, reverse Dupacova starters")
-plt.plot(mm,time_bf_km,label="Best-fit, m-means neighboors starters")
-plt.plot(mm,time_ff_km, label = "First-fit, m-means neighboors starters")
+plt.plot(mm,value_milp,label="MILP")
+plt.plot(mm,value_dup, label = "Forward Dupacova")
+plt.plot(mm,value_dup_back,label="Backward Dupacova")
 
 plt.xlabel('m')
+plt.ylabel('value')
 plt.legend()
-plt.title("Run time comparison, n=100")
+plt.title("Efficiency comparison, n=100")
 plt.show()

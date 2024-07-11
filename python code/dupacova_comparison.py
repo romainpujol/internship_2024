@@ -7,38 +7,26 @@ import math
 import random
 import matplotlib.pyplot as plt
 import time
+import gurobipy as gp
+from gurobipy import GRB
 
 np.random.seed(11112002)
 random.seed(11112002)
 
 def generate_data(n):
+    samples_normal = np.random.normal(0,2,size=n)
+    samples_normal2 =np.random.normal(5,2,size=n)
+    samples_gamma = np.random.gamma(0, 2, size=n)
+    samples_gamma2 = np.random.gamma(1,2,size=n)
+    samples_gamma3 = np.random.gamma(2,2,size=n)
 
-    x = np.random.normal(loc=10, scale=2, size=n)
+    samples_uni = np.random.uniform(0,10,size=n)
 
-    y = np.random.gamma(shape=2, scale=2, size=n)
-
-    probabilities = np.random.uniform(low=0, high=1, size=n)
-
-    # Normalisation des probabilités pour que leur somme soit égale à 1
-    probabilities /= np.sum(probabilities)
-
-    data=[0]*n
+    samples = []
     for i in range(n):
-        data[i]=[x[i],y[i]]
-    return (data,probabilities)
+        samples.append([samples_normal[i],samples_normal2[i],samples_gamma[i],samples_gamma2[i],samples_gamma3[i],samples_uni[i]])
 
-def generate_data_u(n):
-    #uniform proba
-    x = np.random.normal(loc=10, scale=2, size=n)
-
-    y = np.random.gamma(shape=2, scale=2, size=n)
-
-    probabilities = [1/n]*n
-
-    data=[0]*n
-    for i in range(n):
-        data[i]=[x[i],y[i]]
-    return (data,probabilities)
+    return (samples,[1/n]*n)
 
 def norm_l(x,y,l):
     value=0.
@@ -144,55 +132,67 @@ def dupacova_backward(distribution_x,m,l,distribution_p):
 
     return (reduced_set,minimum)
 
+def milp_formulation(distribution,m):
+    # for L2 norm and l=2
+    n = len(distribution)
+    distance = matrice_distance(distribution,distribution,2)
+
+    #define the model
+    model = gp.Model("model")
+    model.setParam('Heuristics', 0)
+    pi = model.addVars(n,n, vtype=GRB.CONTINUOUS, name="pi")
+    lambd = model.addVars(n, vtype=GRB.BINARY, name="lambd")
+    model.setObjective(sum(pi[i,j]*distance[i,j] for i in range(n) for j in range(n))/n, GRB.MINIMIZE)
+    model.addConstrs(sum(pi[i,j] for j in range(n))==1 for i in range(n))
+    model.addConstr((sum(lambd[j] for j in range(n))==m),name="reduction")
+    for j in range(n):
+        model.addConstrs((pi[i,j] <= lambd[j] for i in range(n)),name="activation")
+    model.optimize()
+    a = model.objVal
+    model.dispose()
+    return a
 
 n = 100
-#deb = 50
+deb = 10
 
-#temps_forward=[0]*(n-2*deb)
-#temps_backward=[0]*(n-2*deb)
+mm = [i for i in range(deb,n-deb)]
 
-#distance_forward=[0]*(n-2*deb)
-#distance_backward=[0]*(n-2*deb)
+temps_forward=[0]*(len(mm))
+temps_backward=[0]*(len(mm))
+temps_milp=[0]*(len(mm))
 
-distribution,probabilities = generate_data_u(n)
-#temperatures=[]
-#precipitations=[]
-#for i in range(n):
-#    temperatures.append(distribution[i][0])
-#    precipitations.append(distribution[i][1])
+distance_forward=[0]*(len(mm))
+distance_backward=[0]*(len(mm))
+distance_milp=[0]*(len(mm))
 
+distribution,probabilities = generate_data(n)
 
+for k in range(len(mm)):
 
-#for k in range(deb,n-deb):
-#    if k%100==0:
-#        print(k)
-#    tp1=time.time()
-#   bb=dupacova_forward(distribution,k,2,probabilities)
-#    tp2=time.time()
-#    bbb=dupacova_backward(distribution,k,2,probabilities)
-#    tp3=time.time()
-#    temps_forward[k-deb]=tp2-tp1
-#    distance_forward[k-deb]=sum(bb[1])/n
-#    temps_backward[k-deb]=tp3-tp2
-#    distance_backward[k-deb]=sum(bbb[1])/n
+    print(k,"/", len(mm))
+    tp1=time.time()
+    bb=dupacova_forward(distribution,mm[k],2,probabilities)
+    tp2=time.time()
+    bbb=dupacova_backward(distribution,mm[k],2,probabilities)
+    tp3=time.time()
+    temps_forward[k]=tp2-tp1
+    distance_forward[k]=sum(bb[1])/n
+    temps_backward[k]=tp3-tp2
+    distance_backward[k]=sum(bbb[1])/n
+    tp5=time.time()
+    ccc= milp_formulation(distribution,mm[k])
+    tp6=time.time()
+    temps_milp[k]=tp6-tp5
+    distance_milp[k]=ccc
 
-#plt.figure(figsize=(10, 6))
+plt.figure(figsize=(10, 6))
 
-#l = [i for i in range(deb,n-deb)]
-#plt.plot(l,temps_forward,label="Calculation time, forward Dupačová")
-#plt.plot(l,temps_backward, label = "Calculation time, backward Dupačová")
-#plt.legend()
-#plt.title("Calculation time comparison, Dupačová algorithms, n=500")
-#plt.title("Efficiency in term of Wasserstein distance, Dupačová algorithms, n=50")
-#plt.show()
+plt.plot(mm,distance_forward,label="Forward Dupačová")
+plt.plot(mm,distance_backward, label = "Backward Dupačová")
+plt.plot(mm,distance_milp,label="MILP formulation - Gurobi ")
+plt.xlabel("n")
+plt.legend()
+#plt.title("Run time comparison, variable n and m=n/4")
+plt.title("Efficiency in term of Wasserstein distance, Dupačová algorithms, n=100")
+plt.show()
 
-m=50
-
-tp1=time.time()
-a = dupacova_forward(distribution,m,2,probabilities)
-tp2=time.time()
-print(tp2-tp1)
-tp3=time.time()
-aa = dupacova_backward(distribution,m,2,probabilities)
-tp4=time.time()
-print(tp4-tp3)

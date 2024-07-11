@@ -7,6 +7,8 @@ import math
 import random
 import matplotlib.pyplot as plt
 import time
+from scipy.spatial import distance
+
 
 np.random.seed(11112002)
 random.seed(11112002)
@@ -17,12 +19,11 @@ def generate_data(n):
 
     y = np.random.gamma(shape=2, scale=2, size=n)
 
-    probabilities = np.random.uniform(low=0, high=1, size=n)
-
     # Normalisation des probabilités pour que leur somme soit égale à 1
-    probabilities /= np.sum(probabilities)
+    probabilities = [1/n]*n
 
     data=[0]*n
+
     for i in range(n):
         data[i]=[x[i],y[i]]
     return (data,probabilities)
@@ -141,20 +142,6 @@ distance_forward=[0]*(n-1)
 distance_backward=[0]*(n-1)
 
 distribution,probabilities = generate_data(n)
-temperatures=[]
-precipitations=[]
-for i in range(n):
-    temperatures.append(distribution[i][0])
-    precipitations.append(distribution[i][1])
-
-#visualization
-
-plt.figure(figsize=(10, 6))
-sc = plt.scatter(temperatures, precipitations, c=probabilities, cmap='viridis', alpha=0.6)
-plt.colorbar(sc, label='Probabilities')
-plt.title("2D data-set")
-plt.xlabel("x")
-plt.ylabel("y")
 
 
 f=dupacova_forward(distribution,10,2,probabilities)[0]
@@ -174,25 +161,33 @@ for i in range(10):
 F = matrice_distance(distribution,f,2)
 B = matrice_distance(distribution,b,2)
 
-proba_reduced_f=[0]*10
-proba_reduced_b=[0]*10
+x=[]
+y=[]
+for i in range(n):
+    x.append(distribution[i][0])
+    y.append(distribution[i][1])
 
+#visualization
+
+
+plt.figure(figsize=(10, 6))
+
+
+colors = ['red', 'green', 'blue', 'cyan', 'magenta', 'yellow', 'black', 'orange', 'purple', 'brown']
+
+
+matrice = matrice_distance(distribution, f, 2)
 
 for i in range(n):
-    k_f = np.argmin(F[i])
-    proba_reduced_f[k_f]+=probabilities[i]
-    k_b = np.argmin(B[i])
-    proba_reduced_b[k_b]+=probabilities[i]
+    if distribution[i] not in f:
+        closest = np.argmin(matrice[i])
+        plt.scatter(distribution[i][0], distribution[i][1], color=colors[closest])
 
+for i in range(10):
+    plt.scatter(x_f[i],y_f[i],c=colors[i],marker='+',s=100)
 
-
-proba_reduced_f=[p*1000 for p in proba_reduced_f]
-proba_reduced_b=[p*1000 for p in proba_reduced_b]
-
-plt.scatter(x_b,y_b,c='red',s=proba_reduced_b,marker='+')
-#plt.scatter(x_f,y_f,c='red',s=proba_reduced_f,marker='+')
-
-plt.title("Backward Dupačová")
-
+plt.xlabel('x')
+plt.ylabel('y')
+plt.title("Forward Dupačová")
 
 plt.show()
