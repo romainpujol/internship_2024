@@ -204,9 +204,11 @@ def sum_p(m,p):
         return s
 
 
-def w_dist(costs,d1,p1,p2,d2):
+def w_dist(costs,d1,p1,d2,p2):
     n1=len(p1)
     n2=len(p2)
+    vecteur_cout= []
+
     for i in range(n1):
         for j in range(n2):
             vecteur_cout.append(costs[i,j])
@@ -241,23 +243,11 @@ n = 1000
 c = np.array([-5,-2,-3,0,-1,-2])*100
 data = generate_data(n)
 
-print(data[0:5])
 m=[5,10,15,20,25,30,35,40,45,50]
-ratio_to_opt = [0]*len(m)
-ratio_to_opt_euc = [0]*len(m)
-time_sgd = [0]*len(m)
-time_euc = [0]*len(m)
+distance_euc = [0]*len(m)
+num_runs=10
 
-x = optimal_x(data,c)
-sss = 0
-norm_x = np.dot(x,x)
-for k in range(n):
-    sss+= norm_x*np.dot(data[k],data[k])+np.dot(x,data[k])
-v_opt = np.dot(c,x)+(1/n)*sss
-num_runs = 10
-
-
-ratios_sgd = np.zeros((len(m), num_runs))
+distance_sgd = np.zeros((len(m), num_runs))
 
 for i in range(len(m)):
     for run in range(num_runs):
@@ -271,60 +261,28 @@ for i in range(len(m)):
         matrix_sgd = (dup_fw_sgd[1])[index_sgd]
         get_p_sgd = get_p(reduced_sgd, data, np.transpose(matrix_sgd))
 
-        opt_x_sgd = c
-        sum_xi_norm = 0
 
-        for k in range(m[i]):
-            opt_x_sgd = opt_x_sgd + get_p_sgd[k] * reduced_sgd[k]
-            sum_xi_norm += get_p_sgd[k] * np.dot(reduced_sgd[k], reduced_sgd[k])
+        distance_sgd[i][run] = w_dist(matrice_distance(data,reduced_sgd,2),data,[1/n]*n,reduced_sgd,get_p_sgd)
 
-        opt_x_sgd = (-1/2) * opt_x_sgd / sum_xi_norm
-
-        norm_x_sgd = np.dot(opt_x_sgd, opt_x_sgd)
-        opt_v_sgd = np.dot(opt_x_sgd, c)
-        for k in range(m[i]):
-            opt_v_sgd += get_p_sgd[k] * (norm_x_sgd * np.dot(reduced_sgd[k], reduced_sgd[k]) + np.dot(opt_x_sgd, reduced_sgd[k]))
-        t8 = time.time()
-        time_sgd[i] = t8 - t7
-
-        ratios_sgd[i][run] = abs((opt_v_sgd - v_opt) / v_opt)
-
-    t = time.time()
     reduced_euc = dupacova_forward(data, m[i], 2)
     index_euc = set_to_index(reduced_euc, data)
     matrix_euc = matrice_distance(data, reduced_euc, 2)
     get_p_euc = get_p(reduced_euc, data, matrix_euc)
 
-    opt_x_euc = c
-    sum_xi_norm_euc = 0
+    distance_euc[i]=w_dist(matrice_distance(data,reduced_euc,2),data,[1/n]*n,reduced_euc,get_p_euc)
 
-    for k in range(m[i]):
-        opt_x_euc = opt_x_euc + get_p_euc[k] * reduced_euc[k]
-        sum_xi_norm_euc += get_p_euc[k] * np.dot(reduced_euc[k], reduced_euc[k])
-
-    opt_x_euc = (-1/2) * opt_x_euc / sum_xi_norm_euc
-
-    norm_x_euc = np.dot(opt_x_euc, opt_x_euc)
-    opt_v_euc = np.dot(opt_x_euc, c)
-    for k in range(m[i]):
-        opt_v_euc += get_p_euc[k] * (norm_x_euc * np.dot(reduced_euc[k], reduced_euc[k]) + np.dot(opt_x_euc, reduced_euc[k]))
-    t2 = time.time()
-    time_euc[i] = t2 - t
-
-    ratio_to_opt_euc[i] = abs((opt_v_euc - v_opt) / v_opt)
-
-avg_ratios_sgd = np.mean(ratios_sgd, axis=1)
-min_ratios_sgd = np.min(ratios_sgd, axis=1)
-max_ratios_sgd = np.max(ratios_sgd, axis=1)
+avg_distance_sgd = np.mean(distance_sgd, axis=1)
+min_distance_sgd = np.min(distance_sgd, axis=1)
+max_distance_sgd = np.max(distance_sgd, axis=1)
 
 plt.figure(figsize=(10, 6))
-plt.plot(m, avg_ratios_sgd, label="Average optimality ratio SGD",color='blue')
-plt.plot(m, min_ratios_sgd, label="Best case optimality ratio SGD", linestyle='--',color='green')
-plt.plot(m, max_ratios_sgd, label="Worst case optimality ratio SGD", linestyle='--',color='red')
-plt.plot(m, ratio_to_opt_euc, label="Optimality ratio Euclidean",color='orange')
+plt.plot(m, avg_distance_sgd, label="Average optimality ratio SGD",color='blue')
+plt.plot(m, min_distance_sgd, label="Best case optimality ratio SGD", linestyle='--',color='green')
+plt.plot(m, max_distance_sgd, label="Worst case optimality ratio SGD", linestyle='--',color='red')
+plt.plot(m, distance_euc, label="Optimality ratio Euclidean",color='orange')
 
 plt.xlabel('m')
 plt.ylabel('ratio')
 plt.legend()
-plt.title("Optimality ratio, n=1000")
+plt.title("Distances, n=1000")
 plt.show()

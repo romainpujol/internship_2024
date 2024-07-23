@@ -10,8 +10,6 @@ import time
 import gurobipy as gp
 from gurobipy import GRB
 
-random.seed(11112002)
-np.random.seed(11112002)
 
 
 def scenarios_binomial(n):
@@ -194,11 +192,11 @@ def solve_mpa(scen,A,q,l,c,s,prob):
         vec_l_q.append(l[i]-q[i])
 
     model = gp.Model("model")
-    model.setParam('OutputFlag', 0)
 
     x = model.addVars(n_sub, vtype=GRB.CONTINUOUS, name="x")
     y = model.addVars(n_sub,K,vtype=GRB.CONTINUOUS, name="y")
-    z = model.addVars(n_products,K,vtype=GRB.CONTINUOUS, name ="z")
+    z = model.addVars(n_products,K,vtype=GRB.INTEGER, name ="z")
+    model.setParam('OutputFlag', 0)
 
     if len(prob)==0:
         #uniform
@@ -238,12 +236,45 @@ l = np.array([0,0,0,0,0,0,0,0,0,0])
 c = np.array([100,5,0.5,5,5,10,50,20,20,30,30,10,10,20,30,10,10,20,20])
 s = c/5
 
+
+
+
+n = 1000
+
+scenars = scenarios_binomial(n)
+
+t3= time.time()
+solve = solve_mpa(scenars[0],A,q,l,c,s,scenars[1])
+t4=time.time()
+print("la résolution sans réduction prend", t4-t3,"secondes et on a la valeur", solve[0])
+
+t = time.time()
+
+scenars_red = dupacova_forward(scenars[0],25,2)
+t2 = time.time()
+
+solve = solve_mpa(scenars_red[0],A,q,l,c,s,scenars_red[2])
+t3=time.time()
+print("25 dupacova prend", t2-t,"secondes et on a la valeur", solve[0])
+print("solve mpa", t3-t2, "secondes")
+
+t = time.time()
+
+scenars_red = dupacova_forward(scenars[0],10,2)
+t2 = time.time()
+
+solve = solve_mpa(scenars_red[0],A,q,l,c,s,scenars_red[2])
+t3=time.time()
+print("10 dupacova prend", t2-t,"secondes et on a la valeur", solve[0])
+print("solve mpa", t3-t2, "secondes")
+
+
+"""
 n = 250
 m = [k for k in range(25,126)]
 
 time_dup = [0]*len(m)
 time_loc = [0]*len(m)
-
 value_dup = [0]*len(m)
 value_loc = [0]*len(m)
 
@@ -293,3 +324,4 @@ plt.ylabel('Wasserstein distance')
 plt.legend()
 plt.title("Distance to the original distribution, n=250")
 plt.show()
+"""

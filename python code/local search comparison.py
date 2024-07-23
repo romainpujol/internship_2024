@@ -97,10 +97,11 @@ def dupacova_forward(distribution_x,m,l,distribution_p):
     return (reduced_set,minimum)
 
 
-def local_search_bf(distribution_x,index_reduced,l):
+def local_search_bf(distribution_x,index_red,l):
     # best-fit
     n = len(distribution_x)
-    m = len(index_reduced)
+    m = len(index_red)
+    index_reduced=index_red.copy()
     if m > n - 1:
         print("choose another m, remember m<n")
         return 0
@@ -174,9 +175,11 @@ def local_search_bf(distribution_x,index_reduced,l):
 
         return (reduced_distribution, sum(minimum) / n)
 
-def local_search_ff(distribution_x, index_reduced, l):
+def local_search_ff(distribution_x, index_red, l):
     n = len(distribution_x)
-    m = len(index_reduced)
+    m = len(index_red)
+    index_reduced=index_red.copy()
+
     if m > n - 1:
         print("choose another m, remember m < n, IMPOSSIBLE")
         print("m=",m)
