@@ -1129,7 +1129,9 @@ These figures present: Wasserstein distance between the original distribution an
 Even though \Cref{tabular1} and \Cref{tabular2} shows that solving Problem \ref{LP} with scenario reduction is efficient, this particular problem scales poorly with $n$ due to its simplicity. If the LP to solve is more sophisticated and hard to solve, this method scales way better even though generating the reduced distribution takes long. For instance, \cite[Section 5.2]{rujeerapaiboon_scenario_2022} presents an investment planning problem of venture capitalist where reducing the distribution leads to great gains in run time. In the context of energy markets, scenario reduction significantly reduces run time as proven in \cite{morales_scenario_2009} where thousands of demand vectors each of size 8760 are considered.
 
 \section{$\quad$ Iterative problem dependent cost}
-Euclidean costs do not rely on the structure of your specific problem. You can not expect from two atoms that are close in terms of euclidean distance that they give a close optimal value. Following \Cref{remark1}, we want to define a new cost that takes into account the problem you are trying to solve. Let us write again a two-stage stochastic program:
+Euclidean costs do not rely on the structure of your specific problem. You can not expect from two atoms that are close in terms of euclidean distance that they give a close optimal value. Following \Cref{remark1}, we want to define a new cost that takes into account the problem you are trying to solve.
+\subsection{Outline of the method}
+Let us write again a two-stage stochastic program:
 $$
 \min_{x\geq 0}c^Tx+\sum_{i=1}^np_iQ\left(x,\xi_i\right),
 $$
@@ -1146,14 +1148,14 @@ To make it cristal clear, let us write the plan of this new scenario reduction w
     \item Iterate if needed.
 \end{enumerate}
 
-In order to add stability, we can consider a new subset $I_2$ but this time thanks to discrete scenario reduction with problem dependant costs. We can now find the vector $x^2$. If you want to add averaging, you can consider the vector $\bar{x}=\frac{1}{2}\left(x^1+x^2\right)$. Averaging can begin after this second step as the first step does not depend on the structure of the problem. 
+In order to add stability, we can iterate this method by considering a new subset $I_2$ that is computed thanks to a discrete scenario reduction algorithm with problem dependant costs. We can now compute $x^2$ an approximate of the minimizer on $I_2$. If you want to add averaging, you can consider the vector $\bar{x}=\frac{1}{2}\left(x^1+x^2\right)$. You can iterate until there is no change in the support of the reduced distribution.
 \subsection{Problem and results}
 %%% https://www.math.wsu.edu/faculty/ari/preprints/felt-tp.pdf
 Let us define an easy problem where we could try this technique and compare with the euclidean cost for scenario reduction:
 $$
     \min_{x}f\left(x\right)=c^Tx +\frac{1}{n}\sum_{i=1}^n \left[\left(x^Tx\right)\xi_i^T\xi_i+x^T\xi_i\right].
 $$
-When we use the stochastic gradient descent, the derivative to consider for a specific index $i$ is $\nabla_i f\left(x\right)= c+2\left(\xi_i^T\xi_i\right)x+\xi_i$. $\frac{1}{n}$ represents the probability for $\xi_i$, we can think of the problem but with a more general probability $p_i$ for $\xi_i$. In this context, we must consider a different probability when choosing the gradient to consider. In your batch $I_1$ which is a subset $I$ and $i\in I_1$, $\nabla_if\left(x\right)$ has to be chosen with a probability $\frac{p_i}{\sum_{k\in I_1}p_k}$. The advantage of this formulation is that we can compute easily the global optimal value as:
+The derivative for a specific index $i$ to consider when coding SGD is $\nabla_i f\left(x\right)= c+2\left(\xi_i^T\xi_i\right)x+\xi_i$. $\frac{1}{n}$ represents the probability for $\xi_i$, we can think of the problem but with a more general probability $p_i$ for $\xi_i$. In this context, we must consider a different probability when choosing the gradient to consider. In your batch $I_1$ which is a subset $I$ and $i\in I_1$, $\nabla_if\left(x\right)$ has to be chosen with a probability $\frac{p_i}{\sum_{k\in I_1}p_k}$. The advantage of this formulation is that we can compute easily the global optimal value as:
 $$    
 x^*=\frac{-n}{2\sum_{i=1}^n\lVert\xi\rVert^2}\left(c + \frac{1}{n}\sum_{i=1}^n\xi\right).
 $$
@@ -1167,7 +1169,7 @@ and we also write the cost vector $c$:
 $$
 c=\left(-500,-200,-300,0,-100,-200\right).
 $$
-We use a data-set of 1000 scenarios and try to reduce it to $m\in\left\{10,20,30,40,50\right\}$, from 1\% to 5\% of the initial size. We iterate only once here, the random batch size is 200, we iterate the stochastic gradient descent 10000 times. We compare the optimal values with the error ratio:
+We use a data-set of 1000 scenarios and try to reduce it to $m\in\left\{10,20,30,40,50\right\}$, from 1\% to 5\% of the initial size. We iterate only once here, the random batch size is 200, we iterate the stochastic gradient descent 1000 times. We compare the optimal values with the error ratio:
 $$
 \lvert\frac{ v^*\left(P\right)-v^*}{v^*}\rvert,
 $$
