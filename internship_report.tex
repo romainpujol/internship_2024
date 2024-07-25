@@ -212,7 +212,7 @@ When $p=1$, we get 1-Lipschitz functions. When $p\geq 2$, there exists another d
 $$
 \zeta_p\left(P,Q\right)=\sup_{f\in\mathcal{F}_p\left(\Xi\right)}\lvert \int_\Xi f\left(\xi\right)\text{d}P\left(\xi\right)-\int_\Xi f\left(\xi\right)\text{d}Q\left(\xi\right)\rvert.
 $$
-See \ref{appendix metric}\href{https://www.imo.universite-paris-saclay.fr/~pierre-loic.meliot/master/exam-2017.pdf}{metric proof}.
+See \ref{appendix metric}.
 
 \subsection{Result}
 Let $Q\in\mathcal{P}\left(\Xi\right)$, we write the perturbed model:
@@ -950,8 +950,8 @@ We can rewrite it:
      \text{s.t. } &y=x-A^Tz, \\
      & d \geq z\geq 0, \:y\geq0.
 \end{align*}
-One can convince itself that the recourse is fixed. The value of this optimization problem depends on $x$ and on a demand $d$. We write $Q\left(x,d\right)$ the optimal value of this problem. The two-stage linear problem associated to the multiproduct assembly problem is:
-$$\min_{x\geq0}c^Tx+\mathbb{E}_DQ\left(x,D\right).$$
+One can convince itself that the recourse is fixed. The value of this optimization problem depends on $x$ and on a demand $d$. We write $\mathcal{Q}\left(x,d\right)$ the optimal value of this problem. The two-stage linear problem associated to the multiproduct assembly problem is:
+$$\min_{x\geq0}c^Tx+\mathbb{E}_D\mathcal{Q}\left(x,D\right).$$
 \subsection{Data-set}
 Data-set on this kind of problems do not exist or if they do, it did not find any. The objective of this section is to build a data-set. Let us put ourselves in a carpenter's shoes.
 \subsubsection{Products}
@@ -1133,29 +1133,28 @@ Euclidean costs do not rely on the structure of your specific problem. You can n
 \subsection{Outline of the method}
 Let us write again a two-stage stochastic program:
 $$
-\min_{x\geq 0}c^Tx+\sum_{i=1}^np_iQ\left(x,\xi_i\right),
+\min_{x\geq 0}c^Tx+\sum_{i=1}^np_i\mathcal{Q}\left(x,\xi_i\right),
 $$
-where $Q$ is defined by an infimum and $p_i$ is the probability of $\xi_i$. To compute these new costs, we will try to find quickly an approximate of the minimizer $x^*$ of the problem via a heuristic or any other method that is efficient enough. We write $v\left(x,\xi_i\right)$ the value of the corresponding problem at $x$ where the distribution to consider is $P=\delta_{\xi_i}$. The new costs are computed as follows:
+where $\mathcal{Q}$ is defined by an infimum and $p_i$ is the probability of $\xi_i$. To compute these new costs, we will try to find quickly an approximate of the minimizer $x^*$ of the problem via a heuristic or any other method that is efficient enough. We write $v\left(x,\xi_i\right)$ the value of the corresponding problem at $x$ where the distribution to consider is $P=\delta_{\xi_i}$. The new costs are computed as follows:
 $$
 c\left(\xi_i,\xi_j\right)=\lvert v\left(x^*,\xi_i\right)-v\left(x^*,\xi_j\right)\rvert.
 $$
 To make it cristal clear, let us write the plan of this new scenario reduction when we use stochastic gradient descent (SGD) in order to approximate $x^*$ on a small random batch.
 \begin{enumerate}
-    \item Extract a random batch $I_1$ of size $k\ll \lvert \text{supp}\left(\xi\right)\rvert$.
-    \item For this batch, estimate the minimizer $x^*$ of $\min_{x}\left\{c^Tx+\sum_{i\in I_1}\frac{p_i}{\sum_{i\in I_1}}Q\left(x,\xi_i\right)\right\}$ via stochastic gradient descent (or any iterative method that you know is efficient), we write the estimate $\tilde{x}^1$.
-    \item Compute new costs $c^1\left(\xi_i,\xi_j\right)=\lvert v\left(x^1,\xi_i\right)-v\left(x^1,\xi_j\right)\rvert$.
+    \item Extract a random batch $I_1$ of size $k\ll \lvert \text{supp}\left(\xi\right)\rvert$. 
+    \item For this batch, estimate the minimizer $x^*$ of $\min_{x}\left\{c^Tx+\sum_{i\in I_1}\frac{p_i}{\sum_{i\in I_1}}\mathcal{Q}\left(x,\xi_i\right)\right\}$ via stochastic gradient descent (or any iterative method that you know is efficient), we write the estimate $\bar{x}$.
+    \item Compute new costs $c^1\left(\xi_i,\xi_j\right)=\lvert v\left(\bar{x}^1,\xi_i\right)-v\left(\bar{x}^1,\xi_j\right)\rvert$.
     \item Use scenario reduction techniques with these new costs and use the redistribution rule.
-    \item Iterate if needed.
 \end{enumerate}
 
-In order to add stability, we can iterate this method by considering a new subset $I_2$ that is computed thanks to a discrete scenario reduction algorithm with problem dependant costs. We can now compute $x^2$ an approximate of the minimizer on $I_2$. If you want to add averaging, you can consider the vector $\bar{x}=\frac{1}{2}\left(x^1+x^2\right)$. You can iterate until there is no change in the support of the reduced distribution.
+In order to add stability, we can iterate Step (1) and (2) with different batches and compute the new $\bar{x}$ as $\bar{x}=\frac{1}{k}\sum_{i=1}^k\bar{x}^i$ where $\bar{x}^i$ represents the estimate of batch $i$.
 \subsection{Problem and results}
 %%% https://www.math.wsu.edu/faculty/ari/preprints/felt-tp.pdf
 Let us define an easy problem where we could try this technique and compare with the euclidean cost for scenario reduction:
 $$
     \min_{x}f\left(x\right)=c^Tx +\frac{1}{n}\sum_{i=1}^n \left[\left(x^Tx\right)\xi_i^T\xi_i+x^T\xi_i\right].
 $$
-The derivative for a specific index $i$ to consider when coding SGD is $\nabla_i f\left(x\right)= c+2\left(\xi_i^T\xi_i\right)x+\xi_i$. $\frac{1}{n}$ represents the probability for $\xi_i$, we can think of the problem but with a more general probability $p_i$ for $\xi_i$. In this context, we must consider a different probability when choosing the gradient to consider. In your batch $I_1$ which is a subset $I$ and $i\in I_1$, $\nabla_if\left(x\right)$ has to be chosen with a probability $\frac{p_i}{\sum_{k\in I_1}p_k}$. The advantage of this formulation is that we can compute easily the global optimal value as:
+The derivative for a specific index $i$ to consider when coding SGD is $\nabla_i f\left(x\right)= c+2\left(\xi_i^T\xi_i\right)x+\xi_i$. $\frac{1}{n}$ represents the probability for $\xi_i$, we can think of the problem but with a more general probability $p_i$ for $\xi_i$. In this context, we must consider a different probability when choosing the gradient to consider. In your batch $I_1$ which is a subset $I$ and $i\in I_1$, $\nabla_if\left(x\right)$ has to be chosen with a probability $\frac{p_i}{\sum_{k\in I_1}p_k}$. The advantage of this formulation is that we can compute easily the global minimizer as:
 $$    
 x^*=\frac{-n}{2\sum_{i=1}^n\lVert\xi\rVert^2}\left(c + \frac{1}{n}\sum_{i=1}^n\xi\right).
 $$
@@ -1169,18 +1168,21 @@ and we also write the cost vector $c$:
 $$
 c=\left(-500,-200,-300,0,-100,-200\right).
 $$
-We use a data-set of 1000 scenarios and try to reduce it to $m\in\left\{10,20,30,40,50\right\}$, from 1\% to 5\% of the initial size. We iterate only once here, the random batch size is 200, we iterate the stochastic gradient descent 1000 times. We compare the optimal values with the error ratio:
+We use a data-set of 1000 scenarios and try to reduce it to $m\in\left\{5,10,20,30,40,50\right\}$, from 0.5\% to 5\% of the initial size. We iterate only once here, the random batch size is 200, we iterate the stochastic gradient descent 1000 times. We compare the optimal values with the error ratio:
 $$
 \lvert\frac{ v^*\left(P\right)-v^*}{v^*}\rvert,
 $$
-where $v^*$ is the optimal value of the initial problem and $v^*\left(P\right)$ is the optimal value of the reduced problem either via the euclidean way or the problem dependent. 
+where $v^*$ is the optimal value of the initial problem and $v^*\left(P\right)$ is the optimal value of the reduced problem either via the euclidean way or the problem dependent. We can easily compute $v^*\left(P\right)$ because we know a formula for the minimizer of this reduced problem $x^*\left(P\right)$ :
+$$
+x^*\left(P\right)=\frac{-c-\sum_{i=1}^{k}p_i\xi_i}{2\sum_{i=1}^{k}p_i\lVert \xi_i\rVert^2}.
+$$
 \clearpage
 \begin{figure}[ht]
     \centering
     \begin{subfigure}[b]{0.495\textwidth}
         \centering
         \includegraphics[width=1.1\textwidth]{plots/comparison ratio dependent - euclidean.pdf}
-        \caption{Comparison}
+        \caption{Comparison with euclidean costs}
     \end{subfigure}
     \hfill
     \begin{subfigure}[b]{0.495\textwidth}
@@ -1191,17 +1193,31 @@ where $v^*$ is the optimal value of the initial problem and $v^*\left(P\right)$ 
     \caption{Euclidean and problem-dependent costs, optimality comparison}
     \label{methods}
 \end{figure}
+For this figure, I used 10 different batches and represented the mean, best and worst optimality ratios for different $m$. These results are very satisfying, this new way of reducing scenarios allow you to use a number of scenarios of 1 \% and still have an error ratio of less than 1\% as a mean when for the euclidean way you are around 10\%. Computing these new costs is comparable to computing the euclidean costs. Nevertheless, there can be "bad" batches as you can see for the worst case at $m=20$ that drag the optimal value far from the global one. Does averaging gives us more stability, less variance.
+\subsection{Iterating grants stability} 
+We would like to illustrate how averaging acts on stability. In order to illustrate such a result, we are going to extract not only one random batch but $10$ random batches and the approximate $\bar{x}$ will be:
+$$
+\bar{x}=\frac{1}{10}\sum_{i=1}^{10}\bar{x}^i.
+$$
+With that averaged estimate $\bar{x}$, we can now compute the problem-dependent costs and reduce the distribution with these costs. Let us see if it grants stability. As the 10 batches are still random, we will make this method 10 times and compare mean, best and worst optimality ratio.
 
-First results are very satisfying, this new way of reducing scenarios allow you to use a number of scenarios of 1 \% and still have an error ratio of less than 1\% when for the euclidean way you are around 7\%. Computing these new costs is very fast and is comparable to compute the euclidean costs. 
-
-\subsection{Wasserstein distances}
-In this section we are comparing the Wasserstein distances between the original distribution and those computed in order to see if the distribution computed with these new costs behaves well for this metric.
 \begin{figure}
     \centering
-    \includegraphics[width=0.5\linewidth]{plots/distance problem and euc.pdf}
-    \caption{Caption}
-    \label{fig:enter-label}
+    \includegraphics[width=0.50\linewidth]{plots/optimality ratio with averaging.pdf}
+    \caption{Averaging grants more stability}
+    \label{averaging}
 \end{figure}
+The same data-set was used and this method of averaging grants a better mean and reduce variance. We could not hope for more.
+\clearpage
+%\subsection{Wasserstein distances}
+%In this section we are comparing the Wasserstein distances between the original distribution and those computed in order to see if the distribution computed with these new costs behaves well with regard to this metric.
+%\begin{figure}
+%    \centering
+%    \includegraphics[width=0.5\linewidth]{plots/distance problem and euc.pdf}
+%    \caption{Caption}
+%    \label{fig:enter-label}
+%\end{figure}
+
 \section{$\quad$ Conclusion}
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec vitae justo nunc. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Maecenas a orci non dolor consectetur sollicitudin vel quis urna. Integer et enim massa. Cras ut ligula nisl. Integer interdum at est eget consequat. Proin id elit fringilla, fringilla neque ultrices, dictum lorem.
 
@@ -1213,8 +1229,18 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec vitae justo nunc.
 
 \begin{appendices}
     
-\section{$\quad$ Fortet-Mourier is a distance}\label{appendix metric}
-
+\section{$\quad$ Fortet-Mourier is a distance}\label{appendix metric} Let us show the result for $p=1$. Triangle inequality and symmetry are direct. We must prove definiteness. Let $P,Q$ be two probability distributions such that $\zeta_1\left(P,Q\right)=0$. For any 1-lipschitz function $f$, $P\left(f\right)=Q\left(f\right)$ and the result holds for any $L$-lipschitz function ($L\geq0$) because you can consider $\frac{f}{L}$ which is 1-lipschitz. Let $F$ be a closed set and consider $f_m\left(x\right)=\max\left\{0,1-md\left(x,F\right)\right\}.$ Let $\left(x,y\right)\in\left(\RR^d\right)^2$. First, if $1-md\left(x,F\right)\geq0$ and $1-md\left(y,F\right)\geq0$, then we have that $\lvert f_m\left(x\right)-f\left(y\right)\rvert = m \lvert d\left(x,F\right)-d\left(y,F\right)\rvert$ and we know that distance is 1-lipschitz. Second, if one of them is negative let us say $1-md\left(x,F\right)\leq0$ and $1-md\left(y,F\right)\geq0$, we have that $\lvert f_m\left(x\right)-f_m\left(y\right)\rvert=\lvert 1-md\left(y,F\right)\rvert \leq 1$. We can use that $d\left(x,y\right)+d\left(y,F\right)\geq d\left(x,F\right)$ (this is an application of triangle inequality for the distance $d$) to write that $d\left(x,y\right)+d\left(y,F\right)\geq\frac{1}{m}$ which implies that $\lvert 1-md\left(y,F\right)\rvert \leq md\left(x,y\right)$. The last case when both $f_m$ are zeros is easy. In the end we have proven that $f_m$ is m-Lipschitz and with the first remark, we have that:
+$$
+\forall m\in\mathbb{N}, \int f_m\left(x\right)P\left(dx\right)=\int f_m\left(x\right)Q\left(dx\right).
+$$
+Let us compute the limit of this suite of functions. First, if $x\in F$, $d\left(x,F\right)=0$ so $f_m\left(x\right)=1$ for all integer $m$. Now if $x\notin F$, $d\left(x,F\right)>0$, for all integer $m\geq\lfloor \frac{1}{d\left(x,F\right)}\rfloor, f_m\left(x\right)=0$. Thus, we can write that:
+$$
+\lim_{m \to +\infty} f_m(x)=\mathbb{1}_F\left(x\right).	
+$$
+As $f_m$ is bounded by 1 (which is integrable for $P$ and $Q$) for all integer $m$, we can use dominated convergence theorem to write that:
+$$
+P\left(F\right)=Q\left(F\right), \text{for all closed set } F.
+$$ This is sufficient to say that $P=Q$.
 \section{$\quad$ Definiteness of Wasserstein distance}\label{definiteness}
 \noindent Let $\ell\geq 1$, $P=\sum_{i\in I}\delta_{x_i}p_i$ and $Q=\sum_{j\in J}\delta_{y_j}q_j$ such that $d_\ell\left(P,Q\right)=0$. We prove that $d_\ell\left(P,Q\right)=0\implies \text{supp}\left(P\right)=\text{supp}\left(Q\right)$. By contradiction, let us assume that $\text{supp}\left(P\right)\ne\text{supp}\left(Q\right)$. Then there exists $x_{i_0}\in \text{supp}\left(P\right)$ such that $x_{i_0}\neq y,$ for all $ y\in\text{supp}\left(Q\right)$ (if not, then a $y_{i_0}$ exists in $\text{supp}\left(Q\right)$ and $y_{i_0}\notin \text{supp}\left(P\right)$ as the support are different). As $d_l\left(P,Q\right)=0$ we have that:$$
     \exists\pi\in\RR^{nm}_+ : \sum_{i\in I}\pi_{ij}=q_j, \sum_{j\in J}\pi_{ij}=p_i, \forall i,j \text{ and } \sum_{j\in J}\sum_{i\in I}\pi_{ij}\lVert x_i-y_j\rVert^\ell=0.
