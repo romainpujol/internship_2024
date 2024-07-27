@@ -15,7 +15,7 @@ np.random.seed(618898)
 def generate_data(n):
     # generate scenarios
     samples_normal = np.random.normal(10, 3, size=n)
-    samples_normal2 = np.random.normal(10, 2, size=n)
+    samples_normal2 = np.random.normal(10, 3, size=n)
     samples_gamma = np.random.gamma(5, 2, size=n)
     samples_gamma2 = np.random.gamma(3, 2, size=n)
     samples_gamma3 = np.random.gamma(2, 2, size=n)
@@ -242,7 +242,7 @@ c = np.array([-5,-2,-3,0,-1,-2])*100
 data = generate_data(n)
 
 print(data[0:5])
-m=[5,10,15,20,25,30,35,40,45,50]
+m=[5,10,20,30,40,50]
 ratio_to_opt = [0]*len(m)
 ratio_to_opt_euc = [0]*len(m)
 time_sgd = [0]*len(m)
@@ -260,6 +260,7 @@ num_runs = 10
 ratios_sgd = np.zeros((len(m), num_runs))
 
 for i in range(len(m)):
+    print(m[i])
     for run in range(num_runs):
         #different batchs give different answers.
         t7 = time.time()

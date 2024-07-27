@@ -1,6 +1,14 @@
 #######################################################################
-# Problem-dependent costs
+# num iteration
 #######################################################################
+
+# this code creates the last graph of the report
+# we are "averaging" the approximate minimizer
+# with 10 different batches
+# we make it 10 times to design mean/worst/best
+# case of averaging method
+
+
 
 import numpy as np
 import math
@@ -15,7 +23,7 @@ np.random.seed(618898)
 def generate_data(n):
     # generate scenarios
     samples_normal = np.random.normal(10, 3, size=n)
-    samples_normal2 = np.random.normal(10, 2, size=n)
+    samples_normal2 = np.random.normal(10, 3, size=n)
     samples_gamma = np.random.gamma(5, 2, size=n)
     samples_gamma2 = np.random.gamma(3, 2, size=n)
     samples_gamma3 = np.random.gamma(2, 2, size=n)
@@ -62,32 +70,48 @@ def optimal_x(data,c):
     return x_opt
 
 
-def optimal_x_batch(data,m,n_iter,c):
-    # find an approximate x* for a mini-batch using SGD
-    mini_batch=generate_mini_batch(m,data)
-    x = np.array([0,0,0,0,0,0])
+def optimal_x_batch(data,m,n_iter,c,batch):
+    if len(batch)==0:
+        # find an approximate x* for a mini-batch using SGD
+        mini_batch=generate_mini_batch(m,data)
+        x = np.array([0,0,0,0,0,0])
 
-    for i in range(n_iter):
-        step=1/(i+1)
-        k = random.randint(0,m-1) #randomly choose the gradient
-        x =x- step*gradient(x,mini_batch[k],c)
+        for i in range(n_iter):
+            step=1/(i+1)
+            k = random.randint(0,m-1) #randomly choose the gradient
+            x =x- step*gradient(x,mini_batch[k],c)
+    else:
+        # find an approximate x* for a mini-batch using SGD
+        x = np.array([0,0,0,0,0,0])
+        m = len(batch)
+        for i in range(n_iter):
+            step=1/(i+1)
+            k = random.randint(0,m-1) #randomly choose the gradient
+            x =x- step*gradient(x,batch[k],c)
 
     return x
 
 
-def cost_matrix(data,c):
-    #cost matrix with the new metric
+def cost_matrix(data,c,batch,x):
     n= len(data)
-    m= n//5
-    n_iter = 1000
-    x = optimal_x_batch(data,m,n_iter,c)
-    #opt_x = optimal_x(data,c)
-    #print("distance euclidienne entre les optimum:", np.dot(x-opt_x,x-opt_x))
-    norm_x_2 = np.dot(x,x)
-    cost=np.zeros((n,n))
-    for i in range(n):
-        for j in range(n):
-            cost[i,j]=abs(norm_x_2*(np.dot(data[i],data[i])-np.dot(data[j],data[j]))+np.dot(data[i]-data[j],x))
+    if len(x) == 0:
+    #cost matrix with the new metric
+        m= n//5
+        n_iter = 1000
+        x = optimal_x_batch(data,m,n_iter,c,batch)
+        #opt_x = optimal_x(data,c)
+        #print("distance euclidienne entre les optimum:", np.dot(x-opt_x,x-opt_x))
+        norm_x_2 = np.dot(x,x)
+        cost=np.zeros((n,n))
+        for i in range(n):
+            for j in range(n):
+                cost[i,j]=abs(norm_x_2*(np.dot(data[i],data[i])-np.dot(data[j],data[j]))+np.dot(data[i]-data[j],x))
+    else:
+        norm_x_2 = np.dot(x,x)
+        cost=np.zeros((n,n))
+        for i in range(n):
+            for j in range(n):
+                cost[i,j]=abs(norm_x_2*(np.dot(data[i],data[i])-np.dot(data[j],data[j]))+np.dot(data[i]-data[j],x))
 
     return cost
 
@@ -113,9 +137,9 @@ def minimum_vector(v1,v2):
         return v3
 
 
-def dupacova_forward_sgd(data,m,c):
+def dupacova_forward_sgd(data,m,c,batch,x):
 
-    D = cost_matrix(data,c) #problem dependent
+    D = cost_matrix(data,c,batch,x) #problem dependent
     n = len(data)
     minimum = [1000000000]*n
     reduced_set = []
@@ -242,18 +266,54 @@ def w_dist(costs,d1,p1,d2,p2):
 n = 1000
 c = np.array([-5,-2,-3,0,-1,-2])*100
 data = generate_data(n)
+m = [10,20,30,40,50]
+#m=[10]
 
-m=[5,10,15,20,25,30,35,40,45,50]
-distance_euc = [0]*len(m)
+x = optimal_x(data,c)
+sss = 0
+norm_x = np.dot(x,x)
+for k in range(n):
+    sss+= norm_x*np.dot(data[k],data[k])+np.dot(x,data[k])
+v_opt = np.dot(c,x)+(1/n)*sss
 
-distance_sgd = np.zeros((len(m), num_runs))
+iter = 10
+opt_x_average = np.zeros(6)
+num_run = 10
+
+
+ratios_sgd = np.zeros((len(m), num_run))
+
 
 
 for i in range(len(m)):
-    for run in range(num_runs):
-        #different batchs give different answers.
-        t7 = time.time()
-        dup_fw_sgd = dupacova_forward_sgd(data, m[i], c)
+    print(m[i])
+    for run in range(num_run):
+        opt_x_average = np.zeros(6)
+
+        for j in range(iter):
+
+            dup_fw_sgd = dupacova_forward_sgd(data, m[i], c,[],[])
+
+            reduced_sgd = dup_fw_sgd[0]
+            index_sgd = set_to_index(reduced_sgd, data)
+
+            matrix_sgd = (dup_fw_sgd[1])[index_sgd]
+            get_p_sgd = get_p(reduced_sgd, data, np.transpose(matrix_sgd))
+
+            opt_x_sgd = c
+            sum_xi_norm = 0
+
+            for k in range(m[i]):
+                opt_x_sgd = opt_x_sgd + get_p_sgd[k] * reduced_sgd[k]
+                sum_xi_norm += get_p_sgd[k] * np.dot(reduced_sgd[k], reduced_sgd[k])
+
+            opt_x_sgd = (-1/2) * opt_x_sgd / sum_xi_norm
+
+            opt_x_average = opt_x_average + opt_x_sgd
+
+        opt_x_average = opt_x_average/iter
+
+        dup_fw_sgd = dupacova_forward_sgd(data, m[i], c,[],opt_x_average)
 
         reduced_sgd = dup_fw_sgd[0]
         index_sgd = set_to_index(reduced_sgd, data)
@@ -261,28 +321,36 @@ for i in range(len(m)):
         matrix_sgd = (dup_fw_sgd[1])[index_sgd]
         get_p_sgd = get_p(reduced_sgd, data, np.transpose(matrix_sgd))
 
+        opt_x_sgd = c
+        sum_xi_norm = 0
 
-        distance_sgd[i][run] = w_dist(matrice_distance(data,reduced_sgd,2),data,[1/n]*n,reduced_sgd,get_p_sgd)
+        for k in range(m[i]):
+            opt_x_sgd = opt_x_sgd + get_p_sgd[k] * reduced_sgd[k]
+            sum_xi_norm += get_p_sgd[k] * np.dot(reduced_sgd[k], reduced_sgd[k])
 
-    reduced_euc = dupacova_forward(data, m[i], 2)
-    index_euc = set_to_index(reduced_euc, data)
-    matrix_euc = matrice_distance(data, reduced_euc, 2)
-    get_p_euc = get_p(reduced_euc, data, matrix_euc)
+        opt_x_sgd = (-1/2) * opt_x_sgd / sum_xi_norm
 
-    distance_euc[i]=w_dist(matrice_distance(data,reduced_euc,2),data,[1/n]*n,reduced_euc,get_p_euc)
+        norm_x_sgd = np.dot(opt_x_sgd, opt_x_sgd)
+        opt_v_sgd = np.dot(opt_x_sgd, c)
+        for k in range(m[i]):
+            opt_v_sgd += get_p_sgd[k] * (norm_x_sgd * np.dot(reduced_sgd[k], reduced_sgd[k]) + np.dot(opt_x_sgd, reduced_sgd[k]))
 
-avg_distance_sgd = np.mean(distance_sgd, axis=1)
-min_distance_sgd = np.min(distance_sgd, axis=1)
-max_distance_sgd = np.max(distance_sgd, axis=1)
+        ratios_sgd[i,run]=abs((opt_v_sgd - v_opt) / v_opt)
+
+
+
+avg_ratios_sgd = np.mean(ratios_sgd, axis=1)
+min_ratios_sgd = np.min(ratios_sgd, axis=1)
+max_ratios_sgd = np.max(ratios_sgd, axis=1)
 
 plt.figure(figsize=(10, 6))
-plt.plot(m, avg_distance_sgd, label="Average optimality ratio SGD",color='blue')
-plt.plot(m, min_distance_sgd, label="Best case optimality ratio SGD", linestyle='--',color='green')
-plt.plot(m, max_distance_sgd, label="Worst case optimality ratio SGD", linestyle='--',color='red')
-plt.plot(m, distance_euc, label="Optimality ratio Euclidean",color='orange')
+plt.plot(m, avg_ratios_sgd, label="Average optimality ratio SGD",color='blue')
+plt.plot(m, min_ratios_sgd, label="Best case optimality ratio SGD", linestyle='--',color='green')
+plt.plot(m, max_ratios_sgd, label="Worst case optimality ratio SGD", linestyle='--',color='red')
+
 
 plt.xlabel('m')
 plt.ylabel('ratio')
 plt.legend()
-plt.title("Distances, n=1000")
+plt.title("Optimality ratio, n=1000")
 plt.show()
