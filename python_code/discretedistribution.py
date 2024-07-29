@@ -50,3 +50,23 @@ class DiscreteDistribution:
         if len(self.atoms) == 0:
             return 0
         return len(self.atoms[0])
+
+################################################################################
+
+"""
+    Given a DiscreteDistribution, a set of indexes and an associated list of
+    weights, construct the associated reduced DiscreteDistribution
+"""
+def discrete_reallocation(xi:DiscreteDistribution, indexes:list[int], weights:np.ndarray):
+    atoms = xi.get_atoms()
+    return DiscreteDistribution(atoms[indexes], weights)
+
+"""
+    Generate a dummy DiscreteDistribution of a support size n where atoms live
+    in an euclidean space of dimension dim
+"""
+def dummy_DiscreteDistribution(n:int, dim:int):
+    atoms = np.random.rand(n, dim)  
+    probabilities = np.random.rand(n)
+    probabilities /= probabilities.sum()
+    return DiscreteDistribution(atoms, probabilities)
