@@ -13,6 +13,7 @@
 
 import numpy as np
 
+from discretedistribution import *
 from typing import Tuple
 from utils import *
 
@@ -34,7 +35,7 @@ from abc import ABC, abstractmethod
     between input distribution and reduced distribution.
 """
 
-def dupacova_forward(xi:DiscreteDistribution, m:int, l=2):
+def dupacova_forward(xi:DiscreteDistribution, m: int, l: int=2):
     D = init_costMatrix(xi, xi, l)
     n = len(xi)
     if m > n:
@@ -113,10 +114,11 @@ class LocalSearch(ABC):
         TODO: prendre en compte que seulement les indices j tq i est le plus
         proche voisin vont changer
     """
-    def update_index_closest(self, ind:np.ndarray) -> None:
+    def update_index_closest(self, ind_closest:np.ndarray) -> None:
+        ind_array =  np.array(list(self.ind_reduced))    
         rows = np.arange(self.cost_m.shape[0])[:, None]
-        reduced_distances = self.cost_m[rows, self.index_reduced]
-        ind[:] = self.index_reduced[np.argmin(reduced_distances, axis=1)]
+        reduced_distances = self.cost_m[rows, ind_array]
+        ind_closest[:] = ind_array[np.argmin(reduced_distances, axis=1)]
 
     """
         Outline of the local_search algorithm, that depends on the abstract
@@ -131,7 +133,8 @@ class LocalSearch(ABC):
         improvement = True
 
         # Init min distance vector and current (best) l-Wass. distance
-        index_closest = np.argmin(self.cost_m, axis=1)
+        index_closest = np.full(n, 0, dtype=int)
+        self.update_index_closest(index_closest)
         minimum_d = self.cost_m[np.arange(n), index_closest]
         best_d = np.dot(minimum_d, self.xi.probabilities)
 
@@ -140,13 +143,13 @@ class LocalSearch(ABC):
             if self.improvement_condition(trial_d, best_d): # Update
                 best_d = trial_d
                 self.ind_reduced.remove(trial_i)
-                self.ind_reduced.push(trial_j)
+                self.ind_reduced.add(trial_j)
                 
                 self.update_index_closest(index_closest)
                 minimum_d = self.cost_m[np.arange(n), index_closest]
             else:
                 improvement = False
-        return(self.ind_reduced, minimum_d)
+        return(best_d, self.ind_reduced)
 
 class BestFit(LocalSearch):
     def init_R(self):
@@ -155,54 +158,27 @@ class BestFit(LocalSearch):
     def improvement_condition(self, trial_d: float, best_d: float) -> bool:
         return (trial_d < best_d)
 
-    def pick_ij(self, ind_closest:np.ndarray, min_d:np.ndarray) -> Tuple[int, int, float]:
+    def pick_ij(self, ind_closest: np.ndarray, min_d: np.ndarray) -> Tuple[int, int, float]:
         n = len(self.xi)
         ind_red = self.ind_reduced.copy()
+        ind_to_choose = set(range(n)).difference(ind_red) # maybe could precompute complementaries
         dist = np.full(n, np.inf)
-        for i in self.ind_red:
+        J = dict()
+        for i in ind_red:
             # Remove x_i from R and update ind_closest and min_d accordingly
             ind_red.remove(i)
+            ind_to_choose.add(i)
+
             self.update_index_closest(ind_closest)
             min_d = self.cost_m[np.arange(n), ind_closest]
 
-            # compute best j(i) among all j in 1:n \ ind_red
-            j_i = greedy_atom_selection(self.xi, ind_red, self.cost_m, min_d)
+            # compute best J(i) among all j in 1:n \ ind_red
+            J[i] = greedy_atom_selection(self.xi, ind_to_choose, self.cost_m, min_d)
             dist[i] = np.dot(min_d, self.xi.probabilities)
 
             # put back x_i and loop
-            ind_red.push(i)
-        return np.argmin(dist)
-            
-        
-
-
-# """
-#     Local search algorithm implementation but dependent on abstract functions 
-# """
-# def local_search(xi:DiscreteDistribution, index_reduced:set[int], l:int = 2):
-#     # best-fit
-#     n = len(xi)
-#     m = len(index_reduced)
-#     index_reduced = np.array(index_reduced)
-
-#     if m > n:
-#         raise ValueError("m is greater than the number of atoms")
-#     D = init_costMatrix(xi, xi, l)
-
-#     # Initial computation of minimum distances and closest indices
-#     index_closest = np.argmin(D, axis=1)
-#     minimum_d = D[np.arange(n), index_closest]
-#     best_d = np.dot(minimum_d, xi.probabilities)
-#     improvement = True
-
-    # while improvement:
-
-    # while improvement:
-        # Pick an element to temporarily remove from the reduced distribution
-
-        # Pick an element 
-
-    # Now we have the reduced set
-    # reduced_distribution = [distribution_x[i] for i in index_reduced]
-
-    # return (np.dot(minimum, xi.probabilities),reduced_distribution)
+            ind_red.add(i)
+            ind_to_choose.remove(i)
+    
+        i_best = np.argmin(dist)
+        return i_best, J[i_best], dist[i_best]

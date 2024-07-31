@@ -32,7 +32,7 @@ from scipy.spatial.distance import cdist
         - xi_1 and xi_2 are the supports of the two distributions
         - optional parameter p set to 2 by default
 """
-def init_costMatrix(xi_1: DiscreteDistribution, xi_2: DiscreteDistribution, l=2):  
+def init_costMatrix(xi_1: DiscreteDistribution, xi_2: DiscreteDistribution, l: int=2):  
     return cdist(xi_1.get_atoms(), xi_2.get_atoms(), metric='euclidean')**l
 
 """
@@ -42,17 +42,17 @@ def generate_data_normalgamma(n:int):
     x = np.random.normal(loc=10, scale=2, size=n)
     y = np.random.gamma(shape=2, scale=2, size=n)
     
-    data = np.column_stack((x, y))
+    data = np.array([[x[i], y[i]] for i in range(n)])
     probabilities = np.full(n, 1/n)
 
     return DiscreteDistribution(data, probabilities)
 
 """
-    Compute argmin_{i \in indexes} D_l(P, R u {x_i}), assuming that one knows 
+    Compute argmin_{i in indexes} D_l(P, R u {x_i}), assuming that one knows 
         min_{i' in R} c(x_i, x_i') for every i. 
     The DiscreteDistribution P has atoms (x_i)_i and R is a subset of the atoms of P. We add x_i to R among the atoms of P in indexes that minimizes the above criterium.
 """
-def greedy_atom_selection(xi, indexes: set[int], cost_m: np.ndarray, min_cost: np.ndarray) -> int:
+def greedy_atom_selection(xi: DiscreteDistribution, indexes: set[int], cost_m: np.ndarray, min_cost: np.ndarray) -> int:
     indexes = np.array(list(indexes)) 
     min_costs = np.minimum(min_cost, cost_m[indexes])
     dist = np.dot(min_costs, xi.probabilities)
