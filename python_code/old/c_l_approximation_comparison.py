@@ -12,10 +12,11 @@ import os
 
 os.environ["OMP_NUM_THREADS"] = "1"
 
-
+        
 random.seed(11112002)
 np.random.seed(11112002)
 
+# Dans numpy, de diverses façons possibles, cf commentaires.py
 def norm_l(x,y,l):
     value=0.
     n=len(x)
@@ -23,7 +24,8 @@ def norm_l(x,y,l):
         value+=(x[i]-y[i])**2
     return value**(l/2)
 
-def matrice_distance(distribution_1,distribution_2,l):
+# ajouté dans utils.py en tant que init_distanceMatrix
+def matrice_distance(distribution_1,distribution_2, l):
     n_i=len(distribution_1)
     n_j=len(distribution_2)
     matrice=np.zeros((n_i,n_j))
@@ -32,6 +34,7 @@ def matrice_distance(distribution_1,distribution_2,l):
             matrice[i,j]=norm_l(distribution_1[i],distribution_2[j],l)
     return matrice
 
+# Dans numpy, np.minimum(v1,v2) 
 def minimum_vector(v1,v2):
     n=len(v1)
     m=len(v2)
@@ -44,6 +47,7 @@ def minimum_vector(v1,v2):
             v3[i]=min(v1[i],v2[i])
         return v3
 
+# produit scalaire entre m et p, on peut utiliser np.dot(m,p)
 def sum_p(m,p):
     n1=len(m)
     n2=len(p)
@@ -56,6 +60,7 @@ def sum_p(m,p):
             s+=p[i]*m[i]
         return s
 
+# ajouté dans utils.py en tant que generate_data_normalgamma(n)
 def generate_data_u(n):
 
     x = np.random.normal(loc=10, scale=2, size=n)
@@ -93,7 +98,6 @@ def dupacova_forward(distribution_x,m,l,distribution_p):
         minimum=best_m
         reduced_set.append(distribution_x[index])
         index_to_chose.remove(index)
-
     return (reduced_set,minimum)
 
 
@@ -118,11 +122,16 @@ def local_search_bf(distribution_x,index_reduced,l):
                     d = dist
                     index_closest[i] = k
             minimum[i] = d
-
+        print(f"old closest: {index_closest}")
         distance_to_reduce = sum(minimum) / n
+        print(f"old cur best: {distance_to_reduce}")
         improvement = True
 
+        tmp = 0
         while improvement:
+            tmp += 1
+            print("--")
+            print(f"iter = {tmp}")
             best_i = -1
             best_j = -1
             best_m = []
@@ -142,7 +151,6 @@ def local_search_bf(distribution_x,index_reduced,l):
                                     best_k = k
                         m0[j] = d
                         index0[j] = best_k
-
                 for j in range(n):
                     if j not in index_reduced:
                         m_ij = minimum_vector(D[j], m0)
@@ -152,6 +160,8 @@ def local_search_bf(distribution_x,index_reduced,l):
                             best_j = j
                             best_m = m_ij
                             distance_to_reduce = distance_ij
+                            print(f"i={i}, j={j}")
+                print(f"dist to reduce {i}: {distance_to_reduce}")
 
             if best_i == -1 and best_j == -1:
                 # No improvement found
@@ -161,6 +171,7 @@ def local_search_bf(distribution_x,index_reduced,l):
                 index_reduced.remove(best_i)
                 index_reduced.append(best_j)
                 minimum = best_m
+                print(f"old cur best_d: {sum(minimum) / n}")
                 # Update index_closest
                 for i in range(n):
                     d = float('inf')
@@ -175,12 +186,12 @@ def local_search_bf(distribution_x,index_reduced,l):
 
         return (sum(minimum) / n,reduced_distribution)
 
-
+# Now obsolete but need to do the opposite "index_to_set" function instead
 def set_to_index(reduced,big):
     index=[]
     for i in range(len(reduced)):
         for j in range(len(big)):
-            if reduced[i]==big[j]:
+            if np.array_equal(reduced[i],big[j]):
                 index.append(j)
     if len(set(index))!=len(reduced):
         print("error")
@@ -252,51 +263,51 @@ def k_means(distribution,m):
     dist = 0
 
     for i in range(n):
-        dist +=(min(matrice[i]))/n
+        dist +=(min(matrice[i]))
 
-    return dist
-
-
-n =150
-deb = 20
-l = 2
-
-distribution=generate_data_u(n)
-mm = [i for i in range(deb,n-deb)]
-
-time_km = [0]*len(mm)
-time_ls = [0]*len(mm)
-time_ls_improved = [0]*len(mm)
-
-value_km= [0]*len(mm)
-value_ls= [0]*len(mm)
-value_ls_improved = [0]*len(mm)
-
-for i in range(len(mm)):
-    print(i, "/", len(mm) )
-    #get the starters
-    t1_starter = time.time()
-    dupacova_starters = dupacova_forward(distribution[0],mm[i],l,[1/n]*n)[0]
-    t2_starter=time.time()
-    index_starters = set_to_index(dupacova_starters,distribution[0])
-    t1=time.time()
-    value_ls[i]=local_search_bf(distribution[0],index_starters,l)[0]
-    t2=time.time()
-    value_ls_improved[i] =local_search_improved(distribution[0],mm[i])[0]
-    t3=time.time()
-    value_km[i]= k_means(distribution[0],mm[i])
-    t4=time.time()
-    time_km[i]=t4-t3
-    time_ls[i]=t2_starter-t1_starter + t2-t1
-    time_ls_improved[i]=t3-t2
+    return dist / n
 
 
-plt.figure(figsize=(10, 6))
-plt.plot(mm,value_km,label="k-means")
-plt.plot(mm,value_ls, label = "Local-search")
-plt.plot(mm,value_ls_improved,label="Local-search improved")
+# n =150
+# deb = 20
+# l = 2
 
-plt.xlabel('m')
-plt.legend()
-plt.title("Efficiency comparison, n=150")
-plt.show()
+# distribution=generate_data_u(n)
+# mm = [i for i in range(deb,n-deb)]
+
+# time_km = [0]*len(mm)
+# time_ls = [0]*len(mm)
+# time_ls_improved = [0]*len(mm)
+
+# value_km= [0]*len(mm)
+# value_ls= [0]*len(mm)
+# value_ls_improved = [0]*len(mm)
+
+# for i in range(len(mm)):
+#     print(i, "/", len(mm) )
+#     #get the starters
+#     t1_starter = time.time()
+#     dupacova_starters = dupacova_forward(distribution[0],mm[i],l,[1/n]*n)[0]
+#     t2_starter=time.time()
+#     index_starters = set_to_index(dupacova_starters,distribution[0])
+#     t1=time.time()
+#     value_ls[i]=local_search_bf(distribution[0],index_starters,l)[0]
+#     t2=time.time()
+#     value_ls_improved[i] =local_search_improved(distribution[0],mm[i])[0]
+#     t3=time.time()
+#     value_km[i]= k_means(distribution[0],mm[i])
+#     t4=time.time()
+#     time_km[i]=t4-t3
+#     time_ls[i]=t2_starter-t1_starter + t2-t1
+#     time_ls_improved[i]=t3-t2
+
+
+# plt.figure(figsize=(10, 6))
+# plt.plot(mm,value_km,label="k-means")
+# plt.plot(mm,value_ls, label = "Local-search")
+# plt.plot(mm,value_ls_improved,label="Local-search improved")
+
+# plt.xlabel('m')
+# plt.legend()
+# plt.title("Efficiency comparison, n=150")
+# plt.show()

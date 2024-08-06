@@ -13,10 +13,11 @@ from dsr import *
 ################################################################################
 
 from utils import *
-"""
-    Print of init_distanceMatrix(...)
-"""
+
 def test_init_distanceMatrix(m: int, n: int):
+    """
+        Print of init_distanceMatrix(...)
+    """
     xi_1 = dummy_DiscreteDistribution(m, 2)
     xi_2 = dummy_DiscreteDistribution(n, 2)
 
@@ -24,10 +25,11 @@ def test_init_distanceMatrix(m: int, n: int):
     print(init_costMatrix(xi_1, xi_2))
     print("-"*5)
 
-"""
-    Print of generate_data_normalgamma(...)
-"""
+
 def test_generate_data_normalgamma(n):
+    """
+        Print of generate_data_normalgamma(...)
+    """
     distribution = generate_data_normalgamma(n)
     print(f"Print of test_generate_data_normalgamma({n}) ")
     print("Distribution:")
@@ -41,10 +43,10 @@ def test_generate_data_normalgamma(n):
 ################ Functions from discretedistribution.py ########################
 ################################################################################
 
-"""
-    Test of discrete_reallocation(...)
-"""
 class TestDiscreteReallocation(unittest.TestCase):
+    """
+        Test of discrete_reallocation(...)
+    """
     def test_discrete_reallocation(self, n:int = 10, dim:int = 4):
         print("Test discrete_reallocation")
         xi = dummy_DiscreteDistribution(n, dim)
@@ -69,15 +71,15 @@ class TestDiscreteReallocation(unittest.TestCase):
 ########################## Functions from dsr.py ###############################
 ################################################################################
 
-"""
-    Comparing the old and new versions of Forward Dupacova: checking that they
-    give the same values and also comparing the run times
-"""
-class TestForwardDupacova(unittest.TestCase):
 
+class TestForwardDupacova(unittest.TestCase):
+    """
+        Comparing the old and new versions of Forward Dupacova: checking that they
+        give the same values and also comparing the run times
+    """
     def test_oldvsnew(self, n:int = 150, m:int = 20, l:int = 2):
-        from c_l_approximation_comparison import dupacova_forward as old_dupacova_forward
-        from c_l_approximation_comparison import set_to_index
+        from old.c_l_approximation_comparison import dupacova_forward as old_dupacova_forward
+        from old.c_l_approximation_comparison import set_to_index
         np.random.seed(42069)
         print("Test old vs new Forward Dupacova")
 
@@ -97,8 +99,8 @@ class TestForwardDupacova(unittest.TestCase):
         print(f"    Relative time ratio......: {(abs(t_dupacova_old - t_dupacova_new)/t_dupacova_new)*100}%")
 
         # Assert distance values are equal
-        old_dist = np.power(np.dot( np.power(np.array(old_sol[1]), l), distribution.probabilities ), 1/l)
-        new_dist = np.power(np.dot( np.power(np.array(new_sol[1]), l), distribution.probabilities ), 1/l)
+        old_dist = np.power(np.dot( np.array(old_sol[1]), distribution.probabilities ), 1/l)
+        new_dist = new_sol[1]
         np.testing.assert_almost_equal(old_dist, new_dist)
 
         # Assert reduced indexes are equal
@@ -106,30 +108,76 @@ class TestForwardDupacova(unittest.TestCase):
 
 class TestBestFit(unittest.TestCase):
     
-    def test_oldvsnew(self, n:int = 150, m:int = 20, l:int = 2):
-        from c_l_approximation_comparison import dupacova_forward as old_dupacova_forward
-        from c_l_approximation_comparison import local_search_bf
-        from c_l_approximation_comparison import set_to_index
-        np.random.seed(42069)
+    def test_consistency(self, n: int=100, m: int = 10, l:int= 2):
+        """
+            Sanity check that if one starts BestFit with the warmstart obtained from a
+            first run of BestFit, then local_search() does not iterate.
+        """
+        print("Test consistency")
+        from old.c_l_approximation_comparison import local_search_bf as old_bestfit
+        from old.c_l_approximation_comparison import set_to_index
+
+        np.random.seed(42)
+        distribution = generate_data_normalgamma(n)
+        index_starters = dupacova_forward(distribution, m, l)[0]
+        first_bf = old_bestfit(distribution.atoms, list(index_starters), l)
+        index_starters = set_to_index(first_bf[1], distribution.atoms)
+
+        second_bf = old_bestfit(distribution.atoms, list(index_starters), l)
+        np.testing.assert_equal(first_bf[0], second_bf[0])
+
+    def test_oldvsnew(self, n:int = 20, m:int = 5, l:int = 2):
+        from old.c_l_approximation_comparison import dupacova_forward as old_dupacova_forward
+        from old.c_l_approximation_comparison import local_search_bf as old_bestfit
+        from old.c_l_approximation_comparison import set_to_index
+        np.random.seed(42)
 
         print("Test old vs new Local Search")
         distribution = generate_data_normalgamma(n)
-        red_distrib = old_dupacova_forward(distribution.atoms,m,l,[1/n]*n)[0]
-        index_starters = set_to_index(red_distrib, distribution.atoms)
+        index_starters = dupacova_forward(distribution, m, l)[0]
         t_old_start = time.time()
-        old_bf = local_search_bf(distribution.atoms,index_starters, l)
+        old_bf = old_bestfit(distribution.atoms, list(index_starters), l)
         t_old = time.time() - t_old_start
         print(f"   Old time..........: {t_old}")
 
         t_new_start = time.time()
-        yo = BestFit(distribution, set(index_starters), 2)
+        yo = BestFit(distribution, set(index_starters), l=l)
         new_bf = yo.local_search()
         t_new = time.time() - t_new_start
         print(f"   New time..........: {t_new}")
         print(f"   Rel. time ratio...: {(abs(t_old - t_new)/t_new)*100}%")
 
-        # Assert distance values are equel
-        np.testing.assert_almost_equal(old_bf[0], new_bf[0])
+        # Assert distance values are equal
+        print(f"old: {np.power(old_bf[0], 1/l)}")
+        print(f"new: {new_bf[0]}")
+        np.testing.assert_almost_equal(np.power(old_bf[0], 1/l), new_bf[0])
+
+# class TestFirstFit(unittest.TestCase):
+    
+#     def test_oldvsnew(self, n:int = 150, m:int = 20, l:int = 2):
+#         from old.random_firstfit import local_search_ff as old_firstfit
+#         from old.random_firstfit import local_search_ff_random as old_random_firstfit
+#         from python_code.old.c_l_approximation_comparison import set_to_index
+#         np.random.seed(42069)
+
+#         print("Test old vs new Local Search")
+#         distribution = generate_data_normalgamma(n)
+#         index_starters = dupacova_forward(distribution, m, l)[0]
+
+#         t_old_start = time.time()
+#         old_bf = local_search_bf(distribution.atoms,index_starters, l)
+#         t_old = time.time() - t_old_start
+#         print(f"   Old time..........: {t_old}")
+
+#         t_new_start = time.time()
+#         yo = BestFit(distribution, set(index_starters), l=l)
+#         new_bf = yo.local_search()
+#         t_new = time.time() - t_new_start
+#         print(f"   New time..........: {t_new}")
+#         print(f"   Rel. time ratio...: {(abs(t_old - t_new)/t_new)*100}%")
+
+#         # Assert distance values are equal
+#         np.testing.assert_almost_equal(np.power(old_bf[0], 1/l), new_bf[0])
 
 ################################################################################
 ########################## Functions from csr.py ###############################

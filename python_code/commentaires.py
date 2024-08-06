@@ -2,34 +2,63 @@
 ####################### Commentaires généraux en vrac ##########################
 ################################################################################
 """
-Dans le rapport - il faut pour le thm 17 qui donne la redistribution optimale
+Dans le rapport 
+- il faut pour le thm 17 qui donne la redistribution optimale
 des poids, donner aussi la formule fermée pour la valeur. Ajuster la preuve en
 conséquence pour marquer le coup quand elle est prouvée.
-
+- Algo 2 préciser "best"
+- Algo 3, mauvaise parenthèse : ça devrait être (supp(P) \ R) x R
+- Algo 3, on a 
+    min_{i' \in I \ {i}} c(x_k, x_i') = 
+                                max( min_{i' \in I}c(x_k, x_i'), c(x_k, x_i) )
 
 Je liste quelques remarques sur le code, j'ai mis plus bas quelques commentaires
 Splus détaillés sur des points précis.
 
-Sur c_l approximation comparison.py - Tu gagnerais à "factoriser" ton code sur
+Sur c_l approximation comparison.py 
+- Tu gagnerais à "factoriser" ton code sur
 certains points : tu peux faire un fichier utils.py, et y mettre des fonctions
 redondantes comme norm_l dedans. Comme ça quand elle a un problème (cf.
 ci-dessous), tu as juste à changer celle du fichier. Bon pour cet exemple précis
 de norm_l, tu peux utiliser la fonction de numpy (cf. ci-dessous aussi), ça va
-plus vite que la coder à la main en Python. - Quelques autres cas où tu peux
-utiliser les fonctions de numpy. - Dans dupacova_forward, l'opération
+plus vite que la coder à la main en Python.
+
+ - Quelques cas où tu peux
+utiliser les fonctions de numpy.
+
+- Toujours dans l'idée d'utiliser au mieux les fonctionnalités de numpy (et la
+  parallélisation d'opérations vectorielles), il faut viser à faire le moins
+  possible de boucles for. Un exemple : 
+      for i in range(n):
+        d = float('inf')
+        for k in index_reduced:
+            dist = D[i][k]
+            if dist < d:
+                d = dist
+                index_closest[i] = k
+        minimum[i] = d
+    Tu peux vectoriser la boucle interne et obtenir
+        for i in range(n):
+            k = np.argmin(D[i])
+            minimum[i] = D[i][k]
+    c'est un peu plus délicat pour la boucle externe mais c'est possible aussi :
+        index_closest = np.argmin(D, axis=1)
+        minimum = D[np.arange(n), index_closest]
+    où np.arrange(n) ça crée une np.array de 0 à n-1. On en profite pour 
+    définir index_closest et minimum directement comme ça.
+
+    Le gain est considérable en temps d'éxecution, cf la remarque sur norm_l et
+    numpy plus bas, c'est la même idée.
+
+ - Dans dupacova_forward, l'opération
 index_to_chose.remove(index) est O(n) car ton conteneur pour les index est une
 liste. C'est O(1) si le conteneur était un set. (En Python un set c'est un
 hashset alors qu'une list il faut la parcourir pour trouver la valeur
-correspondant .) - J'ai changé l'output de dupacova_forward, ça rend les indices
-et la distance de W. et on laisse à l'utilisateur reconstruire les atomes
-explicitement si il veut. Cela évite de les recopier sans les utiliser (dans le
-cas où on veut juste la valeur de la distance par ex). La fonction pour les
-reconstruire es implémenté dans utils.py : il suffit de faire reduced_distrib(P,
-indices) et ça retourne une DiscreteDistribution avec les atomes de P
-correspondant aux indices et les poids venant de la réallocation optimale. 
+correspondante avant de la supprimer. Ce n'est pas grave vu que l'algo est
+O(mn²)), mais c'est une petite amélioration. 
 
 """
-#############################################################################S###
+################################################################################
 ################### Commentaire sur norm_l et numpy ############################
 ################################################################################
 

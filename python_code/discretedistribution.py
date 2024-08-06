@@ -2,13 +2,13 @@
 ###################### DiscreteDistribution Class ##############################
 ################################################################################
 
-"""
-    Class to handle discrete distribution. Built on top of numpy for efficiency.
-    Tailored to our needs compared to scipy.
-"""
 import numpy as np
 
 class DiscreteDistribution:
+    """
+        Class to handle discrete distribution. Built on top of numpy for efficiency.
+        Tailored to our needs compared to scipy.
+    """
     def __init__(self, atoms: np.ndarray, probabilities: np.ndarray):
         assert len(atoms) == len(probabilities), "Atoms and probabilities must have the same length"
         assert np.isclose(probabilities.sum(), 1), "Probabilities must sum to 1"
@@ -53,19 +53,19 @@ class DiscreteDistribution:
 
 ################################################################################
 
-"""
-    Given a DiscreteDistribution, a set of indexes and an associated list of
-    weights, construct the associated reduced DiscreteDistribution
-"""
 def discrete_reallocation(xi:DiscreteDistribution, indexes:list[int], weights:np.ndarray):
+    """
+        Given a DiscreteDistribution, a set of indexes and an associated list of
+        weights, construct the associated reduced DiscreteDistribution
+    """
     atoms = xi.get_atoms()
     return DiscreteDistribution(atoms[indexes], weights)
 
-"""
-    Generate a dummy DiscreteDistribution of a support size n where atoms live
-    in an euclidean space of dimension dim
-"""
 def dummy_DiscreteDistribution(n:int, dim:int):
+    """
+        Generate a dummy DiscreteDistribution of a support size n where atoms live
+        in an euclidean space of dimension dim
+    """
     atoms = np.random.rand(n, dim)  
     probabilities = np.random.rand(n)
     probabilities /= probabilities.sum()

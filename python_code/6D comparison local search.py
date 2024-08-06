@@ -360,7 +360,7 @@ def dupacova_backward(distribution_x,m,l):
 
         minimum=m_best
         index_closest=best_index
-        atom_to_rm=distribution[to_rm]
+        atom_to_rm=distribution_x[to_rm]
         reduced_set.remove(atom_to_rm)
         index_to_rm.remove(to_rm)
 

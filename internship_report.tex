@@ -585,8 +585,8 @@ Create $m^0 = \begin{bmatrix} a & \hdots & a \end{bmatrix}$ with $a$ arbitrarily
 \While{$|R| < m$}{
     Select the next atom to be added from $I \setminus R$ by following this procedure.\\
     \For{$i \in I \setminus R$}{
-        Compute $\left(m_i\right)_j = \min \left\{ \left(m^0\right)_j, \left(D^i\right)_j \right\}$.\\
-        Compute $D_\ell(P, R \cup \{x_i\}) = p m_i$.\\
+        Compute the vector $\left(m_i\right) = \min \left\{ \left(m^0\right), \left(D^i\right) \right\}$.\\
+        Compute $D_\ell(P, R \cup \{x_i\}) = \langle p , m_i \rangle$.\\
         Store the best $m_i$ so far, named $m_{\text{best}}$.\\
     }
     Update $m^0 = m_{\text{best}}$. \\
