@@ -5,7 +5,6 @@
 # In this file we gather functions and classes that solve the Discrete
 # Scenario Reduction (DSR) problem.
 
-
 ################################################################################
 ########################### Imports and types ##################################
 ################################################################################
@@ -37,7 +36,7 @@ def dupacova_forward(xi:DiscreteDistribution, m: int, l: int=2):
     n = len(xi)
     if m > n:
         raise ValueError("m is greater than the number of atoms")
-    index_to_chose = np.arange(n)
+    index_to_chose = list(range(n))
 
     # For every atom i, save the minimal distance among the current atoms j
     minimum_d = np.full(n, np.inf) 
@@ -47,12 +46,12 @@ def dupacova_forward(xi:DiscreteDistribution, m: int, l: int=2):
 
     for k in range(m):
         # Find the closest atom to add on a greedy Wasserstein-based criterium
-        i_best, i_tmp = greedy_atom_selection(xi, index_to_chose, D, minimum_d)
+        i_best, i_tmp = greedy_atom_selection(xi, np.array(index_to_chose), D, minimum_d)
 
         # Update 
         minimum_d = np.minimum(minimum_d, D[i_best])
         reduced_indexes[k] = i_best
-        np.delete(index_to_chose, i_tmp)
+        index_to_chose.pop(i_tmp)
     return(reduced_indexes, np.power(np.dot(minimum_d, xi.probabilities), 1/l))
 
 
@@ -92,12 +91,13 @@ class LocalSearch(ABC):
         pass
 
     @abstractmethod
-    def pick_ij(self, indexes, min_d) -> Tuple[int, int, float]:
+    def pick_ij(self, indexes: np.ndarray) -> Tuple[int, int, float]:
         """
             Given two atoms (known through their respective index), compute a pair
             of indexes (i,j) such that the i-th atom is removed from R and the j-th
             atom of Q is added to R. During that computation, the l-Wasserstein
-            distance between xi and R u {x_i} \ {x_j}, which is also returned.
+            distance between xi and the best distribution that is supported on R u {x_i} \ {x_j}, which is also returned.
+        
             Can have additional internal criteria.  
         
             It is in this function that the core difference between local search
@@ -136,27 +136,25 @@ class LocalSearch(ABC):
         improvement = True
         print(f"init ind: {self.ind_reduced}")
 
-        # Init min distance vector and closest elements vector
+        # Init min cost vector and closest elements vector
         index_closest = np.full(n, 0, dtype=int)
         self.update_index_closest(self.ind_reduced, index_closest)
         print(f"new closest: {index_closest}")
-        minimum_d = self.cost_m[np.arange(n), index_closest]
 
         # Container for the best distance, without the power 1/l
-        best_d = np.dot(minimum_d, self.xi.probabilities)
-        print(f"current best_d: {best_d}")
+        best_d = np.dot(self.cost_m[np.arange(n), index_closest], self.xi.probabilities)
+        print(f"current best_d^l: {best_d}")
 
         while improvement:
-            trial_i, trial_j, trial_d = self.pick_ij( np.copy(index_closest), np.copy(minimum_d) )
+            trial_i, trial_j, trial_d = self.pick_ij( np.copy(index_closest))
             print(f"trial_d: {trial_d}")
             if self.improvement_condition(trial_d, best_d): # Update
                 best_d = trial_d
-                print(f"current best_d: {best_d}")
+                print(f"current best_d^l: {best_d}")
                 self.ind_reduced.remove(trial_i)
                 self.ind_reduced.add(trial_j)
                 
                 self.update_index_closest(self.ind_reduced, index_closest)
-                minimum_d = self.cost_m[np.arange(n), index_closest] # TODO: could be returned from pick_ij
             else:
                 improvement = False
         return(np.power(best_d, 1/self.l), self.ind_reduced)
@@ -174,10 +172,15 @@ class BestFit(LocalSearch):
 
     def pick_ij(self, ind_closest: np.ndarray, min_d: np.ndarray) -> Tuple[int, int, float]:
         n = len(self.xi)
+
+        # Copy of current indexes characterizing current reduced distrib Q
         ind_red = self.ind_reduced.copy()
 
         # Complement of ind_red in {0, ..., n-1}
-        ind_to_choose = np.setdiff1d(np.arange(n), ind_red)
+        ind_to_choose = list(np.setdiff1d(np.arange(n), np.array(list(ind_red))))
+
+        # Container for vector of costs of moving x_i to closest in ind_to_choose
+        costs_closest = np.full(n, 0.0, dtype=float)
 
         # Holder for ( Distance(P, R \ {x_i} \cup x_J[i] )_i
         dist = np.full(n, np.inf)
@@ -186,20 +189,22 @@ class BestFit(LocalSearch):
         J = dict()
 
         for i in ind_red:
-            # Remove x_i from R and update ind_closest and min_d accordingly
+            # Remove x_i from R and update ind_to_choose, ind_closest and min_d accordingly
             ind_red.remove(i)
-            np.append(ind_to_choose, i)
+            ind_to_choose.append(i)
+
             self.update_index_closest(ind_red, ind_closest)
-            min_d = self.cost_m[np.arange(n), ind_closest]
+            print(f"{i} ind_closest = {ind_closest}")
+            costs_closest = np.minimum(self.cost_m[np.arange(n), ind_closest], ) 
 
             # j_tmp is the corresponding index of J[i] in ind_to_choose
-            J[i], j_tmp = greedy_atom_selection(self.xi, ind_to_choose, self.cost_m, min_d)
+            J[i], j_tmp = greedy_atom_selection(self.xi, np.array(ind_to_choose), self.cost_m, min_d)
             print(f"J[{i}] = {J[i]}")
             dist[i] = np.dot(min_d, self.xi.probabilities)
 
             # put back x_i and loop
             ind_red.add(i)
-            np.delete(ind_to_choose, j_tmp)
+            ind_to_choose.pop()
             print(f"dist {i}: {dist[i]}")
         i_best = np.argmin(dist)
         return i_best, J[i_best], dist[i_best]
@@ -229,7 +234,6 @@ class FirstFit(LocalSearch):
 
        for i in ind_red:
            # Remove x_i from R and update ind_closest and min_d accordingly
-
            ind_red.remove(i)
            self.update_index_closest(self.ind_reduced, ind_closest)
            min_d = self.cost_m[np.arange(n), ind_closest]

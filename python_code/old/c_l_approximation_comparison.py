@@ -122,10 +122,10 @@ def local_search_bf(distribution_x,index_reduced,l):
                     d = dist
                     index_closest[i] = k
             minimum[i] = d
-        print(f"old closest: {index_closest}")
         distance_to_reduce = sum(minimum) / n
-        print(f"old cur best: {distance_to_reduce}")
+        print(f"old cur best_d^l: {distance_to_reduce}")
         improvement = True
+        print(f"init indexes = {index_reduced}")
 
         tmp = 0
         while improvement:
@@ -161,7 +161,7 @@ def local_search_bf(distribution_x,index_reduced,l):
                             best_m = m_ij
                             distance_to_reduce = distance_ij
                             print(f"i={i}, j={j}")
-                print(f"dist to reduce {i}: {distance_to_reduce}")
+                print(f"dist^l {i}: {distance_to_reduce}")
 
             if best_i == -1 and best_j == -1:
                 # No improvement found
@@ -171,7 +171,7 @@ def local_search_bf(distribution_x,index_reduced,l):
                 index_reduced.remove(best_i)
                 index_reduced.append(best_j)
                 minimum = best_m
-                print(f"old cur best_d: {sum(minimum) / n}")
+                print(f"old cur best_d^l: {sum(minimum) / n}")
                 # Update index_closest
                 for i in range(n):
                     d = float('inf')

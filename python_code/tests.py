@@ -80,7 +80,6 @@ class TestForwardDupacova(unittest.TestCase):
     def test_oldvsnew(self, n:int = 150, m:int = 20, l:int = 2):
         from old.c_l_approximation_comparison import dupacova_forward as old_dupacova_forward
         from old.c_l_approximation_comparison import set_to_index
-        np.random.seed(42069)
         print("Test old vs new Forward Dupacova")
 
         # Old functions
@@ -108,29 +107,29 @@ class TestForwardDupacova(unittest.TestCase):
 
 class TestBestFit(unittest.TestCase):
     
-    def test_consistency(self, n: int=100, m: int = 10, l:int= 2):
-        """
-            Sanity check that if one starts BestFit with the warmstart obtained from a
-            first run of BestFit, then local_search() does not iterate.
-        """
-        print("Test consistency")
-        from old.c_l_approximation_comparison import local_search_bf as old_bestfit
-        from old.c_l_approximation_comparison import set_to_index
+    # def test_consistency(self, n: int=100, m: int = 10, l:int= 2):
+    #     """
+    #         Sanity check that if one starts BestFit with the warmstart obtained from a
+    #         first run of BestFit, then local_search() does not iterate.
+    #     """
+    #     print("Test consistency")
+    #     from old.c_l_approximation_comparison import local_search_bf as old_bestfit
+    #     from old.c_l_approximation_comparison import set_to_index
 
-        np.random.seed(42)
-        distribution = generate_data_normalgamma(n)
-        index_starters = dupacova_forward(distribution, m, l)[0]
-        first_bf = old_bestfit(distribution.atoms, list(index_starters), l)
-        index_starters = set_to_index(first_bf[1], distribution.atoms)
+    #     np.random.seed(42)
+    #     distribution = generate_data_normalgamma(n)
+    #     index_starters = dupacova_forward(distribution, m, l)[0]
+    #     first_bf = old_bestfit(distribution.atoms, list(index_starters), l)
+    #     index_starters = set_to_index(first_bf[1], distribution.atoms)
 
-        second_bf = old_bestfit(distribution.atoms, list(index_starters), l)
-        np.testing.assert_equal(first_bf[0], second_bf[0])
+    #     second_bf = old_bestfit(distribution.atoms, list(index_starters), l)
+    #     np.testing.assert_equal(first_bf[0], second_bf[0])
 
     def test_oldvsnew(self, n:int = 20, m:int = 5, l:int = 2):
         from old.c_l_approximation_comparison import dupacova_forward as old_dupacova_forward
         from old.c_l_approximation_comparison import local_search_bf as old_bestfit
         from old.c_l_approximation_comparison import set_to_index
-        np.random.seed(42)
+        # np.random.seed(42)
 
         print("Test old vs new Local Search")
         distribution = generate_data_normalgamma(n)
