@@ -100,7 +100,6 @@ def dupacova_forward(distribution_x,m,l,distribution_p):
         index_to_chose.remove(index)
     return (reduced_set,minimum)
 
-
 def local_search_bf(distribution_x,index_reduced,l):
     # best-fit
     n = len(distribution_x)
@@ -123,15 +122,11 @@ def local_search_bf(distribution_x,index_reduced,l):
                     index_closest[i] = k
             minimum[i] = d
         distance_to_reduce = sum(minimum) / n
-        print(f"old cur best_d^l: {distance_to_reduce}")
         improvement = True
-        print(f"init indexes = {index_reduced}")
 
         tmp = 0
         while improvement:
             tmp += 1
-            print("--")
-            print(f"iter = {tmp}")
             best_i = -1
             best_j = -1
             best_m = []
@@ -160,8 +155,6 @@ def local_search_bf(distribution_x,index_reduced,l):
                             best_j = j
                             best_m = m_ij
                             distance_to_reduce = distance_ij
-                            print(f"i={i}, j={j}")
-                print(f"dist^l {i}: {distance_to_reduce}")
 
             if best_i == -1 and best_j == -1:
                 # No improvement found
@@ -171,7 +164,6 @@ def local_search_bf(distribution_x,index_reduced,l):
                 index_reduced.remove(best_i)
                 index_reduced.append(best_j)
                 minimum = best_m
-                print(f"old cur best_d^l: {sum(minimum) / n}")
                 # Update index_closest
                 for i in range(n):
                     d = float('inf')

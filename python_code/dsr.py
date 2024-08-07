@@ -66,11 +66,13 @@ class LocalSearch(ABC):
         we first define local search in an abstract class. Then each variant
         would only need to implement the abstract function of the abstract class.
     """
-    def __init__(self, xi:DiscreteDistribution, initial_indexes:set[int], l:int = 2):
+    def __init__(self, xi:DiscreteDistribution, initial_indexes, l:int = 2):
         self.xi = xi
         self.cost_m = init_costMatrix(xi, xi, l)
-        self.ind_reduced = set(initial_indexes)
+        self.ind_reduced = list(initial_indexes)
         self.l = l
+        self.n = len(xi)
+        self.m = len(initial_indexes) # both with n should be moved to concrete class
 
     @abstractmethod
     def init_R(self):
@@ -133,28 +135,22 @@ class LocalSearch(ABC):
         m = len(self.ind_reduced)
         if m > n:
             raise ValueError("m is greater than the number of atoms")
-        improvement = True
-        print(f"init ind: {self.ind_reduced}")
 
         # Init min cost vector and closest elements vector
         index_closest = np.full(n, 0, dtype=int)
         self.update_index_closest(self.ind_reduced, index_closest)
-        print(f"new closest: {index_closest}")
 
         # Container for the best distance, without the power 1/l
-        best_d = np.dot(self.cost_m[np.arange(n), index_closest], self.xi.probabilities)
-        print(f"current best_d^l: {best_d}")
-
+        best_d = np.dot(self.xi.probabilities, 
+                        np.min(self.cost_m[:, self.ind_reduced], axis=1))
+       
+        improvement = True
         while improvement:
-            trial_i, trial_j, trial_d = self.pick_ij( np.copy(index_closest))
-            print(f"trial_d: {trial_d}")
-            if self.improvement_condition(trial_d, best_d): # Update
+            trial_i, trial_j, trial_d = self.pick_ij()
+            if self.improvement_condition(trial_d, best_d): 
                 best_d = trial_d
-                print(f"current best_d^l: {best_d}")
-                self.ind_reduced.remove(trial_i)
-                self.ind_reduced.add(trial_j)
-                
-                self.update_index_closest(self.ind_reduced, index_closest)
+                self.ind_reduced.pop(trial_i)
+                self.ind_reduced.append(trial_j)
             else:
                 improvement = False
         return(np.power(best_d, 1/self.l), self.ind_reduced)
@@ -170,44 +166,42 @@ class BestFit(LocalSearch):
     def improvement_condition(self, trial_d: float, best_d: float) -> bool:
         return (trial_d < best_d)
 
-    def pick_ij(self, ind_closest: np.ndarray, min_d: np.ndarray) -> Tuple[int, int, float]:
+    def pick_ij(self) -> Tuple[int, int, float]:
         n = len(self.xi)
 
-        # Copy of current indexes characterizing current reduced distrib Q
-        ind_red = self.ind_reduced.copy()
+        # Current indexes characterizing current reduced distrib Q
+        ind_red = list(self.ind_reduced)
 
         # Complement of ind_red in {0, ..., n-1}
         ind_to_choose = list(np.setdiff1d(np.arange(n), np.array(list(ind_red))))
+        # TODO: add it to internal var ?
 
-        # Container for vector of costs of moving x_i to closest in ind_to_choose
-        costs_closest = np.full(n, 0.0, dtype=float)
-
-        # Holder for ( Distance(P, R \ {x_i} \cup x_J[i] )_i
+        # Holder for ( Distance(P, R \ {x_i} \cup x_J[i] )_{1 \leq i' \leq n}
         dist = np.full(n, np.inf)
 
         # Holder for "the best" J[i] among all j in ind_to_choose
         J = dict()
 
-        for i in ind_red:
-            # Remove x_i from R and update ind_to_choose, ind_closest and min_d accordingly
-            ind_red.remove(i)
-            ind_to_choose.append(i)
-
-            self.update_index_closest(ind_red, ind_closest)
-            print(f"{i} ind_closest = {ind_closest}")
-            costs_closest = np.minimum(self.cost_m[np.arange(n), ind_closest], ) 
-
-            # j_tmp is the corresponding index of J[i] in ind_to_choose
-            J[i], j_tmp = greedy_atom_selection(self.xi, np.array(ind_to_choose), self.cost_m, min_d)
-            print(f"J[{i}] = {J[i]}")
-            dist[i] = np.dot(min_d, self.xi.probabilities)
-
-            # put back x_i and loop
-            ind_red.add(i)
-            ind_to_choose.pop()
-            print(f"dist {i}: {dist[i]}")
+        for (i, ind) in enumerate(ind_red):
+            # For all i, compute J(i) "best" {x_j} where j \in ind_to_choose to be added to ind_red = R\{x_i}
+            J[ind], dist[i] = self.greedy_selection(
+                                    [k for k in ind_red if k!=ind], ind_to_choose)
         i_best = np.argmin(dist)
-        return i_best, J[i_best], dist[i_best]
+        return (i_best, J[ind_red[i_best]], dist[i_best])
+    
+    def greedy_selection(self, ind_red: list[int], ind_to_choose: list[int]):
+        """
+            Compute J(i) = argmin_{j \in ind_to_choose} < P, v[j] > where 
+                v[j] := [ min_{ z \in Ri \cup {x[j]} } c( x_k, z ) ]_{0 \leq k \leq n-1}
+             and also return the associated value.
+        """
+        obj_val = [np.dot(self.xi.probabilities, 
+                          np.min(self.cost_m[:, ind_red + [j]], axis=1))
+                          for j in ind_to_choose]
+        
+        # Compute the minimal objective value and minimizer, ties broken by np.argmin
+        best_ind = np.argmin(obj_val)
+        return ind_to_choose[best_ind], obj_val[best_ind]
     
 ################################################################################
 ################ Local Search concrete implementation: First Fit ###############
