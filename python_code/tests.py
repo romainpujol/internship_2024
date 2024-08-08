@@ -87,15 +87,14 @@ class TestForwardDupacova(unittest.TestCase):
         t_old_start = time.time()
         old_sol = old_dupacova_forward(distribution.atoms,m,l,[1/n]*n)
         t_dupacova_old = time.time() - t_old_start
-        print(f"    Time old Forward Dupacova: {t_dupacova_old}")
-        old_indexes = np.array( set_to_index(old_sol[0], distribution.atoms) )
+        print(f"    Time old Forward Dupacova: {t_dupacova_old:.3f}s")
 
         # New functions
         t_new_start = time.time()
         new_sol = dupacova_forward(distribution, m, l)
         t_dupacova_new = time.time() - t_new_start
-        print(f"    Time new Forward Dupacova: {t_dupacova_new}")
-        print(f"    Relative time ratio......: {(abs(t_dupacova_old - t_dupacova_new)/t_dupacova_new)*100}%")
+        print(f"    Time new Forward Dupacova: {t_dupacova_new:.3f}s")
+        print(f"    Relative time ratio......: {(abs(t_dupacova_old - t_dupacova_new)/t_dupacova_new)*100:.2f}%")
 
         # Assert distance values are equal
         old_dist = np.power(np.dot( np.array(old_sol[1]), distribution.probabilities ), 1/l)
@@ -113,7 +112,6 @@ class TestBestFit(unittest.TestCase):
         from old.c_l_approximation_comparison import local_search_bf as old_bestfit
         from old.c_l_approximation_comparison import set_to_index
 
-        np.random.seed(42)
         distribution = generate_data_normalgamma(n)
         index_starters = dupacova_forward(distribution, m, l)[0]
         first_bf = old_bestfit(distribution.atoms, list(index_starters), l)
@@ -123,29 +121,24 @@ class TestBestFit(unittest.TestCase):
         np.testing.assert_equal(first_bf[0], second_bf[0])
 
     def test_oldvsnew(self, n:int = 149, m:int = 20, l:int = 2):
-        from old.c_l_approximation_comparison import dupacova_forward as old_dupacova_forward
         from old.c_l_approximation_comparison import local_search_bf as old_bestfit
-        from old.c_l_approximation_comparison import set_to_index
-        # np.random.seed(42)
-
         print("Test old vs new Local Search")
         distribution = generate_data_normalgamma(n)
         index_starters = dupacova_forward(distribution, m, l)[0]
         t_old_start = time.time()
         old_bf = old_bestfit(distribution.atoms, list(index_starters), l)
         t_old = time.time() - t_old_start
-        print(f"   Old time..........: {t_old}")
+        print(f"   Time old BestFit..........: {t_old:.3f}s")
 
         t_new_start = time.time()
         yo = BestFit(distribution, set(index_starters), l=l)
         new_bf = yo.local_search()
         t_new = time.time() - t_new_start
-        print(f"   New time..........: {t_new}")
-        print(f"   Rel. time ratio...: {(abs(t_old - t_new)/t_new)*100}%")
+        print(f"   Time new BestFit..........: {t_new:.3f}s")
+        relative_time_ratio = (abs(t_old - t_new) / t_new) * 100
+        print(f"   Relative time ratio.......: {relative_time_ratio:.2f}%")
 
         # Assert distance values are equal
-        print(f"old: {np.power(old_bf[0], 1/l)}")
-        print(f"new: {new_bf[0]}")
         np.testing.assert_almost_equal(np.power(old_bf[0], 1/l), new_bf[0])
 
 # class TestFirstFit(unittest.TestCase):

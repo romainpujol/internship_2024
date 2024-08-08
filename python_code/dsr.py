@@ -10,6 +10,7 @@
 ################################################################################
 
 import numpy as np
+import bisect
 
 from discretedistribution import *
 from typing import Tuple
@@ -69,10 +70,17 @@ class LocalSearch(ABC):
     def __init__(self, xi:DiscreteDistribution, initial_indexes, l:int = 2):
         self.xi = xi
         self.cost_m = init_costMatrix(xi, xi, l)
-        self.ind_reduced = list(initial_indexes)
+        self.ind_red = list(initial_indexes)
+        self.ind_red.sort()
         self.l = l
         self.n = len(xi)
-        self.m = len(initial_indexes) # both with n should be moved to concrete class
+        self.m = len(initial_indexes)
+        if self.m > self.n:
+            raise ValueError("m is greater than the number of atoms")
+
+        # Complement of ind_red in {0, ..., n-1}
+        self.ind_to_choose = list(np.setdiff1d(np.arange(self.n), self.ind_red))
+        self.ind_to_choose.sort()
 
     @abstractmethod
     def init_R(self):
@@ -107,56 +115,40 @@ class LocalSearch(ABC):
         """
         pass
 
-    def update_index_closest(self, ind_reduced: np.ndarray, ind_closest:np.ndarray) -> None:
+    def swap_indexes(self, trial_i: int, trial_j: int):
         """
-            Called after an update of the internal variable index_reduced to update
-            accordingly index_closest
-
-            Given a subset J=ind_reduced of {1, 2,..., n}, computes for every i in {1, ..., n}
-            the "closest" element in J. Closest here is in the sense of the matrix
-            cost_m where its (i,j) coefficient is the cost of moving a unit mass
-            in x_i to a unit mass in x_j.
-
-            Update in place the third argument, ind_closest.
+            Update the current indexes by swapping i with j
         """
-        # Making extra sure that ind_reduced is a np.ndarray
-        ind_array = np.array(list(ind_reduced))
-        
-        # Update in-place ind_closest
-        ind_closest[:] = ind_array[np.argmin(self.cost_m[:, ind_array], axis=1)]
+        bisect.insort(self.ind_to_choose, trial_i)
+        self.ind_red.pop(trial_i)
+        bisect.insort(self.ind_red, trial_j)
+        self.ind_to_choose.pop(bisect.bisect_left(self.ind_to_choose, trial_j))
 
     def local_search(self) -> Tuple[set[int], np.ndarray]:
         """
             Outline of the local_search algorithm, that depends on the abstract
-            methods of the LocalSearch class.
+            methods of the LocalSearch class. Namely, the abstract methods are init_R(),
+            improvement_condition(...) and most importantly, pick_ij().
         """
+        # If needs be, additional routine to initialize the "first guess"
         self.init_R()
-        n = len(self.xi)
-        m = len(self.ind_reduced)
-        if m > n:
-            raise ValueError("m is greater than the number of atoms")
-
-        # Init min cost vector and closest elements vector
-        index_closest = np.full(n, 0, dtype=int)
-        self.update_index_closest(self.ind_reduced, index_closest)
-
+        
         # Container for the best distance, without the power 1/l
         best_d = np.dot(self.xi.probabilities, 
-                        np.min(self.cost_m[:, self.ind_reduced], axis=1))
+                        np.min(self.cost_m[:, self.ind_red], axis=1))
        
         improvement = True
         while improvement:
             trial_i, trial_j, trial_d = self.pick_ij()
             if self.improvement_condition(trial_d, best_d): 
                 best_d = trial_d
-                self.ind_reduced.pop(trial_i)
-                self.ind_reduced.append(trial_j)
+                self.swap_indexes(trial_i, trial_j)
             else:
                 improvement = False
-        return(np.power(best_d, 1/self.l), self.ind_reduced)
+        return(np.power(best_d, 1/self.l), self.ind_red)
     
 ################################################################################
-################# Local Search concrete implementation: Best Fit ###############
+############## Local Search concrete implementation: Best Fit ##################
 ################################################################################
 
 class BestFit(LocalSearch):
@@ -167,44 +159,42 @@ class BestFit(LocalSearch):
         return (trial_d < best_d)
 
     def pick_ij(self) -> Tuple[int, int, float]:
+        """
+            Computes the couple (i,j) such that D_l^l(P, R \ {x_i} u {x_j}) is minimized.
+        """
         n = len(self.xi)
 
-        # Current indexes characterizing current reduced distrib Q
-        ind_red = list(self.ind_reduced)
-
-        # Complement of ind_red in {0, ..., n-1}
-        ind_to_choose = list(np.setdiff1d(np.arange(n), np.array(list(ind_red))))
-        # TODO: add it to internal var ?
-
-        # Holder for ( Distance(P, R \ {x_i} \cup x_J[i] )_{1 \leq i' \leq n}
+        # Holder for ( D_l^l(P, R \ {x_i} \cup x_J[i] )_{1 \leq i' \leq n}
         dist = np.full(n, np.inf)
 
         # Holder for "the best" J[i] among all j in ind_to_choose
         J = dict()
 
-        for (i, ind) in enumerate(ind_red):
-            # For all i, compute J(i) "best" {x_j} where j \in ind_to_choose to be added to ind_red = R\{x_i}
-            J[ind], dist[i] = self.greedy_selection(
-                                    [k for k in ind_red if k!=ind], ind_to_choose)
+        for (i, ind) in enumerate(self.ind_red):
+            J[ind], dist[i] = self.greedy_selection([k for k in self.ind_red if k!=ind])
         i_best = np.argmin(dist)
-        return (i_best, J[ind_red[i_best]], dist[i_best])
-    
-    def greedy_selection(self, ind_red: list[int], ind_to_choose: list[int]):
+        return (i_best, J[self.ind_red[i_best]], dist[i_best])
+ 
+    def greedy_selection(self, indexes: list[int]):
         """
-            Compute J(i) = argmin_{j \in ind_to_choose} < P, v[j] > where 
-                v[j] := [ min_{ z \in Ri \cup {x[j]} } c( x_k, z ) ]_{0 \leq k \leq n-1}
-             and also return the associated value.
+        Compute J(i) = argmin_{j \in ind_to_choose} < P, v[j] > where 
+            v[j] := [ min_{ z \in Ri \cup {x[j]} } c( x_k, z ) ]_{0 \leq k \leq n-1}
+         and also return the associated value.
         """
-        obj_val = [np.dot(self.xi.probabilities, 
-                          np.min(self.cost_m[:, ind_red + [j]], axis=1))
-                          for j in ind_to_choose]
+        current_min = np.min(self.cost_m[:, indexes], axis=1, keepdims=True)
+        
+        obj_val = []
+        for j in self.ind_to_choose:
+            combined_min = np.minimum(current_min, self.cost_m[:, j:j+1])
+            obj_val.append(np.dot(self.xi.probabilities, combined_min.flatten()))
         
         # Compute the minimal objective value and minimizer, ties broken by np.argmin
+        obj_val = np.array(obj_val)
         best_ind = np.argmin(obj_val)
-        return ind_to_choose[best_ind], obj_val[best_ind]
-    
+        return self.ind_to_choose[best_ind], obj_val[best_ind]
+       
 ################################################################################
-################ Local Search concrete implementation: First Fit ###############
+############ Local Search concrete implementation: First Fit ###################
 ################################################################################
     
 class FirstFit(LocalSearch):

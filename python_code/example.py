@@ -36,13 +36,13 @@ def experiment_normalgamma(n, deb, l):
         # Evaluate Local Search with random starters
         tic_ls = time.time()
         random_starters = np.random.choice(np.arange(n), m, replace=False)
-        ls = BestFit(distribution, set(random_starters), l)
+        ls = BestFit(distribution, random_starters, l)
         value_ls[i] = ls.local_search()[0]
         tac_ls = time.time() - tic_ls
 
         # Evaluate Local Search with Dupacova Forward starters
         tic_lsdf = time.time()
-        lsdf = BestFit(distribution, set(df[0]), l)
+        lsdf = BestFit(distribution, df[0], l)
         tac_lsdf = time.time() - tic_lsdf
         value_lsdf[i] = lsdf.local_search()[0]
 
@@ -53,7 +53,7 @@ def experiment_normalgamma(n, deb, l):
 
         # Evaluate K-Means with Local search & Dupacova Forward starters
         tic_kmlsdf = time.time()
-        value_kmlsdf[i] = k_means(distribution, m, warmcentroids=distribution.atoms[np.array(list(lsdf.ind_reduced))], l=l)
+        value_kmlsdf[i] = k_means(distribution, m, warmcentroids=distribution.atoms[np.array(list(lsdf.ind_red))], l=l)
         tac_kmlsdf = time.time() - tic_kmlsdf
 
         # Record the time taken for each method
