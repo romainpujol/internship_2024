@@ -20,8 +20,8 @@ def k_means(distribution: DiscreteDistribution, m: int, warmcentroids: np.ndarra
     if warmcentroids.size:
         km = KMeans(init=warmcentroids, n_init=1, n_clusters=m)
         labels  = km.fit_predict(distribution.atoms, sample_weight=distribution.probabilities)
-    else: # Random centroids
-        km = KMeans(n_clusters=m, init='random')
+    else: # "Greedy-KMeans++ start"
+        km = KMeans(n_clusters=m)
         labels  = km.fit_predict(distribution.atoms, sample_weight=distribution.probabilities)
     
     centroids = km.cluster_centers_

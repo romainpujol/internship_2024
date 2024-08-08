@@ -47,16 +47,6 @@ def generate_data_normalgamma(n:int):
 
     return DiscreteDistribution(data, probabilities)
 
-def greedy_atom_selection(xi: DiscreteDistribution, ind: np.ndarray, cost_m: np.ndarray, min_cost: np.ndarray) -> int:
-    """
-        Compute argmin_{i in indexes} D_l(P, R u {x_i}), assuming that one knows 
-            min_{i' in R} c(x_i, x_i') for every i. 
-        The DiscreteDistribution P has atoms (x_i)_i and R is a subset of the atoms of P. We add x_i to R among the atoms of P in indexes that minimizes the above criterium.
-    """
-    min_costs = np.minimum(min_cost, cost_m[ind])
-    dist =      np.dot(min_costs, xi.probabilities)
-    i_tmp =     np.argmin(dist)
-    return ind[i_tmp], i_tmp
 
 # """
 #     Update the minimum distances and closest indexes for the atoms that currently have the ind-th atom as a closest neighbour

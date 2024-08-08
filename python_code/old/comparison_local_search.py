@@ -188,7 +188,9 @@ def local_search_ff(distribution_x, index_reduced, l):
     distance_to_reduce = sum(minimum) / n
     improvement = True
 
+    cpt = 0
     while improvement:
+        cpt +=1
         best_i = -1
         best_j = -1
         best_m = []
@@ -218,6 +220,7 @@ def local_search_ff(distribution_x, index_reduced, l):
                         best_j = j
                         best_m = m_ij
                         distance_to_reduce = distance_ij
+                        print(f"i: {best_i}, j: {best_j}, curr_dist: {distance_ij}")
                         break  # Get out of the loop
             if best_i != -1 and best_j != -1:
                 break  # Get out of the loop
@@ -225,6 +228,7 @@ def local_search_ff(distribution_x, index_reduced, l):
         if best_i == -1 and best_j == -1:
             improvement = False
         else:
+            # print(f"iter: {cpt}, i={best_i}, j={best_j}")
             index_reduced.remove(best_i)
             index_reduced.append(best_j)
             minimum = best_m
@@ -387,72 +391,72 @@ def milp_formulation(distribution,m):
     model.dispose()
     return a
 
-"""
-n = 500
-distribution=generate_data(n)
+# """
+# n = 500
+# distribution=generate_data(n)
 
-t1 = time.time()
-z=milp_formulation(distribution[0],50)
-t2=time.time()
-print("gurobi a pris ",t2-t1,"secondes et donne une valeur de ",z)
-t3=time.time()
-a = dupacova_forward(distribution[0],50,2)
-t4=time.time()
-print("dupacova a pris ",t4-t3,"secondes et donne une valeur de ",a[1])
-"""
+# t1 = time.time()
+# z=milp_formulation(distribution[0],50)
+# t2=time.time()
+# print("gurobi a pris ",t2-t1,"secondes et donne une valeur de ",z)
+# t3=time.time()
+# a = dupacova_forward(distribution[0],50,2)
+# t4=time.time()
+# print("dupacova a pris ",t4-t3,"secondes et donne une valeur de ",a[1])
+# """
 
-n = 100
-deb = 10
+# n = 100
+# deb = 10
 
-distribution=generate_data(n)
+# distribution=generate_data(n)
 
-mm = [i for i in range(deb,n-deb)]
+# mm = [i for i in range(deb,n-deb)]
 
-time_dup = [0]*len(mm)
-#time_bf = [0]*len(mm)
-#time_ff = [0]*len(mm)
-time_dup_back=[0]*len(mm)
-time_milp=[0]*len(mm)
-
-
-
-value_dup=[0]*len(mm)
-#value_bf = [0]*len(mm)
-#value_ff = [0]*len(mm)
-value_milp = [0]*len(mm)
-value_dup_back=[0]*len(mm)
-
-for i in range(len(mm)):
-    print(i, "/", len(mm))
-    #run of dup forward
-    t1=time.time()
-    dup = dupacova_forward(distribution[0],mm[i],2)
-    t2=time.time()
-    time_dup[i]=t2-t1
-    value_dup[i]=dup[1]
-
-    #run of dup backward
-    t5=time.time()
-    ff = dupacova_backward(distribution[0],mm[i],2)
-    t6=time.time()
-    time_dup_back[i]=t6-t5
-    value_dup_back[i]=ff[1]
-
-    #run milp
-    t3=time.time()
-    value_milp[i] = milp_formulation(distribution[0],mm[i])
-    t4=time.time()
-    time_milp[i]=t4-t3
-    value_milp[i] = milp_formulation(distribution[0],mm[i])
+# time_dup = [0]*len(mm)
+# #time_bf = [0]*len(mm)
+# #time_ff = [0]*len(mm)
+# time_dup_back=[0]*len(mm)
+# time_milp=[0]*len(mm)
 
 
-plt.figure(figsize=(10, 6))
-plt.plot(mm,value_milp,label="MILP")
-plt.plot(mm,value_dup, label = "Forward Dupacova")
-plt.plot(mm,value_dup_back,label="Backward Dupacova")
 
-plt.xlabel('m')
-plt.ylabel('value')
-plt.legend()
-plt.title("Efficiency comparison, n=100")
-plt.show()
+# value_dup=[0]*len(mm)
+# #value_bf = [0]*len(mm)
+# #value_ff = [0]*len(mm)
+# value_milp = [0]*len(mm)
+# value_dup_back=[0]*len(mm)
+
+# for i in range(len(mm)):
+#     print(i, "/", len(mm))
+#     #run of dup forward
+#     t1=time.time()
+#     dup = dupacova_forward(distribution[0],mm[i],2)
+#     t2=time.time()
+#     time_dup[i]=t2-t1
+#     value_dup[i]=dup[1]
+
+#     #run of dup backward
+#     t5=time.time()
+#     ff = dupacova_backward(distribution[0],mm[i],2)
+#     t6=time.time()
+#     time_dup_back[i]=t6-t5
+#     value_dup_back[i]=ff[1]
+
+#     #run milp
+#     t3=time.time()
+#     value_milp[i] = milp_formulation(distribution[0],mm[i])
+#     t4=time.time()
+#     time_milp[i]=t4-t3
+#     value_milp[i] = milp_formulation(distribution[0],mm[i])
+
+
+# plt.figure(figsize=(10, 6))
+# plt.plot(mm,value_milp,label="MILP")
+# plt.plot(mm,value_dup, label = "Forward Dupacova")
+# plt.plot(mm,value_dup_back,label="Backward Dupacova")
+
+# plt.xlabel('m')
+# plt.ylabel('value')
+# plt.legend()
+# plt.title("Efficiency comparison, n=100")
+# plt.show()

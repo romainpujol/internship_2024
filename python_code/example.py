@@ -1,3 +1,27 @@
+################################################################################
+########### Effect of using Dupacova's starters for LS and KM  #################
+################################################################################
+
+"""
+    The following example highlights the following points:
+        1) Dupacova Forward (DF) algorithm computes quickly a good guess to the
+           Discrete Scenario Reduction problem (DSR)
+        2) Local Search (LS) gives a better solution (in the 2-W sense) to the DSR problem but with
+           random starters it is expensive in time to compute.
+           Warmstarting it with Dupacova starters (LSDF), i.e. the output of Dupacova
+           Forward algorithm, both improves the quality of the solution and the
+           time needed for LS to converge. Note that for LSDF
+           variant, we reported the sum of both the time needed to compute
+           Dupacova starters and the time needed to solve LS with these
+           starters.
+        3) KMeans which aims to solve the Continuous Scenario Reduction Problem
+           (CSR) gives a distribution with similar 2-W than LS or LSDF. The
+           variant of KMeans that is used is "Greedy-Kmeans++" as implemented in
+            scikit-learn. We also observe that warmstarting KMeans with the
+            output of LSDF (KMLSDF) notably stabilizes its output.
+"""
+###############################S#################################################
+
 import numpy as np
 import matplotlib.pyplot as plt
 import time
@@ -6,9 +30,8 @@ from csr import *
 from dsr import *
 
 def experiment_normalgamma(n, deb, l):
-    np.random.seed(42069)
     distribution = generate_data_normalgamma(n)
-    mm = [i for i in range(deb, n-deb)]
+    mm = [i for i in range(10, 100, 10)]
 
     # Initialize time and value storage for each method
     time_df =       [0]*len(mm)
@@ -51,17 +74,17 @@ def experiment_normalgamma(n, deb, l):
         value_km[i] = k_means(distribution, m, l=l)
         tac_km = time.time() - tic_km
 
-        # Evaluate K-Means with Local search & Dupacova Forward starters
+        # Evaluate K-Means with Dupacova Forward starters
         tic_kmlsdf = time.time()
-        value_kmlsdf[i] = k_means(distribution, m, warmcentroids=distribution.atoms[np.array(list(lsdf.ind_red))], l=l)
+        value_kmlsdf[i] = k_means(distribution, m, warmcentroids=distribution.atoms[df[0]], l=l)
         tac_kmlsdf = time.time() - tic_kmlsdf
 
         # Record the time taken for each method
         time_df[i] =        tac_df
         time_km[i] =        tac_km 
-        time_kmlsdf[i] =    tac_kmlsdf + tac_lsdf + tac_df
+        time_kmlsdf[i] =    tac_kmlsdf + tac_df
         time_ls[i] =        tac_ls 
-        time_lsdf[i] =      tac_df + tac_df
+        time_lsdf[i] =      tac_df + tac_lsdf
 
 
     return mm, value_df, value_km, value_kmlsdf, value_ls, value_lsdf, time_df, time_km, time_kmlsdf, time_ls, time_lsdf
@@ -71,8 +94,8 @@ def plot_results(n, mm, value_df, value_km, value_kmlsdf, value_ls, value_lsdf):
     plt.plot(mm, value_df,      label="Dupacova Forward (DF)")
     plt.plot(mm, value_ls,      label="Local Search (LS)")
     plt.plot(mm, value_km,      label="K-Means (KM)")
-    plt.plot(mm, value_lsdf,    label="LS with DF")
-    plt.plot(mm, value_kmlsdf,  label="KM with LS & DF")
+    plt.plot(mm, value_lsdf,    label="LS with DF (LSDF)")
+    plt.plot(mm, value_kmlsdf,  label="KM with LSDF")
     plt.xlabel('m')
     plt.ylabel('2-Wasserstein distance')
     plt.legend()
@@ -84,8 +107,8 @@ def plot_times(n, mm, time_df, time_km, time_kmlsdf, time_ls, time_lsdf):
     plt.plot(mm, time_df,       label="Dupacova Forward (DF)")
     plt.plot(mm, time_km,       label="K-Means (KM)")
     plt.plot(mm, time_ls,       label="Local Search (LS)")
-    plt.plot(mm, time_lsdf,     label="LS with DF")
-    plt.plot(mm, time_kmlsdf,   label="KM with LS & DF")
+    plt.plot(mm, time_lsdf,     label="LS with DF (LSDF)")
+    plt.plot(mm, time_kmlsdf,   label="KM with LSDF")
     plt.xlabel('m')
     plt.ylabel('Time (s)')
     plt.legend()
@@ -94,8 +117,8 @@ def plot_times(n, mm, time_df, time_km, time_kmlsdf, time_ls, time_lsdf):
 
 def main(plot_results_option=False):
     # Experiment parameters
-    n = 150
-    deb = 20
+    n = 500
+    deb = 10
     l = 2
 
     mm, value_df, value_km, value_kmlsdf, value_ls, value_lsdf, time_df, time_km, time_kmlsdf, time_ls, time_lsdf = experiment_normalgamma(n, deb, l)
