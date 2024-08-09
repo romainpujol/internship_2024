@@ -132,10 +132,17 @@ class LocalSearch(ABC):
         """
         bisect.insort(self.ind_to_choose, trial_i)
         self.ind_red.pop(bisect.bisect_left(self.ind_red, trial_i))
+
         bisect.insort(self.ind_red, trial_j)
         self.ind_to_choose.pop(bisect.bisect_left(self.ind_to_choose, trial_j))
 
-    def local_search(self) -> Tuple[set[int], np.ndarray]:
+    def get_distance(self):
+        return np.power(self.curr_d, 1/self.l)
+    
+    def get_reduced_atoms(self):
+        return self.xi.get_atoms()[self.ind_red]
+
+    def local_search(self) -> None:
         """
             Outline of the local_search algorithm, that depends on the abstract
             methods of the LocalSearch class. Namely, the abstract methods are init_R(),
@@ -156,7 +163,6 @@ class LocalSearch(ABC):
                 self.swap_indexes(trial_i, trial_j)
             else:
                 improvement = False
-        return(np.power(self.curr_d, 1/self.l), self.ind_red)
     
 ################################################################################
 ############## Local Search concrete implementation: Best Fit ##################
@@ -183,18 +189,36 @@ class BestFit(LocalSearch):
             # TODO: could use bissect to update instead of recreating list
             J[ind], dist[i] = self.bestfit_selection([k for k in self.ind_red if k!=ind])
         i_best = np.argmin(dist)
-        return (i_best, J[self.ind_red[i_best]], dist[i_best])
+        return (self.ind_red[i_best], J[self.ind_red[i_best]], dist[i_best])
  
     def bestfit_selection(self, indexes: list[int]) -> Tuple[int, float]:
         """
         Compute J(i) = argmin_{j \in ind_to_choose} < P, v[j] > where 
             v[j] := [ min_{ z \in Ri \cup {x[j]} } c( x_k, z ) ]_{0 \leq k \leq n-1}
          and also return the associated value.
+
+         Observe that for every 1 \leq k \leq n-1 we have
+            v[j][k] = min[ w_k, c(x_k, x_j) ],
+        where w_k = min_{z \in Ri} c(x_k,z). That is, we have
+            v[j] = min[ w, C ],
+        where w = (w_k)_k and C = (c(x_k, x_j))_k. 
+
+        The above decomposition allows us to vectorize the computation of v[j].
         """
-        current_min = np.min(self.cost_m[:, indexes], axis=1)
-        combined_min = np.minimum(current_min, self.cost_m[indexes])
-        obj_val = np.dot(combined_min, self.xi.probabilities)
-        best_ind = np.argmin(obj_val)
+        # Compute the vector w (see docstring)
+        min_on_Ri = np.min(self.cost_m[:, indexes], axis=1)
+
+        # Compute v = (v[j])_{j \in ind_to_choose} uin a n x (n-m) matrix
+        combined_min = np.minimum(min_on_Ri[:, np.newaxis], self.cost_m[:, self.ind_to_choose])
+
+        # Compute (< P, v[j] >)_{j \in ind_to_choose}
+        obj_val = np.dot(combined_min.transpose(), self.xi.probabilities)
+
+        # obj_val = []
+        # for j in self.ind_to_choose:
+        #     combined_min = np.minimum(min_on_Ri, self.cost_m[:,j])
+        #     obj_val.append(np.dot(combined_min, self.xi.probabilities))
+        best_ind = np.argmin(np.array(obj_val))
 
         return (self.ind_to_choose[best_ind], obj_val[best_ind])
        

@@ -161,6 +161,7 @@ def local_search_bf(distribution_x,index_reduced,l):
                 improvement = False
             else:
                 # Swap i and j in the reduced set
+                # print(f"{best_i} {best_j} {distance_to_reduce}")
                 index_reduced.remove(best_i)
                 index_reduced.append(best_j)
                 minimum = best_m
