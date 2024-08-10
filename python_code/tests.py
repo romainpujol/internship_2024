@@ -168,6 +168,33 @@ class TestFirstFit(unittest.TestCase):
         # Assert distance values are (almost) equal
         np.testing.assert_almost_equal(ff.get_distance(), old_dist)
 
+    def test_randomfirstfit(self, n: int = 252, m: int=20, l:int = 2):
+        print("Test Local Search: RandomFirstFit")
+        distribution = generate_data_normalgamma(n)
+
+        t_dupa_start = time.time()
+        dup = dupacova_forward(distribution, m, l)
+        t_dupa = time.time() - t_dupa_start
+        print(f"   Time Dupacova.........: {t_dupa:.3f}s")
+
+
+        t_ff_start = time.time()
+        ff = FirstFit(distribution, list(range(m)), l=l)
+        ff.local_search()
+        t_ff = time.time() - t_ff_start
+        print(f"   Time FirstFit.........: {t_ff:.3f}s")
+
+        t_rff_start = time.time()
+        rff = FirstFit(distribution, list(range(m)), l=l, shuffle=True)
+        rff.local_search()
+        t_rff = time.time() - t_rff_start
+        print(f"   Time RandomFirstFit...: {t_rff:.3f}s")
+
+        # print values
+        print(f"   Value Dupacova........: {dup[1]}")
+        print(f"   Value FirstFit........: {ff.get_distance()}")
+        print(f"   Value RandomFirstFit..: {rff.get_distance()}")
+
 ################################################################################
 ########################## Functions from csr.py ###############################
 ################################################################################
@@ -178,4 +205,3 @@ class TestFirstFit(unittest.TestCase):
 # Direct tests if this file is compiled directly
 if __name__ == "__main__":
     unittest.main()
-

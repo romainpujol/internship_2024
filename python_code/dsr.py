@@ -4,6 +4,17 @@
 
 # In this file we gather functions and classes that solve the Discrete
 # Scenario Reduction (DSR) problem.
+#
+# Currently implemented methods are:
+#
+# 1) (Forward) Dupacova's algorithm
+#
+# 2) Local Search algorithm Rujeerapaiboon, Schindler, Kuhn, Wiesemann (2023)
+# 2.1) Local Search: BestFit
+# 2.2) Local Search: FirstFit
+# 2.3) Local Search: RandomFit
+#
+# 3) MILP equivalent formulation, solved using Gurobi
 
 ################################################################################
 ########################### Imports and types ##################################
@@ -11,6 +22,7 @@
 
 import numpy as np
 import bisect
+import random
 
 from discretedistribution import *
 from typing import Tuple
@@ -189,12 +201,14 @@ class BestFit(LocalSearch):
         J = dict()
 
         for (i, ind) in enumerate(self.ind_red):
-            # TODO: could use bissect to update instead of recreating list
-            J[ind], dist[i] = self.bestfit_selection([k for k in self.ind_red if k!=ind])
+            # Temporarily remove ind from ind_red, added back at the end
+            self.ind_red.pop(bisect.bisect_left(self.ind_red, ind))
+            J[ind], dist[i] = self.bestfit_selection()
+            bisect.insort(self.ind_red, ind)
         i_best = np.argmin(dist)
         return (self.ind_red[i_best], J[self.ind_red[i_best]], dist[i_best])
  
-    def bestfit_selection(self, indexes: list[int]) -> Tuple[int, float]:
+    def bestfit_selection(self) -> Tuple[int, float]:
         """
         Compute J(i) = argmin_{j \in ind_to_choose} < P, v[j] > where 
             v[j] := [ min_{ z \in Ri \cup {x[j]} } c( x_k, z ) ]_{0 \leq k \leq n-1}
@@ -209,7 +223,7 @@ class BestFit(LocalSearch):
         The above decomposition allows us to vectorize the computation of v[j].
         """
         # Compute the vector w (see docstring)
-        min_on_Ri = np.min(self.cost_m[:, indexes], axis=1)
+        min_on_Ri = np.min(self.cost_m[:, self.ind_red], axis=1)
 
         # Compute v = (v[j])_{j \in ind_to_choose} uin a n x (n-m) matrix
         combined_min = np.minimum(min_on_Ri[:, np.newaxis], self.cost_m[:, self.ind_to_choose])
@@ -225,20 +239,22 @@ class BestFit(LocalSearch):
 ################################################################################
     
 class FirstFit(LocalSearch):
+    def __init__(self, xi:DiscreteDistribution, initial_indexes, l:int = 2, p: float = 0.0, shuffle: bool = False):
+        super().__init__(xi, initial_indexes, l, p)
+        self.shuffle = shuffle
 
     def pick_ij(self) -> Tuple[int, int, float]:
         dist = np.inf
 
+        # If shuffling, update in place ind_red and sort it back before returning
+        if self.shuffle:
+            random.shuffle(self.ind_red)
+
         for i in self.ind_red:
-            # TODO: could use bissect to update
             j, dist = self.firstfit_selection([k for k in self.ind_red if k!=i])
             if j != -1:
-                # print(f"i: {i}, j: {j}, curr_dist: {self.curr_d}")
-                return (i, j, dist)
-        return (-1, -1, np.inf)
-    
-    #             trial_i, trial_j, trial_d = self.pick_ij()
-
+                return (i, j, dist) if not bool else (self.ind_red.sort() or (i, j, dist))
+        return (-1, -1, np.inf) if not bool else (self.ind_red.sort() or (-1, -1, np.inf))
     
     def firstfit_selection(self, indexes: list[int]) -> Tuple[int, float]:
         """
@@ -246,15 +262,12 @@ class FirstFit(LocalSearch):
             v[j] := [ min_{ z \in Ri \cup {x[j]} } c( x_k, z ) ]_{0 \leq k \leq n-1}
          and stops whenever < P, v[j] > improves the current distance
         """
-        # Save [ min_{ z \in Ri  } c(x_k, z) ]_{0 \leq k \leq n-1} =: w
         min_on_Ri = np.min(self.cost_m[:, indexes], axis=1)
 
         trial_d = np.inf
         for j in self.ind_to_choose:
-            # v[j] = min(w, c(x_k, x_j))
             combined_min = np.minimum(min_on_Ri, self.cost_m[:,j])
             trial_d = np.dot(self.xi.probabilities, combined_min)
-            # print(f"trial_d = {trial_d:.3f} ; curr_d = {self.curr_d:.3f}")
             if self.improvement_condition(trial_d):
                 return (j, trial_d)
         return (-1, np.inf)
@@ -263,37 +276,30 @@ class FirstFit(LocalSearch):
 # ############ Local Search concrete implementation: Random Fit ##################
 # ################################################################################
 
-# class RandomFit(LocalSearch):
+class RandomFit(LocalSearch):
 
-#     def improvement_condition(self, trial_d: float) -> bool: 
-#         return (trial_d != -1.0)
+    def pick_ij(self) -> Tuple[int, int, float]:
+        dist = np.inf
 
-#     def pick_ij(self) -> Tuple[int, int, float]:
-#         dist = np.inf
-
-#         for i in self.ind_red:
-#             # TODO: could use bissect to update
-#             j, dist = self.randomfit_selection([k for k in self.ind_red if k!=i])
-#             if j != -1:
-#                 print(f"i: {i}, j: {j}, curr_dist: {self.curr_d}")
-#                 return (i, j, dist)
-#         return (-1, -1, -1.0)
+        for i in self.ind_red:
+            # TODO: could use bissect to update
+            j, dist = self.randomfit_selection([k for k in self.ind_red if k!=i])
+            if j != -1:
+                return (i, j, dist)
+        return (-1, -1, np.inf)
     
-#     def randomfit_selection(self, indexes: list[int]) -> Tuple[int, float]:
-#         """
-#         Compute J(i) =  < P, v[j] > where 
-#             v[j] := [ min_{ z \in Ri \cup {x[j]} } c( x_k, z ) ]_{0 \leq k \leq n-1}
-#          and stops whenever < P, v[j] > improves the current distance
-#         """
-#         # Save [ min_{ z \in Ri  } c(x_k, z) ]_{0 \leq k \leq n-1} =: w
-#         min_on_Ri = np.min(self.cost_m[:, indexes], axis=1)
+    def randomfit_selection(self, indexes: list[int]) -> Tuple[int, float]:
+        """
+        Computes  < P, v[j] > where 
+            v[j] := [ min_{ z \in Ri \cup {x[j]} } c( x_k, z ) ]_{0 \leq k \leq n-1}
+         and stops whenever < P, v[j] > improves the current distance
+        """
+        min_on_Ri = np.min(self.cost_m[:, indexes], axis=1)
 
-#         trial_d = np.inf
-#         for j in self.ind_to_choose:
-#             # v[j] = min(w, c(x_k, x_j))
-#             combined_min = np.minimum(min_on_Ri, self.cost_m[:,j])
-#             trial_d = np.dot(self.xi.probabilities, combined_min)
-#             if trial_d < self.curr_d:
-#                 print(f"trial_d = {trial_d}")
-#                 return (j, trial_d)
-#         return (-1, np.inf)
+        trial_d = np.inf
+        for j in self.ind_to_choose:
+            combined_min = np.minimum(min_on_Ri, self.cost_m[:,j])
+            trial_d = np.dot(self.xi.probabilities, combined_min)
+            if self.improvement_condition(trial_d):
+                return (j, trial_d)
+        return (-1, np.inf)
