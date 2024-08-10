@@ -220,7 +220,7 @@ def local_search_ff(distribution_x, index_reduced, l):
                         best_j = j
                         best_m = m_ij
                         distance_to_reduce = distance_ij
-                        print(f"i: {best_i}, j: {best_j}, curr_dist: {distance_ij}")
+                        # print(f"i: {best_i}, j: {best_j}, curr_dist: {distance_ij}")
                         break  # Get out of the loop
             if best_i != -1 and best_j != -1:
                 break  # Get out of the loop

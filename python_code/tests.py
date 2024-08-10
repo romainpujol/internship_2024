@@ -139,33 +139,34 @@ class TestBestFit(unittest.TestCase):
         print(f"   Relative time ratio.......: {relative_time_ratio:.2f}%")
 
         # Assert distance values are (almost) equal
-        print(f"new: {bf.get_distance()}")
         np.testing.assert_almost_equal(np.power(old_bf[0], 1/l), bf.get_distance())
 
-# class TestFirstFit(unittest.TestCase):
+class TestFirstFit(unittest.TestCase):
     
-#     def test_oldvsnew(self, n:int = 149, m:int = 20, l:int = 2):
-#         np.random.seed(42069)
-#         from old.comparison_local_search import local_search_ff as old_firstfit
-#         print("Test old vs new Local Search: FirstFit")
-#         distribution = generate_data_normalgamma(n)
-#         index_starters = dupacova_forward(distribution, m, l)[0]
-#         t_old_start = time.time()
-#         old_ff = old_firstfit(distribution.atoms, list(index_starters), l)
-#         t_old = time.time() - t_old_start
-#         print(f"   Time old FirstFit.........: {t_old:.3f}s")
+    def test_oldvsnew(self, n:int = 149, m:int = 20, l:int = 2):
+        from old.comparison_local_search import local_search_ff as old_firstfit
+        print("Test old vs new Local Search: FirstFit")
+        distribution = generate_data_normalgamma(n)
+        dup = dupacova_forward(distribution, m, l)
+        index_starters = list(dup[0])
 
-#         t_new_start = time.time()
-#         ff = FirstFit(distribution, index_starters, l=l)
-#         new_ff = ff.local_search()
-#         t_new = time.time() - t_new_start
-#         print(f"   Time new FirstFit.........: {t_new:.3f}s")
-#         relative_time_ratio = (abs(t_old - t_new) / t_new) * 100
-#         print(f"   Relative time ratio.......: {relative_time_ratio:.2f}%")
+        t_old_start = time.time()
+        old_ff = old_firstfit(distribution.atoms, index_starters, l)
+        old_dist = np.power(old_ff[1], 1/l)
+        t_old = time.time() - t_old_start
+        print(f"   Time old FirstFit.........: {t_old:.3f}s")
 
-#         # Assert distance values are (almost) equal
-#         print(f"new dist : {new_ff[0]}")
-#         np.testing.assert_almost_equal(np.power(old_ff[1], 1/l), new_ff[0])
+        t_new_start = time.time()
+        ff = FirstFit(distribution, index_starters, l=l)
+        ff.local_search()
+        t_new = time.time() - t_new_start
+        print(f"   Time new FirstFit.........: {t_new:.3f}s")
+
+        relative_time_ratio = (abs(t_old - t_new) / t_new) * 100
+        print(f"   Relative time ratio.......: {relative_time_ratio:.2f}%")
+
+        # Assert distance values are (almost) equal
+        np.testing.assert_almost_equal(ff.get_distance(), old_dist)
 
 ################################################################################
 ########################## Functions from csr.py ###############################

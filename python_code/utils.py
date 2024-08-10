@@ -46,26 +46,3 @@ def generate_data_normalgamma(n:int):
     probabilities = np.full(n, 1/n)
 
     return DiscreteDistribution(data, probabilities)
-
-
-# """
-#     Update the minimum distances and closest indexes for the atoms that currently have the ind-th atom as a closest neighbour
-# """
-
-# def update_min_distance(min_d: np.ndarray, cost_m: np.ndarray, ind: np.ndarray, indexes: np.ndarray, indexes_closest: np.ndarray):
-#     mask = (indexes_closest == ind)  # Boolean mask for the condition
-#     valid_indexes = np.where(mask)[0]  
-    
-#     if valid_indexes.size > 0: 
-#         # Subset of cost_m for valid indices and columns in indexes
-#         sub_cost_m = cost_m[valid_indexes][:, indexes]  
-
-#         # Find the minimum along the subsetted columns
-#         closest_indexes = np.argmin(sub_cost_m, axis=1)  
-
-#         # Get the min distances
-#         min_distances = sub_cost_m[np.arange(len(valid_indexes)), closest_indexes]  
-
-#         # Update the original arrays
-#         indexes_closest[valid_indexes] = closest_indexes
-#         min_d[valid_indexes] = min_distances

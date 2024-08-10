@@ -25,7 +25,7 @@ from abc import ABC, abstractmethod
 ########################## Dupacova algorithm ##################################
 ################################################################################
 
-def dupacova_forward(xi:DiscreteDistribution, m: int, l: int=2):
+def dupacova_forward(xi:DiscreteDistribution, m: int, l: int=2) -> Tuple[list[int], float]:
     """
         Given a DiscreteDistribution xi and a desired number of output atoms m,
         compute the m indexes of the reduced distribution following the Forward
@@ -53,13 +53,13 @@ def dupacova_forward(xi:DiscreteDistribution, m: int, l: int=2):
         minimum_d = np.minimum(minimum_d, D[i_best])
         reduced_indexes[k] = i_best
         index_to_chose.pop(i_tmp)
-    return(reduced_indexes, np.power(np.dot(minimum_d, xi.probabilities), 1/l))
+    return(list(reduced_indexes), np.power(np.dot(minimum_d, xi.probabilities), 1/l))
 
 def dupacova_selection(xi: DiscreteDistribution, ind: np.ndarray, cost_m: np.ndarray, min_cost: np.ndarray) -> int:
     """
         Compute argmin_{i in indexes} D_l(P, R u {x_i}), assuming that one knows 
             min_{i' in R} c(x_i, x_i') for every i. 
-        The DiscreteDistribution P has atoms (x_i)_i and R is a subset of the atoms of P. We add x_i to R among the atoms of P in indexes that minimizes the above criterium.
+        The DiscreteDistribution P has atoms (x_i)_i and R is a subset of the atoms of P. We add x_i to R among the atoms of https://x.com/SledgeDev/status/1821652238001152197P in indexes that minimizes the above criterium.
     """
     min_costs = np.minimum(min_cost, cost_m[ind])
     dist =      np.dot(min_costs, xi.probabilities)
@@ -75,41 +75,53 @@ class LocalSearch(ABC):
     """
         For local search, there are many variants that can be considered. Thus,
         we first define local search in an abstract class. Then each variant
-        would only need to implement the abstract function of the abstract class.
+        would only need to implement the abstract function of the abstract
+        class.
+        
+        Optional parameter p that changes the improvement condition to only
+        accept improvements of at least p*distance(P, Q) where Q is the
+        result of Dupacova's algorithm.
     """
-    def __init__(self, xi:DiscreteDistribution, initial_indexes, l:int = 2):
+    def __init__(self, xi:DiscreteDistribution, initial_indexes, l:int = 2, p: float = 0.0):
+        self.l = l
+        self.m = len(initial_indexes)
+        self.n = len(xi)
+        if self.m > self.n: raise ValueError("m is greater than the number of atoms")
+        self.p = p
         self.xi = xi
         self.cost_m = init_costMatrix(xi, xi, l)
         self.curr_d = np.inf
-        self.ind_red = list(initial_indexes)
-        self.ind_red.sort()
-        self.l = l
-        self.n = len(xi)
-        self.m = len(initial_indexes)
-        if self.m > self.n:
-            raise ValueError("m is greater than the number of atoms")
+        self.ind_red, self.dist_dupa = self.init_R(p, initial_indexes)
 
         # Complement of ind_red in {0, ..., n-1}
         self.ind_to_choose = list(np.setdiff1d(np.arange(self.n), self.ind_red))
-        self.ind_to_choose.sort()
 
-    @abstractmethod
-    def init_R(self):
+        # Sorting indexes containers to facilitate insertion/deletion
+        self.ind_to_choose.sort()
+        self.ind_red.sort()
+
+    def init_R(self, p: float, init_ind: list[int]) -> Tuple[list[int], float]:
         """
             Initialize the reduced set R subset of the support of xi by modifying
-            in-place the internal variable ind_reduced.
+            in-place the internal variable ind_reduced. Also saves the value of
+            d(P, Q) where P is input distribution and Q is the reduced one
+            obtained by Forward Dupacova's algorithm.
         """
-        pass
-    
-    @abstractmethod
-    def improvement_condition(self, trial_d:float, best_d:float) -> bool:
+        if p < 0:
+            raise ValueError("p should be nonnegative: {p} was given")
+        elif p > 0:
+           # Run Dupacova's algorithm to both initialize ind_red and dist_dupa
+            return dupacova_forward(self.xi, self.m, self.l)
+        else:
+            return (list(init_ind), np.inf)
+
+    def improvement_condition(self, trial_d:float) -> bool:
         """
             Returns a bool which is True iff the new reduced distribution 
-            R u {x_i} \ {x_j} is "improving enough" the l-Wass. between
-            xi and the new reduced distrib. The "improving enough" part is the one
-            that should be specified when implementing improvement_condition(...).
+            R u {x_i} \ {x_j} is "improving (enough)" the l-Wass. between
+            xi and the new reduced distrib. 
         """
-        pass
+        return (trial_d < self.curr_d) if (self.p <= 0) else (trial_d < self.curr_d - self.p*self.dist_dupa)        
 
     @abstractmethod
     def pick_ij(self, indexes: np.ndarray) -> Tuple[int, int, float]:
@@ -144,13 +156,9 @@ class LocalSearch(ABC):
 
     def local_search(self) -> None:
         """
-            Outline of the local_search algorithm, that depends on the abstract
-            methods of the LocalSearch class. Namely, the abstract methods are init_R(),
-            improvement_condition(...) and most importantly, pick_ij().
+            Outline of the local_search algorithm that still depends on an
+            implementation of pick_ij()
         """
-        # If needs be, additional routine to initialize the "first guess"
-        self.init_R()
-        
         # Container for the best current distance, without the power 1/l
         self.curr_d = np.dot(self.xi.probabilities, 
                         np.min(self.cost_m[:, self.ind_red], axis=1))
@@ -169,11 +177,6 @@ class LocalSearch(ABC):
 ################################################################################
 
 class BestFit(LocalSearch):
-    def init_R(self):
-        pass # No specific initialization for BestFit
-
-    def improvement_condition(self, trial_d: float) -> bool:
-        return (trial_d < self.curr_d)
 
     def pick_ij(self) -> Tuple[int, int, float]:
         """
@@ -213,11 +216,6 @@ class BestFit(LocalSearch):
 
         # Compute (< P, v[j] >)_{j \in ind_to_choose}
         obj_val = np.dot(combined_min.transpose(), self.xi.probabilities)
-
-        # obj_val = []
-        # for j in self.ind_to_choose:
-        #     combined_min = np.minimum(min_on_Ri, self.cost_m[:,j])
-        #     obj_val.append(np.dot(combined_min, self.xi.probabilities))
         best_ind = np.argmin(np.array(obj_val))
 
         return (self.ind_to_choose[best_ind], obj_val[best_ind])
@@ -228,12 +226,6 @@ class BestFit(LocalSearch):
     
 class FirstFit(LocalSearch):
 
-    def init_R(self):
-       pass # No specific initialization for FirstFit
-
-    def improvement_condition(self, trial_d: float) -> bool:
-       return (trial_d != -1.0) 
-
     def pick_ij(self) -> Tuple[int, int, float]:
         dist = np.inf
 
@@ -241,26 +233,67 @@ class FirstFit(LocalSearch):
             # TODO: could use bissect to update
             j, dist = self.firstfit_selection([k for k in self.ind_red if k!=i])
             if j != -1:
-                print(f"i: {i}, j: {j}, curr_dist: {self.curr_d}")
+                # print(f"i: {i}, j: {j}, curr_dist: {self.curr_d}")
                 return (i, j, dist)
-        return (-1, -1, -1.0)
+        return (-1, -1, np.inf)
+    
+    #             trial_i, trial_j, trial_d = self.pick_ij()
 
+    
     def firstfit_selection(self, indexes: list[int]) -> Tuple[int, float]:
         """
-        Compute J(i) = argmin_{j \in ind_to_choose} < P, v[j] > where 
+        Computes  < P, v[j] > where 
             v[j] := [ min_{ z \in Ri \cup {x[j]} } c( x_k, z ) ]_{0 \leq k \leq n-1}
-         and also return the associated value.avec sa voix bitchy)
+         and stops whenever < P, v[j] > improves the current distance
         """
         # Save [ min_{ z \in Ri  } c(x_k, z) ]_{0 \leq k \leq n-1} =: w
-        current_min = np.min(self.cost_m[:, indexes], axis=1)
+        min_on_Ri = np.min(self.cost_m[:, indexes], axis=1)
 
         trial_d = np.inf
         for j in self.ind_to_choose:
             # v[j] = min(w, c(x_k, x_j))
-            combined_min = np.minimum(current_min, self.cost_m[:, j].flatten())
-
+            combined_min = np.minimum(min_on_Ri, self.cost_m[:,j])
             trial_d = np.dot(self.xi.probabilities, combined_min)
-            if trial_d < self.curr_d:
-                print(f"trial_d = {trial_d}")
+            # print(f"trial_d = {trial_d:.3f} ; curr_d = {self.curr_d:.3f}")
+            if self.improvement_condition(trial_d):
                 return (j, trial_d)
         return (-1, np.inf)
+
+# ################################################################################
+# ############ Local Search concrete implementation: Random Fit ##################
+# ################################################################################
+
+# class RandomFit(LocalSearch):
+
+#     def improvement_condition(self, trial_d: float) -> bool: 
+#         return (trial_d != -1.0)
+
+#     def pick_ij(self) -> Tuple[int, int, float]:
+#         dist = np.inf
+
+#         for i in self.ind_red:
+#             # TODO: could use bissect to update
+#             j, dist = self.randomfit_selection([k for k in self.ind_red if k!=i])
+#             if j != -1:
+#                 print(f"i: {i}, j: {j}, curr_dist: {self.curr_d}")
+#                 return (i, j, dist)
+#         return (-1, -1, -1.0)
+    
+#     def randomfit_selection(self, indexes: list[int]) -> Tuple[int, float]:
+#         """
+#         Compute J(i) =  < P, v[j] > where 
+#             v[j] := [ min_{ z \in Ri \cup {x[j]} } c( x_k, z ) ]_{0 \leq k \leq n-1}
+#          and stops whenever < P, v[j] > improves the current distance
+#         """
+#         # Save [ min_{ z \in Ri  } c(x_k, z) ]_{0 \leq k \leq n-1} =: w
+#         min_on_Ri = np.min(self.cost_m[:, indexes], axis=1)
+
+#         trial_d = np.inf
+#         for j in self.ind_to_choose:
+#             # v[j] = min(w, c(x_k, x_j))
+#             combined_min = np.minimum(min_on_Ri, self.cost_m[:,j])
+#             trial_d = np.dot(self.xi.probabilities, combined_min)
+#             if trial_d < self.curr_d:
+#                 print(f"trial_d = {trial_d}")
+#                 return (j, trial_d)
+#         return (-1, np.inf)
