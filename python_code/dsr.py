@@ -7,14 +7,14 @@
 #
 # Currently implemented methods are:
 #
-# 1) (Forward) Dupacova's algorithm
+# 1) (Forward) Dupacova's algorithm.
 #
-# 2) Local Search algorithm Rujeerapaiboon, Schindler, Kuhn, Wiesemann (2023)
-# 2.1) Local Search: BestFit
-# 2.2) Local Search: FirstFit
-# 2.3) Local Search: RandomFit
+# 2) Local Search algorithm Rujeerapaiboon, Schindler, Kuhn, Wiesemann (2023):
+# 2.1) Local Search: BestFit,
+# 2.2) Local Search: FirstFit with possibly flexible decrease and/or random
+# shuffling. See FirstFit for more details.
 #
-# 3) MILP equivalent formulation, solved using Gurobi
+# 3) MILP equivalent formulation, solved using Gurobi.
 
 ################################################################################
 ########################### Imports and types ##################################
@@ -23,6 +23,9 @@
 import numpy as np
 import bisect
 import random
+
+# MILP equivalent formulation will be solved by Gurobi
+import gurobipy as gp
 
 from discretedistribution import *
 from typing import Tuple
@@ -39,11 +42,11 @@ from abc import ABC, abstractmethod
 
 def dupacova_forward(xi:DiscreteDistribution, m: int, l: int=2) -> Tuple[list[int], float]:
     """
-        Given a DiscreteDistribution xi and a desired number of output atoms m,
-        compute the m indexes of the reduced distribution following the Forward
-        Dupacova algorithm; also give the vector (min_{i'} d(x_i, x_i')^l)_i which
-        can then be used to reconstruct the value of the l-Wasserstein distance
-        between input distribution and reduced distribution.
+    Given a DiscreteDistribution xi and a desired number of output atoms m,
+    compute the m indexes of the reduced distribution following the Forward
+    Dupacova algorithm; also give the vector (min_{i'} d(x_i, x_i')^l)_i which
+    can then be used to reconstruct the value of the l-Wasserstein distance
+    between input distribution and reduced distribution.
     """
     D = init_costMatrix(xi, xi, l)
     n = len(xi)
@@ -69,9 +72,9 @@ def dupacova_forward(xi:DiscreteDistribution, m: int, l: int=2) -> Tuple[list[in
 
 def dupacova_selection(xi: DiscreteDistribution, ind: np.ndarray, cost_m: np.ndarray, min_cost: np.ndarray) -> int:
     """
-        Compute argmin_{i in indexes} D_l(P, R u {x_i}), assuming that one knows 
-            min_{i' in R} c(x_i, x_i') for every i. 
-        The DiscreteDistribution P has atoms (x_i)_i and R is a subset of the atoms of P. We add x_i to R among the atoms of https://x.com/SledgeDev/status/1821652238001152197P in indexes that minimizes the above criterium.
+    Compute argmin_{i in indexes} D_l(P, R u {x_i}), assuming that one knows 
+        min_{i' in R} c(x_i, x_i') for every i. 
+    The DiscreteDistribution P has atoms (x_i)_i and R is a subset of the atoms of P. We add x_i to R among the atoms of in indexes that minimizes the above criterium.
     """
     min_costs = np.minimum(min_cost, cost_m[ind])
     dist =      np.dot(min_costs, xi.probabilities)
@@ -85,25 +88,25 @@ def dupacova_selection(xi: DiscreteDistribution, ind: np.ndarray, cost_m: np.nda
 
 class LocalSearch(ABC):
     """
-        For local search, there are many variants that can be considered. Thus,
-        we first define local search in an abstract class. Then each variant
-        would only need to implement the abstract function of the abstract
-        class.
-        
-        Optional parameter p that changes the improvement condition to only
-        accept improvements of at least p*distance(P, Q) where Q is the
-        result of Dupacova's algorithm.
+    For local search, there are many variants that can be considered. Thus,
+    we first define local search in an abstract class. Then each variant
+    would only need to implement the abstract function of the abstract
+    class.
+    
+    Optional parameter p that changes the improvement condition to only
+    accept improvements of at least p*distance(P, Q) where Q is the
+    result of Dupacova's algorithm.
     """
-    def __init__(self, xi:DiscreteDistribution, initial_indexes, l:int = 2, p: float = 0.0):
+    def __init__(self, xi:DiscreteDistribution, initial_indexes, l:int = 2, rho: float = 0.0):
         self.l = l
         self.m = len(initial_indexes)
         self.n = len(xi)
         if self.m > self.n: raise ValueError("m is greater than the number of atoms")
-        self.p = p
+        self.rho = rho
         self.xi = xi
         self.cost_m = init_costMatrix(xi, xi, l)
         self.curr_d = np.inf
-        self.ind_red, self.dist_dupa = self.init_R(p, initial_indexes)
+        self.ind_red, self.dist_dupa = self.init_R(rho, initial_indexes)
 
         # Complement of ind_red in {0, ..., n-1}
         self.ind_to_choose = list(np.setdiff1d(np.arange(self.n), self.ind_red))
@@ -112,16 +115,16 @@ class LocalSearch(ABC):
         self.ind_to_choose.sort()
         self.ind_red.sort()
 
-    def init_R(self, p: float, init_ind: list[int]) -> Tuple[list[int], float]:
+    def init_R(self, rho: float, init_ind: list[int]) -> Tuple[list[int], float]:
         """
-            Initialize the reduced set R subset of the support of xi by modifying
-            in-place the internal variable ind_reduced. Also saves the value of
-            d(P, Q) where P is input distribution and Q is the reduced one
-            obtained by Forward Dupacova's algorithm.
+        Initialize the reduced set R subset of the support of xi by modifying
+        in-place the internal variable ind_reduced. Also saves the value of
+        d(P, Q) where P is input distribution and Q is the reduced one
+        obtained by Forward Dupacova's algorithm.
         """
-        if p < 0:
-            raise ValueError("p should be nonnegative: {p} was given")
-        elif p > 0:
+        if rho < 0:
+            raise ValueError("rho should be nonnegative: {rho} was given")
+        elif rho > 0:
            # Run Dupacova's algorithm to both initialize ind_red and dist_dupa
             return dupacova_forward(self.xi, self.m, self.l)
         else:
@@ -129,24 +132,24 @@ class LocalSearch(ABC):
 
     def improvement_condition(self, trial_d:float) -> bool:
         """
-            Returns a bool which is True iff the new reduced distribution 
-            R u {x_i} \ {x_j} is "improving (enough)" the l-Wass. between
-            xi and the new reduced distrib. 
+        Returns a bool which is True iff the new reduced distribution 
+        R u {x_i} \ {x_j} is "improving (enough)" the l-Wass. between
+        xi and the new reduced distrib. 
         """
-        return (trial_d < self.curr_d) if (self.p <= 0) else (trial_d < self.curr_d - self.p*self.dist_dupa)        
+        return (trial_d < self.curr_d) if (self.rho <= 0) else (trial_d < self.curr_d - self.rho*self.dist_dupa)        
 
     @abstractmethod
     def pick_ij(self, indexes: np.ndarray) -> Tuple[int, int, float]:
         """
-            Given two atoms (known through their respective index), compute a pair
-            of indexes (i,j) such that the i-th atom is removed from R and the j-th
-            atom of Q is added to R. During that computation, the l-Wasserstein
-            distance between xi and the best distribution that is supported on R u {x_i} \ {x_j}, which is also returned.
-        
-            Can have additional internal criteria.  
-        
-            It is in this function that the core difference between local search
-            variants (best-fit, first-fit, random-fit) are expected to be expressed.
+        Given two atoms (known through their respective index), compute a pair
+        of indexes (i,j) such that the i-th atom is removed from R and the j-th
+        atom of Q is added to R. During that computation, the l-Wasserstein
+        distance between xi and the best distribution that is supported on R u {x_i} \ {x_j}, which is also returned.
+    
+        Can have additional internal criteria.  
+    
+        It is in this function that the core difference between local search
+        variants (best-fit, first-fit, random-fit) are expected to be expressed.
         """
         pass
 
@@ -239,11 +242,49 @@ class BestFit(LocalSearch):
 ################################################################################
     
 class FirstFit(LocalSearch):
-    def __init__(self, xi:DiscreteDistribution, initial_indexes, l:int = 2, p: float = 0.0, shuffle: bool = False):
-        super().__init__(xi, initial_indexes, l, p)
+    """
+    FirstFit is a local search algorithm that iteratively selects the best pair (i, j)
+    according to a first-fit heuristic. It attempts to improve a solution by choosing 
+    the first pair that improves the current objective value.
+
+    Parameters
+    ----------
+    xi : DiscreteDistribution
+        The discrete distribution over which the search is performed.
+    initial_indexes : list[int]
+        The initial indices to be considered in the search.
+    l : int, optional
+        The norm used for distance calculations (default is 2 for L2 norm).
+    rho : float, optional
+        Proportion (default is 0.0) of d(xi, Q) that an improvement should do in
+        order to be accepted, where Q is the output of Dupacova'slgorithm .
+    shuffle : bool, optional
+        If True, the list of indices is shuffled at each iteration to introduce randomness (default is False).
+
+    Methods
+    -------
+    pick_ij() -> Tuple[int, int, float]
+        Selects the best pair of indices (i, j) based on the first-fit heuristic and 
+        returns them along with the associated distance.
+    
+    firstfit_selection(indexes: list[int]) -> Tuple[int, float]
+        Computes the dot product < P, v[j] > where v[j] is the minimum distance vector 
+        for a given index j, and stops as soon as an improvement is found.
+    """
+    def __init__(self, xi:DiscreteDistribution, initial_indexes, l:int = 2, rho: float = 0.0, shuffle: bool = False):
+        super().__init__(xi, initial_indexes, l, rho)
         self.shuffle = shuffle
 
     def pick_ij(self) -> Tuple[int, int, float]:
+        """
+        Selects the best pair of indices (i, j) based on the first-fit heuristic.
+
+        Returns
+        -------
+        Tuple[int, int, float]
+            A tuple containing the selected pair (i, j) and the associated distance.
+            If no improvement is found, returns (-1, -1, np.inf).
+        """
         dist = np.inf
 
         # If shuffling, update in place ind_red and sort it back before returning
@@ -258,9 +299,19 @@ class FirstFit(LocalSearch):
     
     def firstfit_selection(self, indexes: list[int]) -> Tuple[int, float]:
         """
-        Computes  < P, v[j] > where 
-            v[j] := [ min_{ z \in Ri \cup {x[j]} } c( x_k, z ) ]_{0 \leq k \leq n-1}
-         and stops whenever < P, v[j] > improves the current distance
+        Computes the optimal index j by evaluating the minimum cost function 
+        and stops as soon as an improvement over the current distance is found.
+
+        Parameters
+        ----------
+        indexes : list[int]
+            A list of indices to consider for selection.
+
+        Returns
+        -------
+        Tuple[int, float]
+            A tuple containing the selected index j and the corresponding distance.
+            If no improvement is found, returns (-1, np.inf).
         """
         min_on_Ri = np.min(self.cost_m[:, indexes], axis=1)
 
@@ -272,34 +323,57 @@ class FirstFit(LocalSearch):
                 return (j, trial_d)
         return (-1, np.inf)
 
-# ################################################################################
-# ############ Local Search concrete implementation: Random Fit ##################
-# ################################################################################
+##################################################################################
+############################ MILP Reformulation ##################################
+##################################################################################
 
-class RandomFit(LocalSearch):
+def milp(distrib: DiscreteDistribution, m: int, l: int = 2):
+    """
+    Formulate and solve a MILP model for the given distribution.
 
-    def pick_ij(self) -> Tuple[int, int, float]:
-        dist = np.inf
+    Parameters:
+    distrib: DiscreteDistribution
+        The distribution over which to compute the MILP formulation.
+    m: int
+        The number of elements to select.
+    l: int
+        The norm to use (default is L2 norm, l=2).
 
-        for i in self.ind_red:
-            # TODO: could use bissect to update
-            j, dist = self.randomfit_selection([k for k in self.ind_red if k!=i])
-            if j != -1:
-                return (i, j, dist)
-        return (-1, -1, np.inf)
+    Returns:
+    float
+        The optimal objective value of the MILP model.
+    """
     
-    def randomfit_selection(self, indexes: list[int]) -> Tuple[int, float]:
-        """
-        Computes  < P, v[j] > where 
-            v[j] := [ min_{ z \in Ri \cup {x[j]} } c( x_k, z ) ]_{0 \leq k \leq n-1}
-         and stops whenever < P, v[j] > improves the current distance
-        """
-        min_on_Ri = np.min(self.cost_m[:, indexes], axis=1)
+    n = len(distrib)
+    distance = init_costMatrix(distrib, distrib, l)
 
-        trial_d = np.inf
-        for j in self.ind_to_choose:
-            combined_min = np.minimum(min_on_Ri, self.cost_m[:,j])
-            trial_d = np.dot(self.xi.probabilities, combined_min)
-            if self.improvement_condition(trial_d):
-                return (j, trial_d)
-        return (-1, np.inf)
+    # Define the model
+    model = gp.Model("model")
+    # model.setParam('Heuristics', 0)
+    model.setParam('OutputFlag', 0)
+
+    try:
+        # Define variables
+        pi = model.addVars(n, n, vtype=gp.GRB.CONTINUOUS, name="pi")
+        lambd = model.addVars(n, vtype=gp.GRB.BINARY, name="lambd")
+
+        # Objective function
+        model.setObjective(
+            gp.quicksum(pi[i, j] * distance[i, j] for i in range(n) for j in range(n)) / n, 
+            gp.GRB.MINIMIZE
+        )
+
+        # Constraints
+        model.addConstrs((gp.quicksum(pi[i, j] for j in range(n)) == 1 for i in range(n)), name="row_sum")
+        model.addConstr(gp.quicksum(lambd[j] for j in range(n)) == m, name="reduction")
+        model.addConstrs((pi[i, j] <= lambd[j] for i in range(n) for j in range(n)), name="activation")
+
+        # Optimize the model
+        model.optimize()
+
+        # Return the objective value
+        return model.objVal
+
+    finally:
+        # Dispose of the model to free up resources
+        model.dispose()

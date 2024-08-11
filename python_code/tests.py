@@ -101,7 +101,11 @@ class TestForwardDupacova(unittest.TestCase):
         np.testing.assert_almost_equal(old_dist, new_dist)
 
 class TestBestFit(unittest.TestCase):
-    
+    # Create a dummy model to trigger the academic license message early
+    dummy_model = gp.Model()
+    dummy_model.setParam('OutputFlag', 0)
+    dummy_model.dispose()
+
     def test_consistency(self, n: int=127, m: int = 10, l:int= 2):
         """
             Sanity check that if one starts BestFit with the warmstart obtained from a
@@ -194,6 +198,31 @@ class TestFirstFit(unittest.TestCase):
         print(f"   Value Dupacova........: {dup[1]}")
         print(f"   Value FirstFit........: {ff.get_distance()}")
         print(f"   Value RandomFirstFit..: {rff.get_distance()}")
+
+class TestMILP(unittest.TestCase):
+    
+    def test_oldvsnew(self, n:int = 149, m:int = 20, l:int = 2):
+        from old.comparison_local_search import milp_formulation as old_milp
+        print("Test old vs new MILP Reformulation")
+        distribution = generate_data_normalgamma(n)       
+
+        t_old_start = time.time()
+        old = old_milp(distribution.atoms, m)
+        old_dist = np.power(old, 1/l)
+        t_old = time.time() - t_old_start
+        print(f"   Time old MILP.........: {t_old:.3f}s")
+
+        t_new_start = time.time()
+        new = milp(distribution, m)
+        new_dist = np.power(new, 1/l)
+        t_new = time.time() - t_new_start
+        print(f"   Time new MILP.........: {t_new:.3f}s")
+
+        relative_time_ratio = (abs(t_old - t_new) / t_new) * 100
+        print(f"   Relative time ratio.......: {relative_time_ratio:.2f}%")
+
+        # Assert the two values are equal
+        np.testing.assert_almost_equal(new_dist, old_dist)
 
 ################################################################################
 ########################## Functions from csr.py ###############################

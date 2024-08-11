@@ -378,7 +378,8 @@ def milp_formulation(distribution,m):
 
     #define the model
     model = gp.Model("model")
-    model.setParam('Heuristics', 0)
+    # model.setParam('Heuristics', 0)
+    model.setParam('OutputFlag', 0)
     pi = model.addVars(n,n, vtype=GRB.CONTINUOUS, name="pi")
     lambd = model.addVars(n, vtype=GRB.BINARY, name="lambd")
     model.setObjective(sum(pi[i,j]*distance[i,j] for i in range(n) for j in range(n))/n, GRB.MINIMIZE)
