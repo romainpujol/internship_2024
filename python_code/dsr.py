@@ -327,6 +327,9 @@ class FirstFit(LocalSearch):
 ############################ MILP Reformulation ##################################
 ##################################################################################
 
+import gurobipy as gp
+import numpy as np
+
 def milp(distrib: DiscreteDistribution, m: int, l: int = 2):
     """
     Formulate and solve a MILP model for the given distribution.
@@ -345,12 +348,13 @@ def milp(distrib: DiscreteDistribution, m: int, l: int = 2):
     """
     
     n = len(distrib)
-    distance = init_costMatrix(distrib, distrib, l)
+    cost_m = init_costMatrix(distrib, distrib, l)
 
     # Define the model
     model = gp.Model("model")
-    # model.setParam('Heuristics', 0)
     model.setParam('OutputFlag', 0)
+    model.setParam('Heuristics', 0)
+    model.setParam('Threads', 0)  # Use all available threads
 
     try:
         # Define variables
@@ -359,20 +363,20 @@ def milp(distrib: DiscreteDistribution, m: int, l: int = 2):
 
         # Objective function
         model.setObjective(
-            gp.quicksum(pi[i, j] * distance[i, j] for i in range(n) for j in range(n)) / n, 
+            gp.quicksum(pi[i, j] * cost_m[i, j] for i in range(n) for j in range(n)) / n, 
             gp.GRB.MINIMIZE
         )
 
         # Constraints
-        model.addConstrs((gp.quicksum(pi[i, j] for j in range(n)) == 1 for i in range(n)), name="row_sum")
-        model.addConstr(gp.quicksum(lambd[j] for j in range(n)) == m, name="reduction")
+        model.addConstrs((pi.sum(i, '*') == 1 for i in range(n)), name="row_sum")
+        model.addConstr(lambd.sum() == m, name="reduction")
         model.addConstrs((pi[i, j] <= lambd[j] for i in range(n) for j in range(n)), name="activation")
 
         # Optimize the model
         model.optimize()
 
         # Return the objective value
-        return model.objVal
+        return np.power(model.objVal, 1/l)
 
     finally:
         # Dispose of the model to free up resources

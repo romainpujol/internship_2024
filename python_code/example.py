@@ -1,27 +1,3 @@
-################################################################################
-########### Effect of using Dupacova's starters for LS and KM  #################
-################################################################################
-
-"""
-    The following example highlights the following points:
-        1) Dupacova Forward (DF) algorithm computes quickly a good guess to the
-           Discrete Scenario Reduction problem (DSR)
-        2) Local Search (LS) gives a better solution (in the 2-W sense) to the DSR problem but with
-           random starters it is expensive in time to compute.
-           Warmstarting it with Dupacova starters (LSDF), i.e. the output of Dupacova
-           Forward algorithm, both improves the quality of the solution and the
-           time needed for LS to converge. Note that for LSDF
-           variant, we reported the sum of both the time needed to compute
-           Dupacova starters and the time needed to solve LS with these
-           starters.
-        3) KMeans which aims to solve the Continuous Scenario Reduction Problem
-           (CSR) gives a distribution with similar 2-W than LS or LSDF. The
-           variant of KMeans that is used is "Greedy-Kmeans++" as implemented in
-            scikit-learn. We also observe that warmstarting KMeans with the
-            output of LSDF (KMLSDF) notably stabilizes its output.
-"""
-###############################S#################################################
-
 import numpy as np
 import matplotlib.pyplot as plt
 import time
@@ -29,87 +5,102 @@ import time
 from csr import *
 from dsr import *
 
-def experiment_normalgamma(n, deb, l):
+# Define each method separately
+def run_dupacova(distribution, m, l):
+    tic = time.time()
+    result = dupacova_forward(distribution, m, l)
+    toc = time.time() - tic
+    return result, toc
+
+def run_local_search(distribution, m, l, warm_start=None):
+    tic = time.time()
+    if warm_start is None:
+        starters = np.random.choice(np.arange(len(distribution)), m, replace=False)
+    else:
+        starters = warm_start
+    ls = BestFit(distribution, starters, l)
+    ls.local_search()
+    toc = time.time() - tic
+    return ls.get_distance(), toc
+
+def run_k_means(distribution, m, l, warm_start=None):
+    tic = time.time()
+    if warm_start is None:
+        result = k_means(distribution, m, l=l)
+    else:
+        result = k_means(distribution, m, warmcentroids=distribution.atoms[warm_start], l=l)
+    toc = time.time() - tic
+    return result, toc
+
+def run_milp(distribution, m):
+    tic = time.time()
+    result = milp(distribution, m)
+    toc = time.time() - tic
+    return result, toc
+
+# Experiment function
+def experiment_normalgamma(n, deb, l, methods_to_run):
     distribution = generate_data_normalgamma(n)
     mm = [i for i in range(10, 100, 10)]
 
-    # Initialize time and value storage for each method
-    time_df =       [0]*len(mm)
-    time_km =       [0]*len(mm)
-    time_kmlsdf =   [0]*len(mm)
-    time_ls =       [0]*len(mm)
-    time_lsdf =     [0]*len(mm)
-
-    value_df =      [0]*len(mm)
-    value_km =      [0]*len(mm)
-    value_kmlsdf =  [0]*len(mm)
-    value_ls =      [0]*len(mm)
-    value_lsdf =    [0]*len(mm)
+    # Initialize storage
+    results = {method: {'values': [], 'times': []} for method in methods_to_run}
 
     # Loop over each value of m
     for i, m in enumerate(mm):
         print(f"Running iteration {i+1}/{len(mm)}")
 
-        # Get the starters using Dupacova's method
-        tic_df = time.time()
-        df = dupacova_forward(distribution, m, l)
-        tac_df = time.time() - tic_df
-        value_df[i] = df[1]
+        warm_start = None
+        if 'Dupacova' in methods_to_run:
+            df_result, df_time = run_dupacova(distribution, m, l)
+            results['Dupacova']['values'].append(df_result[1])
+            results['Dupacova']['times'].append(df_time)
+            warm_start = df_result[0]  # Use the Dupacova starters for warm-starts
 
-        # Evaluate Local Search with random starters
-        tic_ls = time.time()
-        random_starters = np.random.choice(np.arange(n), m, replace=False)
-        ls = BestFit(distribution, random_starters, l)
-        value_ls[i] = ls.local_search()[0]
-        tac_ls = time.time() - tic_ls
+        if 'Local Search' in methods_to_run:
+            ls_value, ls_time = run_local_search(distribution, m, l)
+            results['Local Search']['values'].append(ls_value)
+            results['Local Search']['times'].append(ls_time)
 
-        # Evaluate Local Search with Dupacova Forward starters
-        tic_lsdf = time.time()
-        lsdf = BestFit(distribution, df[0], l)
-        tac_lsdf = time.time() - tic_lsdf
-        value_lsdf[i] = lsdf.local_search()[0]
+        if 'LS with Dupacova' in methods_to_run and warm_start is not None:
+            lsdf_value, lsdf_time = run_local_search(distribution, m, l, warm_start=warm_start)
+            results['LS with Dupacova']['values'].append(lsdf_value)
+            results['LS with Dupacova']['times'].append(lsdf_time + df_time)  # Include Dupacova time
 
-        # Evaluate K-Means
-        tic_km = time.time()
-        value_km[i] = k_means(distribution, m, l=l)
-        tac_km = time.time() - tic_km
+        if 'K-Means' in methods_to_run:
+            km_value, km_time = run_k_means(distribution, m, l)
+            results['K-Means']['values'].append(km_value)
+            results['K-Means']['times'].append(km_time)
 
-        # Evaluate K-Means with Dupacova Forward starters
-        tic_kmlsdf = time.time()
-        value_kmlsdf[i] = k_means(distribution, m, warmcentroids=distribution.atoms[df[0]], l=l)
-        tac_kmlsdf = time.time() - tic_kmlsdf
+        if 'KM with Dupacova' in methods_to_run and warm_start is not None:
+            kmlsdf_value, kmlsdf_time = run_k_means(distribution, m, l, warm_start=warm_start)
+            results['KM with Dupacova']['values'].append(kmlsdf_value)
+            results['KM with Dupacova']['times'].append(kmlsdf_time + df_time)  # Include Dupacova time
 
-        # Record the time taken for each method
-        time_df[i] =        tac_df
-        time_km[i] =        tac_km 
-        time_kmlsdf[i] =    tac_kmlsdf + tac_df
-        time_ls[i] =        tac_ls 
-        time_lsdf[i] =      tac_df + tac_lsdf
+        if 'MILP' in methods_to_run:
+            milp_value, milp_time = run_milp(distribution, m)
+            results['MILP']['values'].append(milp_value)
+            results['MILP']['times'].append(milp_time)
 
+    return mm, results
 
-    return mm, value_df, value_km, value_kmlsdf, value_ls, value_lsdf, time_df, time_km, time_kmlsdf, time_ls, time_lsdf
-
-def plot_results(n, mm, value_df, value_km, value_kmlsdf, value_ls, value_lsdf):
+def plot_results(n, mm, results):
     plt.figure(figsize=(10, 6))
-    plt.plot(mm, value_df,      label="Dupacova Forward (DF)")
-    plt.plot(mm, value_ls,      label="Local Search (LS)")
-    plt.plot(mm, value_km,      label="K-Means (KM)")
-    plt.plot(mm, value_lsdf,    label="LS with DF (LSDF)")
-    plt.plot(mm, value_kmlsdf,  label="KM with LSDF")
-    plt.xlabel('m')
+    for method, data in results.items():
+        plt.plot(mm, data['values'], label=method)
+
+    plt.xlabel('Number of reduced atoms')
     plt.ylabel('2-Wasserstein distance')
     plt.legend()
     plt.title(f"Efficiency Comparison, n={n}")
     plt.show()
 
-def plot_times(n, mm, time_df, time_km, time_kmlsdf, time_ls, time_lsdf):
+def plot_times(n, mm, results):
     plt.figure(figsize=(10, 6))
-    plt.plot(mm, time_df,       label="Dupacova Forward (DF)")
-    plt.plot(mm, time_km,       label="K-Means (KM)")
-    plt.plot(mm, time_ls,       label="Local Search (LS)")
-    plt.plot(mm, time_lsdf,     label="LS with DF (LSDF)")
-    plt.plot(mm, time_kmlsdf,   label="KM with LSDF")
-    plt.xlabel('m')
+    for method, data in results.items():
+        plt.plot(mm, data['times'], label=method)
+
+    plt.xlabel('Number of reduced atoms')
     plt.ylabel('Time (s)')
     plt.legend()
     plt.title(f"Efficiency Comparison, n={n}")
@@ -117,16 +108,26 @@ def plot_times(n, mm, time_df, time_km, time_kmlsdf, time_ls, time_lsdf):
 
 def main(plot_results_option=False):
     # Experiment parameters
-    n = 500
+    n = 200
     deb = 10
     l = 2
 
-    mm, value_df, value_km, value_kmlsdf, value_ls, value_lsdf, time_df, time_km, time_kmlsdf, time_ls, time_lsdf = experiment_normalgamma(n, deb, l)
+    # Define methods to run
+    methods_to_run = [
+        'Dupacova',
+        'Local Search',
+        'LS with Dupacova',
+        'K-Means',
+        'KM with Dupacova',
+        'MILP'
+    ]
+
+    mm, results = experiment_normalgamma(n, deb, l, methods_to_run)
 
     # Conditionally plot results
     if plot_results_option:
-        plot_results(n, mm, value_df, value_km, value_kmlsdf, value_ls, value_lsdf)
-        plot_times(n, mm, time_df, time_km, time_kmlsdf, time_ls, time_lsdf)
+        plot_results(n, mm, results)
+        plot_times(n, mm, results)
 
 if __name__ == "__main__":
     main(plot_results_option=True)
