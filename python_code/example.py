@@ -76,7 +76,6 @@ def main(plot_results_option=False):
 
 ################################################################################
 
-
 # Define each method separately
 def run_dupacova(distribution, m, l):
     tic = time.time()

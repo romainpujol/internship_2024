@@ -214,7 +214,7 @@ class TestMILP(unittest.TestCase):
 
         t_new_start = time.time()
         new = milp(distribution, m)
-        new_dist = np.power(new, 1/l)
+        new_dist = new
         t_new = time.time() - t_new_start
         print(f"   Time new MILP.........: {t_new:.3f}s")
 

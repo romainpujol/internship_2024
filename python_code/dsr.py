@@ -40,7 +40,7 @@ from abc import ABC, abstractmethod
 ########################## Dupacova algorithm ##################################
 ################################################################################
 
-def dupacova_forward(xi:DiscreteDistribution, m: int, l: int=2) -> Tuple[list[int], float]:
+def dupacova_forward(xi:DiscreteDistribution, m: int, l: int=2, p: int=2) -> Tuple[list[int], float]:
     """
     Perform the Forward Dupacova algorithm to reduce the number of atoms in a discrete distribution.
 
@@ -67,7 +67,7 @@ def dupacova_forward(xi:DiscreteDistribution, m: int, l: int=2) -> Tuple[list[in
     ValueError
         If `m` is greater than the number of atoms in `xi`.
     """
-    D = init_costMatrix(xi, xi, l)
+    D = init_costMatrix(xi, xi, l, p)
     n = len(xi)
     if m > n:
         raise ValueError("m is greater than the number of atoms")
@@ -137,10 +137,11 @@ class LocalSearch(ABC):
         The original discrete distribution.
     initial_indexes : list[int]
         A list of initial indices for the atoms in the reduced distribution.
+    l : int, optional
+        The parameter for the Wasserstein metric (default is 2 for 2-Wasserstein
+        distance).
     p : int, optional
         The parameter for the ground metric, typically used to define the type of norm (default is 2 for Euclidean norm).
-    l : int, optional
-        The parameter for the Wasserstein metric (default is 2 for 2-Wasserstein distance).
     rho : float, optional
         A parameter that controls the minimum improvement required for an update to be accepted (default is 0.0).
 
@@ -167,14 +168,14 @@ class LocalSearch(ABC):
     ind_to_choose : list[int]
         The indices of the atoms not included in the reduced distribution.
     """
-    def __init__(self, xi:DiscreteDistribution, initial_indexes, p: int =2, l: int = 2, rho: float = 0.0):
+    def __init__(self, xi:DiscreteDistribution, initial_indexes, l: int = 2, p: int =2, rho: float = 0.0):
         self.l = l
         self.m = len(initial_indexes)
         self.n = len(xi)
         if self.m > self.n: raise ValueError("m is greater than the number of atoms")
         self.rho = rho
         self.xi = xi
-        self.cost_m = init_costMatrix(xi, xi, l)
+        self.cost_m = init_costMatrix(xi, xi, l, p)
         self.curr_d = np.inf
         self.ind_red, self.dist_dupa = self.init_R(rho, initial_indexes)
 
@@ -304,7 +305,6 @@ class LocalSearch(ABC):
         # Container for the best current distance, without the power 1/l
         self.curr_d = np.dot(self.xi.probabilities, 
                         np.min(self.cost_m[:, self.ind_red], axis=1))
-       
         improvement = True
         while improvement:
             trial_i, trial_j, trial_d = self.pick_ij()
@@ -429,8 +429,8 @@ class FirstFit(LocalSearch):
         Computes the dot product < P, v[j] > where v[j] is the minimum distance vector 
         for a given index j, and stops as soon as an improvement is found.
     """
-    def __init__(self, xi:DiscreteDistribution, initial_indexes, l:int = 2, rho: float = 0.0, shuffle: bool = False):
-        super().__init__(xi, initial_indexes, l, rho)
+    def __init__(self, xi:DiscreteDistribution, initial_indexes, l: int = 2, p: int = 2, rho: float = 0.0, shuffle: bool = False):
+        super().__init__(xi, initial_indexes, l, p, rho)
         self.shuffle = shuffle
 
     def pick_ij(self) -> Tuple[int, int, float]:
@@ -492,7 +492,7 @@ class FirstFit(LocalSearch):
 import gurobipy as gp
 import numpy as np
 
-def milp(distrib: DiscreteDistribution, m: int, l: int = 2):
+def milp(distrib: DiscreteDistribution, m: int, l: int = 2, p: int = 2):
     """
     Formulate and solve a Mixed-Integer Linear Programming (MILP) model for 
     the given discrete distribution.
@@ -508,8 +508,9 @@ def milp(distrib: DiscreteDistribution, m: int, l: int = 2):
     m : int
         The number of elements to select in the reduced distribution.
     l : int, optional
+        The order of the Wasserstein distance to use (default is 2).
+    p : int, optional
         The norm to use (default is 2 for L2 norm).
-
     Returns
     -------
     float
@@ -518,7 +519,7 @@ def milp(distrib: DiscreteDistribution, m: int, l: int = 2):
     """
     
     n = len(distrib)
-    cost_m = init_costMatrix(distrib, distrib, l)
+    cost_m = init_costMatrix(distrib, distrib, l, p)
 
     # Define the model
     model = gp.Model("model")
