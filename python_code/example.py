@@ -1,14 +1,26 @@
 ################################################################################
-########################## A simple scalable example ###########################
+######################## A simple 2D scalable example ##########################
 ################################################################################
 #
 # The following example aims to reduce a n atoms distribution into a distribution 
-# with different values of m < n. Every Scenario Reduction method in both of
-# dsr.py and csr.py are tested.
+# with different values of m < n. The atoms of the input distribution are only
+# 2-Dimensional (one dimension is drawn from a Normal distribution and the other
+# from a Gamma distribution), but both the number of atoms n of the original
+# distribution and the number of atoms m of the reduced distribution can be
+# changed. 
 #
-# In the main function at the end one may comment the methods that should not be
-# run. The plot functions are then automatically updated accordingly to only
-# plot the methods that were ran.
+# Every Scenario Reduction method in both of dsr.py and csr.py are tested. See
+# these two files for more details on each methods mentioned.
+#
+# Even though only 2-Dimensional, we can use this 2D scalable (in n and m)
+# example to see experimental trends (that support theorical results)
+# on the behaviour of the tested methods. Both in the "quality" of the output
+# through the l-Wasserstein distance W_l(P, Q) between the original distribution
+# P and the reduced distribution Q, but also in the "CPU time" needed to compute Q.
+# 
+# In the main function just below one may comment the methods that should not be
+# run. The plot functions then adapt accordingly to only plot the methods that
+# were ran.
 #
 ################################################################################
 
@@ -22,6 +34,48 @@ from dsr import *
 ################################################################################
 ############# Customizable run of methods of dsr.py or csr.py ##################
 ################################################################################
+#
+# Simply edit the list "indices_to_run" to change the methods that need to be
+# run. There is a dependency of methods that have "... with Dupacova" in their
+# name: they need Dupacova's algorithm (index 0) to be run.
+#
+# Data n and "m" can also be changed, n directly and m through the "deb" parameter.
+#
+################################################################################
+
+def main(plot_results_option=False):
+    # Experiment parameters
+    n = 200
+    deb = 10
+    l = 2
+
+    list_of_methods = [
+        'Dupacova',             # 0
+        'Best Fit',             # 1
+        'BF with Dupacova',     # 2
+        'First Fit',            # 3
+        'FF with Dupacova',     # 4
+        'FF with shuffle',      # 5
+        'FFS with Dupacova',    # 6
+        'K-Means',              # 7
+        'KM with Dupacova',     # 8
+        'MILP'                  # 9
+    ]
+
+    # SELECT THE INDEXES OF THE METHODS YOU WANT TO BE RUN
+    # METHODS "...WITH DUPACOVA" NEED DUPACOVA TO BE RUN (index 0)
+    indices_to_run = [0, 2, 4, 5, 6, 9]
+    ###
+    
+    mm, results = experiment_normalgamma(n, deb, l, [list_of_methods[i] for i in indices_to_run])
+
+    # Conditionally plot results
+    if plot_results_option:
+        plot_results(n, mm, results)
+        plot_times(n, mm, results)
+
+################################################################################
+
 
 # Define each method separately
 def run_dupacova(distribution, m, l):
@@ -159,34 +213,6 @@ def plot_times(n, mm, results, filename="2dim_time.pdf"):
     # Save the plot to a PDF file
     plt.savefig(filename)
     plt.close()  
-
-def main(plot_results_option=False):
-    # Experiment parameters
-    n = 200
-    deb = 10
-    l = 2
-
-    # Comment methods you do NOT want to be run
-    # Note that methods "(...) with Dupacova" need Dupacova to be run
-    methods_to_run = [
-        'Dupacova',
-        'Best Fit',
-        'BF with Dupacova',
-        'First Fit',
-        'FF with Dupacova',
-        'FF with shuffle',
-        'FFS with Dupacova',
-        'K-Means',
-        'KM with Dupacova',
-        'MILP'
-    ]
-
-    mm, results = experiment_normalgamma(n, deb, l, methods_to_run)
-
-    # Conditionally plot results
-    if plot_results_option:
-        plot_results(n, mm, results)
-        plot_times(n, mm, results)
 
 if __name__ == "__main__":
     main(plot_results_option=True)

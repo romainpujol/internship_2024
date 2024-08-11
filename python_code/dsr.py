@@ -42,11 +42,30 @@ from abc import ABC, abstractmethod
 
 def dupacova_forward(xi:DiscreteDistribution, m: int, l: int=2) -> Tuple[list[int], float]:
     """
-    Given a DiscreteDistribution xi and a desired number of output atoms m,
-    compute the m indexes of the reduced distribution following the Forward
-    Dupacova algorithm; also give the vector (min_{i'} d(x_i, x_i')^l)_i which
-    can then be used to reconstruct the value of the l-Wasserstein distance
-    between input distribution and reduced distribution.
+    Perform the Forward Dupacova algorithm to reduce the number of atoms in a discrete distribution.
+
+    This function identifies a subset of `m` atoms from the discrete distribution `xi` that best represent the distribution in terms of minimizing the l-Wasserstein distance. The function returns the indices of the selected atoms and the corresponding distance metric.
+
+    Parameters
+    ----------
+    xi : DiscreteDistribution
+        The original discrete distribution from which a reduced subset of atoms is selected.
+    m : int
+        The number of atoms to select for the reduced distribution.
+    l : int, optional
+        The exponent in the l-Wasserstein distance metric (default is 2 for L2 norm).
+
+    Returns
+    -------
+    Tuple[list[int], float]
+        A tuple where the first element is a list of indices of the selected atoms, and the 
+        second element is the calculated l-Wasserstein distance between the original distribution 
+        and the reduced distribution after reallocation of the weights.
+
+    Raises
+    ------
+    ValueError
+        If `m` is greater than the number of atoms in `xi`.
     """
     D = init_costMatrix(xi, xi, l)
     n = len(xi)
@@ -72,15 +91,32 @@ def dupacova_forward(xi:DiscreteDistribution, m: int, l: int=2) -> Tuple[list[in
 
 def dupacova_selection(xi: DiscreteDistribution, ind: np.ndarray, cost_m: np.ndarray, min_cost: np.ndarray) -> int:
     """
-    Compute argmin_{i in indexes} D_l(P, R u {x_i}), assuming that one knows 
-        min_{i' in R} c(x_i, x_i') for every i. 
-    The DiscreteDistribution P has atoms (x_i)_i and R is a subset of the atoms of P. We add x_i to R among the atoms of in indexes that minimizes the above criterium.
+    Select the atom that minimizes the l-Wasserstein distance when added to the reduced distribution.
+
+    This function computes the index of the atom in `ind` that, when added to the reduced 
+    distribution, minimizes the l-Wasserstein distance between the original
+    distribution and the reduced distribution after reallocation of the weights.
+
+    Parameters
+    ----------
+    xi : DiscreteDistribution
+        The original discrete distribution.
+    ind : np.ndarray
+        An array of indices representing the atoms to consider for addition to the reduced distribution.
+    cost_m : np.ndarray
+        A precomputed cost matrix containing the pairwise distances between atoms in `xi`.
+    min_cost : np.ndarray
+        An array storing the current minimum distances for each atom.
+
+    Returns
+    -------
+    Tuple[int, int]
+        A tuple containing the index of the selected atom and its position in the `ind` array.
     """
     min_costs = np.minimum(min_cost, cost_m[ind])
     dist =      np.dot(min_costs, xi.probabilities)
     i_tmp =     np.argmin(dist)
     return ind[i_tmp], i_tmp
-
 
 ################################################################################
 ############################ Local search class ################################
@@ -88,16 +124,50 @@ def dupacova_selection(xi: DiscreteDistribution, ind: np.ndarray, cost_m: np.nda
 
 class LocalSearch(ABC):
     """
-    For local search, there are many variants that can be considered. Thus,
-    we first define local search in an abstract class. Then each variant
-    would only need to implement the abstract function of the abstract
-    class.
-    
-    Optional parameter p that changes the improvement condition to only
-    accept improvements of at least p*distance(P, Q) where Q is the
-    result of Dupacova's algorithm.
+    Abstract base class for implementing different variants of local search algorithms.
+
+    The `LocalSearch` class provides a framework for local search algorithms aimed at 
+    minimizing the l-Wasserstein distance between an original distribution and a reduced 
+    distribution. Concrete implementations of this class must implement the `pick_ij` method, 
+    which defines the strategy for selecting pairs of atoms to swap in the reduced distribution.
+
+    Parameters
+    ----------
+    xi : DiscreteDistribution
+        The original discrete distribution.
+    initial_indexes : list[int]
+        A list of initial indices for the atoms in the reduced distribution.
+    p : int, optional
+        The parameter for the ground metric, typically used to define the type of norm (default is 2 for Euclidean norm).
+    l : int, optional
+        The parameter for the Wasserstein metric (default is 2 for 2-Wasserstein distance).
+    rho : float, optional
+        A parameter that controls the minimum improvement required for an update to be accepted (default is 0.0).
+
+    Attributes
+    ----------
+    l : int
+        The parameter for the Wasserstein metric.
+    m : int
+        The number of atoms in the reduced distribution.
+    n : int
+        The number of atoms in the original distribution.
+    rho : float
+        The minimum improvement required for an update.
+    xi : DiscreteDistribution
+        The original discrete distribution.
+    cost_m : np.ndarray
+        The cost matrix containing pairwise distances between atoms.
+    curr_d : float
+        The current l-Wasserstein distance between the original distribution and the reduced distribution.
+    ind_red : list[int]
+        The indices of the atoms in the reduced distribution.
+    dist_dupa : float
+        The l-Wasserstein distance from the Dupacova algorithm.
+    ind_to_choose : list[int]
+        The indices of the atoms not included in the reduced distribution.
     """
-    def __init__(self, xi:DiscreteDistribution, initial_indexes, l:int = 2, rho: float = 0.0):
+    def __init__(self, xi:DiscreteDistribution, initial_indexes, p: int =2, l: int = 2, rho: float = 0.0):
         self.l = l
         self.m = len(initial_indexes)
         self.n = len(xi)
@@ -117,10 +187,29 @@ class LocalSearch(ABC):
 
     def init_R(self, rho: float, init_ind: list[int]) -> Tuple[list[int], float]:
         """
-        Initialize the reduced set R subset of the support of xi by modifying
-        in-place the internal variable ind_reduced. Also saves the value of
-        d(P, Q) where P is input distribution and Q is the reduced one
-        obtained by Forward Dupacova's algorithm.
+        Initialize the reduced set of atoms and compute the initial l-Wasserstein distance.
+
+        This method initializes the reduced set of atoms (`ind_red`) by either using 
+        the given initial indices or by running the Dupacova algorithm (if `rho > 0`). 
+        It also computes the initial l-Wasserstein distance between the original distribution 
+        and the reduced distribution.
+
+        Parameters
+        ----------
+        rho : float
+            The parameter that controls the minimum improvement required for an update.
+        init_ind : list[int]
+            The initial indices for the atoms in the reduced distribution.
+
+        Returns
+        -------
+        Tuple[list[int], float]
+            A tuple containing the initialized indices and the corresponding l-Wasserstein distance.
+
+        Raises
+        ------
+        ValueError
+            If `rho` is negative.
         """
         if rho < 0:
             raise ValueError("rho should be nonnegative: {rho} was given")
@@ -132,30 +221,51 @@ class LocalSearch(ABC):
 
     def improvement_condition(self, trial_d:float) -> bool:
         """
-        Returns a bool which is True iff the new reduced distribution 
-        R u {x_i} \ {x_j} is "improving (enough)" the l-Wass. between
-        xi and the new reduced distrib. 
+        Determine whether a candidate update improves the l-Wasserstein distance sufficiently.
+
+        This method checks whether the candidate update (specified by `trial_d`) improves 
+        the l-Wasserstein distance between the original distribution and the reduced distribution 
+        by a sufficient amount, as determined by `rho`.
+
+        Parameters
+        ----------
+        trial_d : float
+            The l-Wasserstein distance of the candidate update.
+
+        Returns
+        -------
+        bool
+            True if the candidate update improves the current distance sufficiently; otherwise, False.
         """
         return (trial_d < self.curr_d) if (self.rho <= 0) else (trial_d < self.curr_d - self.rho*self.dist_dupa)        
 
     @abstractmethod
     def pick_ij(self, indexes: np.ndarray) -> Tuple[int, int, float]:
         """
-        Given two atoms (known through their respective index), compute a pair
-        of indexes (i,j) such that the i-th atom is removed from R and the j-th
-        atom of Q is added to R. During that computation, the l-Wasserstein
-        distance between xi and the best distribution that is supported on R u {x_i} \ {x_j}, which is also returned.
-    
-        Can have additional internal criteria.  
-    
-        It is in this function that the core difference between local search
-        variants (best-fit, first-fit, random-fit) are expected to be expressed.
+        Abstract method to select a pair of indices (i, j) for swapping atoms in the reduced distribution.
+
+        This method should be implemented in concrete subclasses to define the strategy for selecting a pair of atoms to swap. The method should return the indices of the atoms to swap and the resulting l-Wasserstein distance.
+
+        Returns
+        -------
+        Tuple[int, int, float]
+            A tuple containing the indices of the atom to remove, the atom to add, and the resulting distance.
         """
         pass
 
     def swap_indexes(self, trial_i: int, trial_j: int):
         """
-            Update the current indexes containers by swapping i with j
+        Swap atoms in the reduced distribution and update the indices accordingly.
+
+        This method updates the reduced distribution by removing the atom at index `trial_i` 
+        and adding the atom at index `trial_j`. It also updates the internal index containers.
+
+        Parameters
+        ----------
+        trial_i : int
+            The index of the atom to remove from the reduced distribution.
+        trial_j : int
+            The index of the atom to add to the reduced distribution.
         """
         bisect.insort(self.ind_to_choose, trial_i)
         self.ind_red.pop(bisect.bisect_left(self.ind_red, trial_i))
@@ -164,15 +274,32 @@ class LocalSearch(ABC):
         self.ind_to_choose.pop(bisect.bisect_left(self.ind_to_choose, trial_j))
 
     def get_distance(self):
+        """
+        Get the current l-Wasserstein distance between the original and reduced distributions.
+
+        Returns
+        -------
+        float
+            The current l-Wasserstein distance.
+        """
         return np.power(self.curr_d, 1/self.l)
     
     def get_reduced_atoms(self):
+        """
+        Get the atoms of the reduced distribution.
+
+        Returns
+        -------
+        np.ndarray
+            The atoms in the reduced distribution.
+        """
         return self.xi.get_atoms()[self.ind_red]
 
     def local_search(self) -> None:
         """
-            Outline of the local_search algorithm that still depends on an
-            implementation of pick_ij()
+        Perform the local search algorithm to minimize the l-Wasserstein distance.
+
+        This method runs the local search algorithm by iteratively selecting pairs of atoms to swap (using `pick_ij`) and updating the reduced distribution until no further improvement is possible.
         """
         # Container for the best current distance, without the power 1/l
         self.curr_d = np.dot(self.xi.probabilities, 
@@ -192,10 +319,39 @@ class LocalSearch(ABC):
 ################################################################################
 
 class BestFit(LocalSearch):
+    """
+    BestFit is a local search algorithm that iteratively selects the best pair (i, j)
+    that minimizes the l-Wasserstein distance between the original distribution and
+    the reduced distribution. The algorithm evaluates all possible swaps to identify
+    the optimal pair that leads to the greatest improvement.
 
+    Methods
+    -------
+    pick_ij() -> Tuple[int, int, float]
+        Identifies the best pair of indices (i, j) such that the l-Wasserstein 
+        distance is minimized when the i-th atom is removed and the j-th atom is added.
+    
+    bestfit_selection() -> Tuple[int, float]
+        Evaluates all possible indices in `ind_to_choose` to find the optimal index j 
+        that minimizes the distance when added to the reduced distribution.
+    """
     def pick_ij(self) -> Tuple[int, int, float]:
         """
-            Computes the couple (i,j) such that D_l^l(P, R \ {x_i} u {x_j}) is minimized.
+        Identifies the best pair of indices (i, j) such that the l-Wasserstein 
+        distance is minimized when the i-th atom is removed from the reduced 
+        distribution and the j-th atom is added (and weights are reallocated).
+
+        The method iterates over all current atoms in the reduced distribution, 
+        temporarily removing each one and calculating the best possible swap 
+        with atoms not currently in the reduced distribution.
+
+        Returns
+        -------
+        Tuple[int, int, float]
+            A tuple containing:
+            - The index of the atom to remove (i).
+            - The index of the atom to add (j).
+            - The resulting l-Wasserstein distance after the swap.
         """
         # Holder for ( D_l^l(P, R \ {x_i} \cup x_J[i] )_{1 \leq i' \leq n}
         dist = np.full(self.n, np.inf)
@@ -213,17 +369,19 @@ class BestFit(LocalSearch):
  
     def bestfit_selection(self) -> Tuple[int, float]:
         """
-        Compute J(i) = argmin_{j \in ind_to_choose} < P, v[j] > where 
-            v[j] := [ min_{ z \in Ri \cup {x[j]} } c( x_k, z ) ]_{0 \leq k \leq n-1}
-         and also return the associated value.
+        Computes the best index j to add to the reduced distribution by evaluating 
+        the minimum distance between the current atoms and all possible additions.
 
-         Observe that for every 1 \leq k \leq n-1 we have
-            v[j][k] = min[ w_k, c(x_k, x_j) ],
-        where w_k = min_{z \in Ri} c(x_k,z). That is, we have
-            v[j] = min[ w, C ],
-        where w = (w_k)_k and C = (c(x_k, x_j))_k. 
+        The method leverages vectorization to efficiently compute the new distances 
+        for all potential candidates and selects the one that minimizes the 
+        l-Wasserstein distance.
 
-        The above decomposition allows us to vectorize the computation of v[j].
+        Returns
+        -------
+        Tuple[int, float]
+            A tuple containing:
+            - The index j of the atom to add to the reduced distribution.
+            - The resulting distance associated with adding this atom.
         """
         # Compute the vector w (see docstring)
         min_on_Ri = np.min(self.cost_m[:, self.ind_red], axis=1)
@@ -257,7 +415,7 @@ class FirstFit(LocalSearch):
         The norm used for distance calculations (default is 2 for L2 norm).
     rho : float, optional
         Proportion (default is 0.0) of d(xi, Q) that an improvement should do in
-        order to be accepted, where Q is the output of Dupacova'slgorithm .
+        order to be accepted, where Q is the output of Dupacova'slgorithm.
     shuffle : bool, optional
         If True, the list of indices is shuffled at each iteration to introduce randomness (default is False).
 
@@ -277,7 +435,11 @@ class FirstFit(LocalSearch):
 
     def pick_ij(self) -> Tuple[int, int, float]:
         """
-        Selects the best pair of indices (i, j) based on the first-fit heuristic.
+        Selects the first pair of indices (i, j) that provides an improvement 
+        in the l-Wasserstein distance between the original and reduced distributions.
+
+        If `shuffle` is True, the list of reduced indices is shuffled before 
+        iterating to introduce randomness in the search.
 
         Returns
         -------
@@ -332,19 +494,27 @@ import numpy as np
 
 def milp(distrib: DiscreteDistribution, m: int, l: int = 2):
     """
-    Formulate and solve a MILP model for the given distribution.
+    Formulate and solve a Mixed-Integer Linear Programming (MILP) model for 
+    the given discrete distribution.
 
-    Parameters:
-    distrib: DiscreteDistribution
-        The distribution over which to compute the MILP formulation.
-    m: int
-        The number of elements to select.
-    l: int
-        The norm to use (default is L2 norm, l=2).
+    The MILP model aims to minimize the l-Wasserstein distance between the 
+    original distribution and a reduced distribution with m atoms with optimal
+    weights reallocation. The optimization is performed using Gurobi.
 
-    Returns:
+    Parameters
+    ----------
+    distrib : DiscreteDistribution
+        The discrete distribution over which to compute the MILP formulation.
+    m : int
+        The number of elements to select in the reduced distribution.
+    l : int, optional
+        The norm to use (default is 2 for L2 norm).
+
+    Returns
+    -------
     float
-        The optimal objective value of the MILP model.
+        The optimal objective value of the MILP model, representing the minimized 
+        l-Wasserstein distance.
     """
     
     n = len(distrib)
